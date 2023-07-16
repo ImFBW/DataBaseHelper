@@ -1,0 +1,81 @@
+﻿@{
+    Layout = "_LayoutMain";
+    ViewData["Title"] = "选择服务器";
+}
+<div class="container-fulid">
+    <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <p><h3>请选择服务器：</h3></p>
+            </div>
+        </div>
+        <div class="row">
+            <div id="servicesCardList" class="col-12 text-center d-flex justify-content-center flex-wrap">
+                <div class="card">
+                    <a href="/database/search/?id=1" target="_self">
+                    <div class="card-body">
+                        <h5 class="card-title">本地测试服务器</h5>
+                        <p class="card-text">地址：MYPC-XIAOBO\SQLEXPRESS</p>
+                        <p class="card-text">来源：Local</p>
+                        <p class="card-text intro">简介：本地库-JunYiArt</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="card">
+                    <a href="/database/search/?id=12" target="_self">
+                    <div class="card-body">
+                        <h5 class="card-title">我爱北京天安门国庆节快乐</h5>
+                        <p class="card-text">地址：16.135.15.13:5596</p>
+                        <p class="card-text">来源：阿里云</p>
+                        <p class="card-text intro">简介：啊哈哈哈哈</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="card">
+                    <a href="/database/search/?id=13" target="_self">
+                    <div class="card-body">
+                        <h5 class="card-title">ABCDEABCDEABCDEABCD</h5>
+                        <p class="card-text">地址：181.129.167.126::555678</p>
+                        <p class="card-text">来源：腾讯云服务器</p>
+                        <p class="card-text intro">简介：联想客户专用服务器，货物仓库服务器</p>
+                    </div>
+                    </a>
+                </div>
+                <div class="card">
+                    <a href="/database/search/?id=14" target="_self">
+                    <div class="card-body">
+                        <h5 class="card-title">ABCDEABCDEABCDEABCD</h5>
+                        <p class="card-text">地址：181.129.167.126::555678</p>
+                        <p class="card-text">来源：腾讯云服务器</p>
+                        <p class="card-text intro">简介：联想客户专用服务器，货物仓库服务器</p>
+                    </div>
+                    </a>
+                </div>
+                <div class="card">
+                    <a href="/database/search/?id=16" target="_self">
+                        <div class="card-body">
+                            <h5 class="card-title">ABCDEABCDEABCDEABCD</h5>
+                            <p class="card-text">地址：181.129.167.126::555678</p>
+                            <p class="card-text">来源：腾讯云服务器</p>
+                            <p class="card-text intro">简介：联想客户专用服务器，货物仓库服务器</p>
+                        </div>
+                    </a>
+                </div>
+                <div class="card">
+                    <a href="/database/search/?id=17" target="_self">
+                        <div class="card-body">
+                            <h5 class="card-title">ABCDEABCDEABCDEABCD</h5>
+                            <p class="card-text">地址：181.129.167.126::555678</p>
+                            <p class="card-text">来源：腾讯云服务器</p>
+                            <p class="card-text intro">简介：联想客户专用服务器，货物仓库服务器</p>
+                        </div>
+                    </a>
+                </div>
+               
+                @*<div id="servicesNoData" class="alert alert-light text-center" role="alert">
+                未找到配置的服务器！<a href="#" class="btn btn-link">去配置>></a>
+                </div>*@
+            </div>
+        </div>
+    </div>
+</div>
