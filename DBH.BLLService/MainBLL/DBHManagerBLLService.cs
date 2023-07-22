@@ -19,15 +19,26 @@ namespace DBH.BLLService.MainBLL
             _dBHManagerDALProvider = dBHManagerDALProvider;
         }
 
+        /// <summary>
+        /// 获取全部的服务配置
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public async Task<IList<FS_ServicesEntity>> GetServicesConfigListAsync()
+        {
+            return await _dBHManagerDALProvider.GetServicesConfigListAsync();
+        }
 
         /// <summary>
-        /// 
+        /// 获取一个实体
         /// </summary>
-        /// <param name="ID"></param>
+        /// <param name="ID">主键ID</param>
         /// <returns></returns>
-        public async Task<FS_ServicesEntity> TestAsync(int ID)
+        public async Task<FS_ServicesEntity> GetServicesEnvityAsync(int ID)
         {
-            return await _dBHManagerDALProvider.TestAsync(ID);
+            if (ID <= 0) return new FS_ServicesEntity();
+            return await _dBHManagerDALProvider.GetServicesEnvityAsync(ID);
         }
+
     }
 }

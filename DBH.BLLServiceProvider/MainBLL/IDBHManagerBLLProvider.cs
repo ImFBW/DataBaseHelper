@@ -10,10 +10,18 @@ namespace DBH.BLLServiceProvider.MainBLL
     public interface IDBHManagerBLLProvider : IBaseBLLProvider
     {
         /// <summary>
-        /// 
+        /// 获取全部的服务配置
         /// </summary>
-        /// <param name="ID"></param>
         /// <returns></returns>
-        Task<FS_ServicesEntity> TestAsync(int ID);
+        Task<IList<FS_ServicesEntity>> GetServicesConfigListAsync();
+
+        /// <summary>
+        /// 获取一个实体
+        /// </summary>
+        /// <param name="ID">主键ID</param>
+        /// <returns></returns>
+        Task<FS_ServicesEntity> GetServicesEnvityAsync(int ID);
+
+
     }
 }

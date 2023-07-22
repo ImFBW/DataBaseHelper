@@ -1,81 +1,87 @@
-﻿@{
+﻿@using DBH.Models.Entitys;
+
+@{
     Layout = "_LayoutMain";
-    ViewData["Title"] = "选择服务器";
+    ViewData["Title"] = "选择数据库";
+    IList<FS_ServicesEntity> listEntity = (IList<FS_ServicesEntity>)ViewData["listEntity"];
+    //string title = Model.DataBaseName;
 }
 <div class="container-fulid">
     <div class="container">
-        <div class="row">
-            <div class="col-12">
-                <p><h3>请选择服务器：</h3></p>
+        <div class="row pb-2 border-bottom">
+            <div class="col-6">
+                <p><h3>请选择数据库：</h3></p>
+
+            </div>
+            <div class="col-6">
+                <ul class="nav justify-content-end">
+                    <li class="nav-item">
+                        <a class="nav-link" aria-current="page" onclick="PopwinAddDataBaseConfig()" href="javascript:void(0);">添加数据库</a>
+                    </li>
+                </ul>
             </div>
         </div>
         <div class="row">
             <div id="servicesCardList" class="col-12 text-center d-flex justify-content-center flex-wrap">
-                <div class="card">
-                    <a href="/database/search/?id=1" target="_self">
-                    <div class="card-body">
-                        <h5 class="card-title">本地测试服务器</h5>
-                        <p class="card-text">地址：MYPC-XIAOBO\SQLEXPRESS</p>
-                        <p class="card-text">来源：Local</p>
-                        <p class="card-text intro">简介：本地库-JunYiArt</p>
+                @{
+                    if (listEntity.Count > 0)
+                    {
+                        for (int i = 0; i < listEntity.Count; i++)
+                        {
+                            string serverAddress = listEntity[i].ServerAddress;
+                            if (!string.IsNullOrEmpty(listEntity[i].ServerAddress2))
+                            {
+                                serverAddress += "(" + listEntity[i].ServerAddress2 + ")";
+                            }
+                            <div class="card">
+                                <a href="/database/search/?id=@(Html.Raw(listEntity[i].ID))" target="_self">
+                                    <div class="card-body">
+                                        <h5 class="card-title">@(Html.Raw(listEntity[i].DataBaseName))</h5>
+                                        <p class="card-text">地址：@(Html.Raw(serverAddress))</p>
+                                        <p class="card-text">来源：Local</p>
+                                        <p class="card-text intro">简介：@(Html.Raw(listEntity[i].DataBaseIntro))</p>
+                                    </div>
+                                </a>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+
+                        <div id="servicesNoData" class="alert alert-light text-center" role="alert">
+                            未找到配置的数据库！<a href="javascript:void(0);" class="btn btn-link">现在配置>></a>
                         </div>
-                    </a>
+                    }
+                }
+                @* <div class="card">
+                <a href="/database/search/?id=1" target="_self">
+                <div class="card-body">
+                <h5 class="card-title">本地测试服务器</h5>
+                <p class="card-text">地址：MYPC-XIAOBO\SQLEXPRESS</p>
+                <p class="card-text">来源：Local</p>
+                <p class="card-text intro">简介：本地库-JunYiArt</p>
+                </div>
+                </a>
                 </div>
                 <div class="card">
-                    <a href="/database/search/?id=12" target="_self">
-                    <div class="card-body">
-                        <h5 class="card-title">我爱北京天安门国庆节快乐</h5>
-                        <p class="card-text">地址：16.135.15.13:5596</p>
-                        <p class="card-text">来源：阿里云</p>
-                        <p class="card-text intro">简介：啊哈哈哈哈</p>
-                        </div>
-                    </a>
+                <a href="/database/search/?id=17" target="_self">
+                <div class="card-body">
+                <h5 class="card-title">正式数据库</h5>
+                <p class="card-text">地址：181.129.167.126::555678</p>
+                <p class="card-text">来源：腾讯云服务器</p>
+                <p class="card-text intro">简介：联想客户专用服务器，货物仓库服务器</p>
                 </div>
-                <div class="card">
-                    <a href="/database/search/?id=13" target="_self">
-                    <div class="card-body">
-                        <h5 class="card-title">ABCDEABCDEABCDEABCD</h5>
-                        <p class="card-text">地址：181.129.167.126::555678</p>
-                        <p class="card-text">来源：腾讯云服务器</p>
-                        <p class="card-text intro">简介：联想客户专用服务器，货物仓库服务器</p>
-                    </div>
-                    </a>
-                </div>
-                <div class="card">
-                    <a href="/database/search/?id=14" target="_self">
-                    <div class="card-body">
-                        <h5 class="card-title">ABCDEABCDEABCDEABCD</h5>
-                        <p class="card-text">地址：181.129.167.126::555678</p>
-                        <p class="card-text">来源：腾讯云服务器</p>
-                        <p class="card-text intro">简介：联想客户专用服务器，货物仓库服务器</p>
-                    </div>
-                    </a>
-                </div>
-                <div class="card">
-                    <a href="/database/search/?id=16" target="_self">
-                        <div class="card-body">
-                            <h5 class="card-title">ABCDEABCDEABCDEABCD</h5>
-                            <p class="card-text">地址：181.129.167.126::555678</p>
-                            <p class="card-text">来源：腾讯云服务器</p>
-                            <p class="card-text intro">简介：联想客户专用服务器，货物仓库服务器</p>
-                        </div>
-                    </a>
-                </div>
-                <div class="card">
-                    <a href="/database/search/?id=17" target="_self">
-                        <div class="card-body">
-                            <h5 class="card-title">ABCDEABCDEABCDEABCD</h5>
-                            <p class="card-text">地址：181.129.167.126::555678</p>
-                            <p class="card-text">来源：腾讯云服务器</p>
-                            <p class="card-text intro">简介：联想客户专用服务器，货物仓库服务器</p>
-                        </div>
-                    </a>
-                </div>
-               
-                @*<div id="servicesNoData" class="alert alert-light text-center" role="alert">
-                未找到配置的服务器！<a href="#" class="btn btn-link">去配置>></a>
+                </a>
                 </div>*@
+
             </div>
         </div>
     </div>
 </div>
+@section scripts{
+    <script src="~/js/database/database.js"></script>
+
+<script type="text/javascript">
+   
+</script>
+}

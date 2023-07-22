@@ -18,10 +18,7 @@ namespace DataBaseHelper.Controllers
 
         public async Task<IActionResult> Index()
         {
-            FS_ServicesEntity fS_ServicesEntity = new FS_ServicesEntity();
-            fS_ServicesEntity = await _DBHManagerBLLProvider.TestAsync(1);
-            _logger.LogDebug("Debug : Home --> Index");
-            return View(fS_ServicesEntity);
+            return View();
         }
 
         public IActionResult Privacy()

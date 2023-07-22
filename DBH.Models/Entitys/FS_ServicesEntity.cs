@@ -57,9 +57,9 @@ namespace DBH.Models.Entitys
         public string DataBaseIntro { get; set; } = "";
 
         /// <summary>
-        /// 来源,1电信通,2阿里云,3腾讯云,4华为云...
+        /// 来源,关系表主键ID
         /// </summary>
-        public int TypeSource { get; set; } = 0;
+        public int SourceID { get; set; } = 0;
 
         /// <summary>
         /// 是否使用中，1是，0否

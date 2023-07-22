@@ -27,13 +27,13 @@
                     </div>
                 </a>
                 <div class="navbar-collapse fs-6 collapse d-sm-inline-flex justify-content-between">
-                    @*选择服务器按钮*@
+                    @*选择数据库按钮*@
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link nav-myLink text-light" asp-area="" asp-controller="DataBase" asp-action="Index">选择服务器</a>
+                            <a class="nav-link nav-myLink text-light" asp-area="" asp-controller="DataBase" asp-action="Index">选择数据库</a>
                         </li>
                     </ul>
-                    @*顶部导航-服务器展示*@
+                    @*顶部导航-[服务器-数据库]展示*@
                     <ul class="navbar-nav flex-grow-1 justify-content-end">
                         <li class="nav-item text-light">
                             <!--<div class="text-light d-inline-block" style="width:3px;height:100%;background-color:#727cf5;margin-right:10px;float: left;"></div>-->
@@ -43,7 +43,7 @@
                     @*顶部导航-最右侧的按钮*@
                     @*<ul class="navbar-nav nav justify-content-end flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-white" href="/database/index"><i class="bi-server"></i>选择服务器</a>
+                    <a class="nav-link text-white" href="/database/index"><i class="bi-server"></i>选择数据库</a>
                         </li>
                     </ul>*@
                 </div>
@@ -67,6 +67,7 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/lib/layui/layui.js"></script>
     <script src="~/js/helper.js"></script>
+    <script src="~/lib/formmaster/jquery.form.min.js"></script>
     <script>
         (function () {
             'use strict'

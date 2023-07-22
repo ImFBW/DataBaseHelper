@@ -11,6 +11,7 @@ using Dapper;
 using DBH.Models.Entitys;
 using System.Data;
 using DBH.DALProvider;
+using DBH.Models.EntityViews;
 
 namespace DBH.DALServices.MainDAL
 {
@@ -23,21 +24,42 @@ namespace DBH.DALServices.MainDAL
             ConnectionProvider.ConnectionString = configuretion.GetConnectionString("DBMSToolConnection").ToString();//配置连接字符串
             ConnectionProvider.DBCategory = DBCategory.SqlServer;
         }
-        
+
         /// <summary>
-        /// 
+        /// 获取全部的服务配置
         /// </summary>
-        /// <param name="ID"></param>
         /// <returns></returns>
-        public async Task<FS_ServicesEntity> TestAsync(int ID)
+        /// <exception cref="NotImplementedException"></exception>
+        public async Task<IList<FS_ServicesEntity>> GetServicesConfigListAsync()
+        {
+            IList<FS_ServicesEntity> listEntity = new List<FS_ServicesEntity>();
+            IList<FS_ServicesView> listViewEntity = new List<FS_ServicesView>();
+            using (var conn = ConnectionProvider.GetConnection())
+            {
+                string sql = $"SELECT s.*,ss.SourceName From FS_Services  s WITH(NOLOCK) LEFT JOIN FS_ServiceSource ss WITH(NOLOCK) ON s.SourceID=ss.ID WHERE s.IsInUse=1 AND s.IsDel=0  ORDER BY s.id ASC";
+                var resultData = await conn.QueryAsync<FS_ServicesView>(sql, commandType: CommandType.Text);
+                listViewEntity = resultData.ToList();
+            }
+            return listEntity;
+        }
+
+        /// <summary>
+        /// 获取一个实体
+        /// </summary>
+        /// <param name="ID">主键ID</param>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        public async Task<FS_ServicesEntity> GetServicesEnvityAsync(int ID)
         {
             FS_ServicesEntity entity = new FS_ServicesEntity();
             using (var conn = ConnectionProvider.GetConnection())
             {
-                string sql = $"SELECT Top 1 * From FS_Services WHERE ID ={ID}";
+                string sql = $"SELECT Top 1 * From FS_Services WITH(NOLOCK) WHERE ID ={ID}";
                 entity = await conn.QueryFirstOrDefaultAsync<FS_ServicesEntity>(sql, commandType: CommandType.Text);
             }
             return entity;
         }
+
+
     }
 }
