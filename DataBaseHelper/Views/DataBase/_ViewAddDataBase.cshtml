@@ -2,45 +2,74 @@
     Layout = "_LayoutNull";
     ViewData["Title"] = "添加数据库";
 }
-<div>
+@section Styles{
+
+}
+<div class="mt-4 mb-4">
     <form class="row g-3 needs-vaildation" novalidate>
-        <div class="col-md-8">
-            <label>地址：</label>
-            <input type="text" class="form-control" id="databaseAddress" name="Address" value="" required />
+        <div class="col-md-3 text-end"><label>数据库地址：</label></div>
+        <div class="col-md-6">
+            <input type="text" class="form-control" id="databaseAddress" name="DBAddress" value="" required />
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="vaild-feedback"></div>
         </div>
-        <div class="col-md-8">
-            <label>端口：</label>
-            <input type="text" class="form-control" id="databaseAddress" name="Address" value="" required />
+        <div class="col-md-3 text-end"><label>端口：</label></div>
+        <div class="col-md-6">
+            <input type="text" class="form-control" id="databasePort" name="DBPort" value="" required />
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="vaild-feedback"></div>
         </div>
-        <div class="col-md-8">
-            <label>来源：</label>
-            <input type="text" class="form-control" id="databaseAddress" name="Address" value="" required />
+        <div class="col-md-3 text-end"><label>来源：</label></div>
+        <div class="col-md-6">
+            @*<div class="layui-col-md6">
+                <select>
+                    <option value="">请选择</option>
+                    <option value="AAA">选项 A</option>
+                    <option value="BBB">选项 B</option>
+                    <option value="CCC">选项 C</option>
+                </select>
+            </div>*@
+            <input type="text" class="form-control" id="databaseSource" name="DBSource" value="" required />
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="vaild-feedback"></div>
         </div>
-        <div class="col-md-8">
-            <label>数据库名称：</label>
-            <input type="text" class="form-control" id="databaseAddress" name="Address" value="" required />
+        <div class="col-md-3 text-end"><label>数据库名称：</label></div>
+        <div class="col-md-6">
+            <input type="text" class="form-control" id="databaseName" name="DBName" value="" required />
         </div>
-        <div class="col-md-4">
-            <div class="vaild-feedback"></div>
-        </div> 
-        <div class="col-md-8">
-            <label>数据库介绍：</label>
-            <input type="text" class="form-control" id="databaseAddress" name="Address" value="" required />
-        </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="vaild-feedback"></div>
         </div>
-        <div class="col-12">
-            <button class="btn btn-primary" type="submit">Submit form</button>
+        <div class="col-md-3 text-end"><label>登陆账号：</label></div>
+        <div class="col-md-6">
+            <input type="text" class="form-control" id="databaseLoginName" name="DBLoginName" value="" required />
+        </div>
+        <div class="col-md-3">
+            <div class="vaild-feedback"></div>
+        </div>
+        <div class="col-md-3 text-end"><label>登陆密码：</label></div>
+        <div class="col-md-6">
+            <input type="text" class="form-control" id="databaseLoginPassword" name="DBLoginPassword" value="" required />
+        </div>
+        <div class="col-md-3">
+            <div class="vaild-feedback"></div>
+        </div>
+        <div class="col-md-3 text-end"><label>数据库介绍：</label></div>
+        <div class="col-md-6">
+            <input type="text" class="form-control" id="databaseIntro" name="DBIntro" value="" required />
+        </div>
+        <div class="col-md-3 text-end">
+            <div class="vaild-feedback"></div>
+        </div>
+        <div class="col-4">
+        </div>
+        <div class="col-4 d-grid">
+            <button class="btn btn-primary btn-sm" type="submit">Submit form</button>
+        </div>
+        <div class="col-4">
         </div>
     </form>
 </div>

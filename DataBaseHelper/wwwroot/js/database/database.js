@@ -5,16 +5,14 @@ function PopwinAddDataBaseConfig() {
     layer.open({
         type: 2,
         content: ['/DataBase/_ViewAddDataBase', 'yes'],
-        area: ['660px', '420px'], 
+        area: ['780px', '540px'], 
         title: "添加数据库",
         shade: 0.6,
         shadeClose: false,
         btnAlign:'c',
         maxmin: false,
-        btn: ["  确定  ", "取消"],
-        yes: function (index,layero) {
-            layer.msg("OK");
-        }
+        //btn: ["  确定  ", "取消"],
+       //
     })
 
 }

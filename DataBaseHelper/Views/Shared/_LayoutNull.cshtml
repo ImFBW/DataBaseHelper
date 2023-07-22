@@ -6,7 +6,9 @@
     <title>@ViewData["Title"] - DataBaseHelper</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/lib/layui/css/layui.css" />
     <link rel="stylesheet" href="~/DataBaseHelper.styles.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 <body>
     <div class="container">
