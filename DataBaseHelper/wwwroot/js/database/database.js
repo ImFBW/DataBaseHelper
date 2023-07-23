@@ -1,4 +1,6 @@
-﻿/**
+﻿
+
+/**
     * 添加数据库弹窗
     */
 function PopwinAddDataBaseConfig(id) {
@@ -18,5 +20,4 @@ function PopwinAddDataBaseConfig(id) {
         //btn: ["  确定  ", "取消"],
         //
     })
-
 }

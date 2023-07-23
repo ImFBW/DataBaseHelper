@@ -65,6 +65,12 @@ namespace DataBaseHelper.Controllers
 
         #endregion
 
-
+        #region AjaxRequest的处理
+        public async Task<IActionResult> DBServcieSave()
+        {
+            object obj = new { message = "success", code = "100" };
+            return Json(obj);
+        }
+        #endregion
     }
 }

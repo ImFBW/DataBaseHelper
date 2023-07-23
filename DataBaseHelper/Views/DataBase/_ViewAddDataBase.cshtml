@@ -9,7 +9,7 @@
 
 }
 <div class="mt-4 mb-4">
-    <form class="row g-3 layui-form needs-vaildation" novalidate>
+    <form id="saveDBserviceForm" method="post" action="/database/DBServcieSave/" class="row g-3 layui-form needs-vaildation" novalidate>
         <div class="col-md-3 text-end"><label class="col-md-10 col-form-label">数据库地址<span class="text-danger">*</span>：</label></div>
         <div class="col-md-6">
             <input type="text" class="form-control" id="databaseAddress" placeholder="数据库地址" name="DBAddress" value="@(Model.ServerAddress)" required />
@@ -38,7 +38,7 @@
                         else
                         {
                             <option value="@(item.ID)">@(item.SourceName)</option>
-                        }                     
+                        }
                     }
                 }
             </select>
@@ -78,9 +78,65 @@
         </div>
         <div class="col-4 d-grid">
             <input type="hidden" id="hid_fsServiceID" value="@(Model.ID)" />
-            <button class="btn btn-primary btn-sm" type="submit">Submit form</button>
+            <button class="btn btn-primary btn-sm" id="btnFormSubmit" type="submit">提 交</button>
         </div>
         <div class="col-4">
+            <div class="testConnectionDiv d-flex flex-sm-row justify-content-center">
+                <button type="button" class="btn btn-link p-0"><span id="testConnLoadding" class="testConnectionTip spinner-border spinner-border-sm mt-2 mx-2"></span><i id="successConn" title="连接成功" class="bi bi-check-circle"></i>测试连接</button>
+            </div>
         </div>
     </form>
 </div>
+@section scripts{
+    <script type="text/javascript">
+        //
+        $(function () {
+            //初始化表单提交
+            var options = {
+                beforeSubmit: formSubmitBefore, //提交前，验证
+                success: formSubmitSuccess,  //提交成功后
+                error: formSubmitError,
+                //url:"",//form "action"已经配置了
+                //"type":"post",//form "method"已经配置了
+                //dataType:null,//'xml', 'script', or 'json'
+                //clearForm: false,//提交成功后，清空表单
+                //resetForm: false,//提交成功后，重置表单
+                //timeout:   3000
+            }
+            $("#saveDBserviceForm").submit(function () {
+            $(this).ajaxSubmit(options);
+
+                return false;
+            })
+           // $("#saveDBserviceForm").ajaxSubmit(options);
+        })
+
+        /**
+        * 提交前的方法
+        * @@param {any} formData   form数据，数组
+        * @@param {any} jqForm  form DOM元素，数组
+        * @@param {any} options 配置项
+        */
+        function formSubmitBefore(formData, jqForm, options) {
+            var queryString = $.param(formData);
+            layer.alert('提交的参数: \n\n' + queryString);
+            return false;//返回false，阻止form提交
+        }
+
+        /**
+        * form提交成功后返回
+        * @@param {any} responseText
+        * @@param {any} statusText
+        * @@param {any} xhr
+        * @@param {any} $form
+        */
+        function formSubmitSuccess(responseText, statusText, xhr, $form) {
+            alert('返回成功：\nstatus: ' + statusText + '\n\nresponseText: \n' + responseText +
+                '\n\nThe output div should have already been updated with the responseText.');
+        }
+
+        function formSubmitError(x, s, h, f) {
+            debugger
+        }
+    </script>
+}
