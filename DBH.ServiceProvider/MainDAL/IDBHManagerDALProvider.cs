@@ -1,4 +1,5 @@
 ﻿using DBH.Models.Entitys;
+using DBH.Models.EntityViews;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,7 +14,7 @@ namespace DBH.DALServiceProvider.MainDAL
         /// 获取全部的服务配置
         /// </summary>
         /// <returns></returns>
-        Task<IList<FS_ServicesEntity>> GetServicesConfigListAsync();
+        Task<IList<FS_ServicesView>> GetServicesConfigListAsync();
 
         /// <summary>
         /// 获取一个实体
@@ -22,6 +23,11 @@ namespace DBH.DALServiceProvider.MainDAL
         /// <returns></returns>
         Task<FS_ServicesEntity> GetServicesEnvityAsync(int ID);
 
+        /// <summary>
+        /// 获取全部的服务器来源配置
+        /// </summary>
+        /// <returns></returns>
+        Task<IList<FS_ServiceSourceEntity>> GetFSServiceSrouceListAsync();
 
     }
 }

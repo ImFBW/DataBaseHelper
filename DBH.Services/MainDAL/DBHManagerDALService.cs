@@ -30,9 +30,9 @@ namespace DBH.DALServices.MainDAL
         /// </summary>
         /// <returns></returns>
         /// <exception cref="NotImplementedException"></exception>
-        public async Task<IList<FS_ServicesEntity>> GetServicesConfigListAsync()
+        public async Task<IList<FS_ServicesView>> GetServicesConfigListAsync()
         {
-            IList<FS_ServicesEntity> listEntity = new List<FS_ServicesEntity>();
+            //IList<FS_ServicesEntity> listEntity = new List<FS_ServicesEntity>();
             IList<FS_ServicesView> listViewEntity = new List<FS_ServicesView>();
             using (var conn = ConnectionProvider.GetConnection())
             {
@@ -40,7 +40,7 @@ namespace DBH.DALServices.MainDAL
                 var resultData = await conn.QueryAsync<FS_ServicesView>(sql, commandType: CommandType.Text);
                 listViewEntity = resultData.ToList();
             }
-            return listEntity;
+            return listViewEntity;
         }
 
         /// <summary>
@@ -60,6 +60,20 @@ namespace DBH.DALServices.MainDAL
             return entity;
         }
 
-
+        /// <summary>
+        /// 获取全部的服务器来源配置
+        /// </summary>
+        /// <returns></returns>
+        public async Task<IList<FS_ServiceSourceEntity>> GetFSServiceSrouceListAsync()
+        {
+            IList<FS_ServiceSourceEntity> listViewEntity = new List<FS_ServiceSourceEntity>();
+            using (var conn = ConnectionProvider.GetConnection())
+            {
+                string sql = $"SELECT * From FS_ServiceSource WITH(NOLOCK)";
+                var resultData = await conn.QueryAsync<FS_ServiceSourceEntity>(sql, commandType: CommandType.Text);
+                listViewEntity = resultData.ToList();
+            }
+            return listViewEntity;
+        }
     }
 }

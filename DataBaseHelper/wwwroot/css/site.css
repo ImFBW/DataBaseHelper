@@ -31,18 +31,19 @@ button.accept-policy { font-size: 1rem; line-height: inherit; }
 .bg-myNavColor { background-color: #0E6077 !important; }
 /*rgb(73,47,33,1)*/
 /*修改-去掉光环*/
-.form-control { box-shadow: none !important; }
-.form-control:focus,
-.has-success .form-control:focus,
-.has-warning .form-control:focus,
-.has-error .form-control:focus { outline: none !important; -webkit-box-shadow: none !important; box-shadow: none !important; }
-
+.form-control,.form-select { box-shadow: none !important; }
+.form-control, .form-select :focus,
+.has-success .form-control, .form-select :focus,
+.has-warning .form-control, .form-select :focus,
+.has-error .form-control, .form-select :focus { outline: none !important; -webkit-box-shadow: none !important; box-shadow: none !important; }
 
 .btn:focus, .btn:active:focus,
 .btn.active:focus, .btn.focus,
 .btn:active.focus, .btn.active.focus { outline: none !important; box-shadow: none !important; }
 input:focus { outline: none !important; /*border-color: #cfdc00; box-shadow: 0 0 5px rgba(207, 220, 0, 0.4) !important; border-radius: 5px !important;*/ }
-
+/**Layui输入框样式改为bootstrap*/
+.layui-form-select .layui-input { padding: .375rem .75rem; font-size: 1rem; font-weight: 400; line-height: 1.5; color: #212529; background-color: #fff; background-clip: padding-box; border: 1px solid #ced4da; -webkit-appearance: none; -moz-appearance: none; appearance: none; border-radius: .25rem; transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out; }
+.layui-form-select .layui-input:hover, .layui-form-select .layui-input:focus { color: #212529; background-color: #fff; border-color: #86b7fe!important; }
 /*Tab 标签功能*/
 /*.btn-tab { border-bottom: 1px solid #6c757d ;border-collapse:collapse;}*/
 .btn-tab .btn { border-top: 0; border-left: 0; border-right: 0; border-bottom: 1px solid #6c757d; border-bottom-left-radius: 0; border-bottom-right-radius: 0; }

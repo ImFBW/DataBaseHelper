@@ -1,65 +1,75 @@
-﻿@{
+﻿@using DBH.Models.Entitys;
+@model FS_ServicesEntity
+@{
     Layout = "_LayoutNull";
     ViewData["Title"] = "添加数据库";
+    List<FS_ServiceSourceEntity> listSourceEntity = (List<FS_ServiceSourceEntity>)ViewData["listEntity"];
 }
 @section Styles{
 
 }
 <div class="mt-4 mb-4">
-    <form class="row g-3 needs-vaildation" novalidate>
-        <div class="col-md-3 text-end"><label>数据库地址：</label></div>
+    <form class="row g-3 layui-form needs-vaildation" novalidate>
+        <div class="col-md-3 text-end"><label class="col-md-10 col-form-label">数据库地址<span class="text-danger">*</span>：</label></div>
         <div class="col-md-6">
-            <input type="text" class="form-control" id="databaseAddress" name="DBAddress" value="" required />
+            <input type="text" class="form-control" id="databaseAddress" placeholder="数据库地址" name="DBAddress" value="@(Model.ServerAddress)" required />
+        </div>
+        <div class="col-md-3">
+            <div class="vaild-feedback">请填写数据库地址！</div>
+        </div>
+        <div class="col-md-3 text-end"><label class="col-md-10 col-form-label">端口：</label></div>
+        <div class="col-md-6">
+            <input type="number" lay-affix="number" class="form-control" id="databasePort" placeholder="地址端口" name="DBPort" value="@(Model.ServerPortNo)" required />
         </div>
         <div class="col-md-3">
             <div class="vaild-feedback"></div>
         </div>
-        <div class="col-md-3 text-end"><label>端口：</label></div>
-        <div class="col-md-6">
-            <input type="text" class="form-control" id="databasePort" name="DBPort" value="" required />
+        <div class="col-md-3 text-end"><label class="col-md-10 col-form-label">来源<span class="text-danger">*</span>： </label></div>
+        <div class="col-md-6 layui-col-md6">
+            <select id="databaseSource" name="DBSource" required>
+                <option value="0">--请选择来源--</option>
+                @{
+                    foreach (var item in listSourceEntity)
+                    {
+                        if (item.ID == Model.SourceID)
+                        {
+                            <option value="@(item.ID)" selected>@(item.SourceName)</option>
+                        }
+                        else
+                        {
+                            <option value="@(item.ID)">@(item.SourceName)</option>
+                        }                     
+                    }
+                }
+            </select>
         </div>
         <div class="col-md-3">
             <div class="vaild-feedback"></div>
         </div>
-        <div class="col-md-3 text-end"><label>来源：</label></div>
+        <div class="col-md-3 text-end"><label class="col-md-10 col-form-label">数据库名称<span class="text-danger">*</span>：</label></div>
         <div class="col-md-6">
-            @*<div class="layui-col-md6">
-                <select>
-                    <option value="">请选择</option>
-                    <option value="AAA">选项 A</option>
-                    <option value="BBB">选项 B</option>
-                    <option value="CCC">选项 C</option>
-                </select>
-            </div>*@
-            <input type="text" class="form-control" id="databaseSource" name="DBSource" value="" required />
+            <input type="text" class="form-control" id="databaseName" placeholder="数据库名称" name="DBName" value="@(Model.DataBaseName)" required />
         </div>
         <div class="col-md-3">
             <div class="vaild-feedback"></div>
         </div>
-        <div class="col-md-3 text-end"><label>数据库名称：</label></div>
+        <div class="col-md-3 text-end"><label class="col-md-10 col-form-label">登陆账号<span class="text-danger">*</span>：</label></div>
         <div class="col-md-6">
-            <input type="text" class="form-control" id="databaseName" name="DBName" value="" required />
+            <input type="text" class="form-control" id="databaseLoginName" placeholder="登陆账号" name="DBLoginName" value="@(Model.LoginName)" required />
         </div>
         <div class="col-md-3">
             <div class="vaild-feedback"></div>
         </div>
-        <div class="col-md-3 text-end"><label>登陆账号：</label></div>
+        <div class="col-md-3 text-end"><label class="col-md-10 col-form-label">登陆密码<span class="text-danger">*</span>：</label></div>
         <div class="col-md-6">
-            <input type="text" class="form-control" id="databaseLoginName" name="DBLoginName" value="" required />
+            <input type="password" class="form-control" id="databaseLoginPassword" placeholder="登陆密码" name="DBLoginPassword" value="" required />
         </div>
         <div class="col-md-3">
             <div class="vaild-feedback"></div>
         </div>
-        <div class="col-md-3 text-end"><label>登陆密码：</label></div>
+        <div class="col-md-3 text-end"><label class="col-md-10 col-form-label">数据库介绍：</label></div>
         <div class="col-md-6">
-            <input type="text" class="form-control" id="databaseLoginPassword" name="DBLoginPassword" value="" required />
-        </div>
-        <div class="col-md-3">
-            <div class="vaild-feedback"></div>
-        </div>
-        <div class="col-md-3 text-end"><label>数据库介绍：</label></div>
-        <div class="col-md-6">
-            <input type="text" class="form-control" id="databaseIntro" name="DBIntro" value="" required />
+            <textarea class="form-control" id="databaseIntro" placeholder="输入简介" name="DBIntro" required>@Html.Raw(Model.DataBaseIntro)</textarea>
         </div>
         <div class="col-md-3 text-end">
             <div class="vaild-feedback"></div>
@@ -67,6 +77,7 @@
         <div class="col-4">
         </div>
         <div class="col-4 d-grid">
+            <input type="hidden" id="hid_fsServiceID" value="@(Model.ID)" />
             <button class="btn btn-primary btn-sm" type="submit">Submit form</button>
         </div>
         <div class="col-4">

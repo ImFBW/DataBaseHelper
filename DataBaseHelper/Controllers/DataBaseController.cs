@@ -1,5 +1,6 @@
 ﻿using DBH.BLLServiceProvider.MainBLL;
 using DBH.Models.Entitys;
+using DBH.Models.EntityViews;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 
@@ -24,19 +25,31 @@ namespace DataBaseHelper.Controllers
         /// <returns></returns>
         public async Task<IActionResult> Index()
         {
-            IList<FS_ServicesEntity> listEntity = new List<FS_ServicesEntity>();
+            IList<FS_ServicesView> listEntity = new List<FS_ServicesView>();
             listEntity = await _DBHManagerBLLProvider.GetServicesConfigListAsync();
             ViewData["listEntity"] = listEntity;
             return View(listEntity);
         }
 
         /// <summary>
-        /// 视图-弹出框-添加数据库
+        ///  视图-弹出框-添加数据库
         /// </summary>
+        /// <param name="id">大于0表示编辑</param>
         /// <returns></returns>
-        public async Task<IActionResult> _ViewAddDataBase()
+        public async Task<IActionResult> _ViewAddDataBase(int? id)
         {
-            return View();
+            int databaseIDval = 0;
+            if (id.HasValue) databaseIDval = id.Value; else databaseIDval = 0;
+            FS_ServicesEntity fsServiceEntity = new FS_ServicesEntity();
+            if (databaseIDval > 0)
+            {
+                fsServiceEntity = await _DBHManagerBLLProvider.GetServicesEnvityAsync(databaseIDval);
+            }
+            IList<FS_ServiceSourceEntity> listSourceEntity = new List<FS_ServiceSourceEntity>();
+            listSourceEntity = await _DBHManagerBLLProvider.GetFSServiceSrouceListAsync();
+            ViewData["listEntity"] = listSourceEntity;
+
+            return View(fsServiceEntity);
         }
         #endregion
 
@@ -48,7 +61,7 @@ namespace DataBaseHelper.Controllers
         public async Task<IActionResult> Search()
         {
             return View();
-        } 
+        }
 
         #endregion
 
