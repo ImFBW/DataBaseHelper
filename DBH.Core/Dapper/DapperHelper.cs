@@ -420,11 +420,11 @@ namespace DBH.Core.Dapper
         }
 
         /// <summary>
-        /// <para>Deletes a record or records in the database that match the object passed in</para>
+        /// <para>删除ID匹配的数据，Deletes a record or records in the database that match the object passed in</para>
         /// <para>-By default deletes records in the table matching the class name</para>
         /// <para>Table name can be overridden by adding an attribute on your class [Table("YourTableName")]</para>
         /// <para>Supports transaction and command timeout</para>
-        /// <para>Returns the number of records affected</para>
+        /// <para>返回受影响的行数</para>
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="connection"></param>
@@ -663,7 +663,13 @@ namespace DBH.Core.Dapper
             });
         }
 
-        //build update statement based on list on an entity
+        /// <summary>
+        /// 构建字段=@参数的字段条件，可指定选择一些列
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="entityToUpdate"></param>
+        /// <param name="masterSb"></param>
+        /// <param name="fields"></param>
         private static void BuildUpdateAppointSet<T>(T entityToUpdate, StringBuilder masterSb, string[] fields)
         {
 
@@ -674,6 +680,30 @@ namespace DBH.Core.Dapper
             {
                 var property = nonIdProps[i];
                 if (!fields.Contains(property.Name)) continue;//不包含的字段不更新
+                str += string.Format("{0} = @{1}", GetColumnName(property), property.Name);
+                if (i < nonIdProps.Length - 1)
+                    str += ",";
+            }
+            masterSb.Append(str.TrimEnd(','));
+        }
+
+        /// <summary>
+        /// 构建字段=@参数的字段条件，可指定排除一些列
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="entityToUpdate"></param>
+        /// <param name="masterSb"></param>
+        /// <param name="ignoreFields"></param>
+        private static void BuildUpdateIgnoreAppointSet<T>(T entityToUpdate, StringBuilder masterSb, string[] ignoreFields)
+        {
+
+            var nonIdProps = GetUpdateableProperties(entityToUpdate).ToArray();
+
+            string str = "";
+            for (var i = 0; i < nonIdProps.Length; i++)
+            {
+                var property = nonIdProps[i];
+                if (ignoreFields.Contains(property.Name)) continue;//不包含的字段不更新
                 str += string.Format("{0} = @{1}", GetColumnName(property), property.Name);
                 if (i < nonIdProps.Length - 1)
                     str += ",";

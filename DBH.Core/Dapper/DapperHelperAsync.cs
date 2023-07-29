@@ -440,6 +440,86 @@ namespace DBH.Core.Dapper
             return connection.Execute(new CommandDefinition(sb.ToString(), entityToUpdate, transaction, commandTimeout, cancellationToken: cancelToken));
         }
 
+        /// <summary>
+        ///  <para>Updates a record or records in the database asynchronously</para>
+        ///  <para>By default updates records in the table matching the class name</para>
+        ///  <para>-Table name can be overridden by adding an attribute on your class [Table("YourTableName")]</para>
+        ///  <para>Updates records where the Id property and properties with the [Key] attribute match those in the database.</para>
+        ///  <para>Properties marked with attribute [Editable(false)] and complex types are ignored</para>
+        ///  <para>Supports transaction and command timeout</para>
+        ///  <para>Returns number of rows affected</para>
+        ///  指定排除一些列的更新
+        ///  </summary>
+        ///  <param name="connection"></param>
+        ///  <param name="entityToUpdate"></param>
+        /// <param name="transaction"></param>
+        /// <param name="commandTimeout"></param>
+        /// <param name="fileds">更新排除这些指定列</param>
+        /// <returns>The number of affected records</returns>
+        public static Task<int> UpdateIgnoreAppointAsync<TEntity>(this IDbConnection connection, TEntity entityToUpdate, string[] ignoreFileds, IDbTransaction transaction = null, int? commandTimeout = null, System.Threading.CancellationToken? token = null)
+        {
+            var idProps = GetIdProperties(entityToUpdate).ToList();
+
+            if (!idProps.Any())
+                throw new ArgumentException("Entity must have at least one [Key] or Id property");
+
+            var name = GetTableName(entityToUpdate);
+
+            var sb = new StringBuilder();
+            sb.AppendFormat("update {0}", name);
+
+            sb.AppendFormat(" set ");
+            BuildUpdateIgnoreAppointSet(entityToUpdate, sb, ignoreFileds);
+            sb.Append(" where ");
+            BuildWhere<TEntity>(sb, idProps, entityToUpdate);
+
+            if (Debugger.IsAttached)
+                Trace.WriteLine($"Update: {sb}");
+
+            System.Threading.CancellationToken cancelToken = token ?? default(System.Threading.CancellationToken);
+            return connection.ExecuteAsync(new CommandDefinition(sb.ToString(), entityToUpdate, transaction, commandTimeout, cancellationToken: cancelToken));
+        }
+        /// <summary>
+        ///  <para>Updates a record or records in the database asynchronously</para>
+        ///  <para>By default updates records in the table matching the class name</para>
+        ///  <para>-Table name can be overridden by adding an attribute on your class [Table("YourTableName")]</para>
+        ///  <para>Updates records where the Id property and properties with the [Key] attribute match those in the database.</para>
+        ///  <para>Properties marked with attribute [Editable(false)] and complex types are ignored</para>
+        ///  <para>Supports transaction and command timeout</para>
+        ///  <para>Returns number of rows affected</para>
+        ///  指定排除一些列的更新
+        ///  </summary>
+        ///  <param name="connection"></param>
+        ///  <param name="entityToUpdate"></param>
+        /// <param name="transaction"></param>
+        /// <param name="commandTimeout"></param>
+        /// <param name="ignoreFileds">更新排除这些指定列</param>
+        /// <returns>The number of affected records</returns>
+        public static int UpdateIgnoreAppoint<TEntity>(this IDbConnection connection, TEntity entityToUpdate, string[] ignoreFileds, IDbTransaction transaction = null, int? commandTimeout = null, System.Threading.CancellationToken? token = null)
+        {
+            var idProps = GetIdProperties(entityToUpdate).ToList();
+
+            if (!idProps.Any())
+                throw new ArgumentException("Entity must have at least one [Key] or Id property");
+
+            var name = GetTableName(entityToUpdate);
+
+            var sb = new StringBuilder();
+            sb.AppendFormat("update {0}", name);
+
+            sb.AppendFormat(" set ");
+            BuildUpdateIgnoreAppointSet(entityToUpdate, sb, ignoreFileds);
+            sb.Append(" where ");
+            BuildWhere<TEntity>(sb, idProps, entityToUpdate);
+
+            if (Debugger.IsAttached)
+                Trace.WriteLine($"Update: {sb}");
+
+            System.Threading.CancellationToken cancelToken = token ?? default(System.Threading.CancellationToken);
+            return connection.Execute(new CommandDefinition(sb.ToString(), entityToUpdate, transaction, commandTimeout, cancellationToken: cancelToken));
+        }
+
+
 
         /// <summary>
         /// <para>Deletes a record or records in the database that match the object passed in asynchronously</para>

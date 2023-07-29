@@ -18,6 +18,12 @@ namespace DBH.Models
         /// </summary>
         public int ID { get; set; }
 
+        /// <summary>
+        /// 是否删除
+        /// </summary>
+        public int IsDel { get; set; }
+
+
         //规范：所有实体类（数据表）都应该有创建时间
         /// <summary>
         /// 创建时间

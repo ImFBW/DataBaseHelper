@@ -51,7 +51,24 @@ namespace DBH.DALServiceProvider.MainDAL
 
         #endregion
 
+        #region Update
 
+        /// <summary>
+        /// 更新数据库配置，密码可空，则不更新密码
+        /// </summary>
+        /// <param name="entity">实体</param>
+        /// <returns></returns>
+        Task<EntityResult> UpdateFsServiceEntity(FS_ServicesEntity entity);
+
+
+        /// <summary>
+        /// 删除一条数据库配置数据
+        /// </summary>
+        /// <param name="ID">主键ID</param>
+        /// <returns></returns>
+        Task<bool> DeleteFsServiceEntity(int ID);
+
+        #endregion
 
     }
 }

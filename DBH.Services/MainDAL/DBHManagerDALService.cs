@@ -134,7 +134,46 @@ namespace DBH.DALServices.MainDAL
         #endregion
 
         #region Update
+        /// <summary>
+        /// 更新数据库配置，密码可空，则不更新密码
+        /// </summary>
+        /// <param name="entity">实体</param>
+        /// <returns></returns>
+        public async Task<EntityResult> UpdateFsServiceEntity(FS_ServicesEntity entity)
+        {
+            EntityResult result = new EntityResult();
+            using (var conn=ConnectionProvider.GetConnection())
+            {
+                string[] ignoreFields = new string[] { };
+                if (string.IsNullOrEmpty(entity.LoginPassword))//如果密码为空，则默认为不更新，可忽略此字段的更新
+                    ignoreFields[0] = "LoginPassword";
+                int code = await conn.UpdateIgnoreAppointAsync<FS_ServicesEntity>(entity, ignoreFields);
+                if (code > 0)
+                {
+                    result.ID = entity.ID;
+                    result.EntityCode = EntityCode.Success;
+                }
+            }
+            return result;
+        }
 
+        /// <summary>
+        /// 删除一条数据库配置数据
+        /// [假删除，更新Isdel=1]
+        /// </summary>
+        /// <param name="ID">主键ID</param>
+        /// <returns></returns>
+        public async Task<bool> DeleteFsServiceEntity(int ID)
+        {
+            bool isDelete = false;
+            using (var conn = ConnectionProvider.GetConnection())
+            {
+                FS_ServicesEntity fsentity = new FS_ServicesEntity() { ID = ID, IsDel = 1 };
+                int code = await conn.UpdateAppointAsync<FS_ServicesEntity>(fsentity, new string[] { "IsDel" });
+                isDelete = code > 0;
+            }
+            return isDelete;
+        }
         #endregion
 
         #region Delete

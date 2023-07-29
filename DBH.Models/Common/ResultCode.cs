@@ -52,6 +52,9 @@ namespace DBH.Models.Common
         [Description("系统异常")]
         SysError = 1007,
 
+        [Description("参数缺失")]
+        PramIsNull = 1008,
+
         [Description("未知")]
         Unknown = 1009,
     }

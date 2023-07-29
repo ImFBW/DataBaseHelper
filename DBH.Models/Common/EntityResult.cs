@@ -9,7 +9,7 @@ namespace DBH.Models.Common
     /// <summary>
     /// 操作数据的返回结果类
     /// </summary>
-    public class EntityResult<T> where T:BaseEntity , new()
+    public class EntityResult<T> where T : BaseEntity, new()
     {
         /// <summary>
         /// 用于保存主键，比如新增后返回主键ID，查询一个ID是否存在等
@@ -26,10 +26,24 @@ namespace DBH.Models.Common
         /// </summary>
         public EntityCode EntityCode { get; set; }
 
+        private string _message = "";
         /// <summary>
         /// 消息提示，错误或异常消息等
         /// </summary>
-        public string Message { get; set; }
+        public string Message
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_message))
+                    return "";
+                else
+                    return _message;
+            }
+            set
+            {
+                _message = value;
+            }
+        }
     }
 
     /// <summary>
@@ -37,6 +51,7 @@ namespace DBH.Models.Common
     /// </summary>
     public class EntityResult
     {
+        private string _message = "";
         /// <summary>
         /// 用于保存主键，比如新增后返回主键ID，查询一个ID是否存在等
         /// </summary>
@@ -50,7 +65,20 @@ namespace DBH.Models.Common
         /// <summary>
         /// 消息提示，错误或异常消息等
         /// </summary>
-        public string Message { get; set; }
+        public string Message
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_message))
+                    return "";
+                else
+                    return _message;
+            }
+            set 
+            { 
+                _message = value; 
+            }
+        }
     }
 
 }

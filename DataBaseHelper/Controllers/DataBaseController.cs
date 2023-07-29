@@ -4,6 +4,7 @@ using DBH.Models.Entitys;
 using DBH.Models.EntityViews;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using static Dapper.SqlMapper;
 
 namespace DataBaseHelper.Controllers
 {
@@ -77,14 +78,23 @@ namespace DataBaseHelper.Controllers
             var fsEntity = fSService.ToFSServiceEntity;
             fsEntity.IsInUse = 1;
             fsEntity.ServerType = (int)ServiceType.MSSql;//当前固定1：SqlServer，后期还要增加MySql的支持
-            EntityResult entityResult = await _DBHManagerBLLProvider.InsertFsServiceEntity(fsEntity);
-            _logger.LogInformation("Add new fs Service:DataBaseName:" + fSService.DBName, DateTime.UtcNow);
+            EntityResult entityResult = new EntityResult();
+            if(entityResult!=null && entityResult.ID > 0)//更新
+            {
+                entityResult = await _DBHManagerBLLProvider.UpdateFsServiceEntity(fsEntity);
+            }
+            else//新增
+            {
+                entityResult = await _DBHManagerBLLProvider.InsertFsServiceEntity(fsEntity);
+            }          
+            
+            _logger.LogInformation("Save fs Service:DataBaseName:" + fSService.DBName, DateTime.UtcNow);
 
             return Json(entityResult);
         }
 
         /// <summary>
-        /// 
+        /// 测试连接
         /// </summary>
         /// <returns></returns>
         [HttpGet]
@@ -101,6 +111,45 @@ namespace DataBaseHelper.Controllers
             bool isConn = await _DBHManagerBLLProvider.TestConnection(connectionString);
             return Content(isConn ? "true" : "false");
         }
+
+        /// <summary>
+        /// 执行删除数据的操作
+        /// </summary>
+        /// <param name="ID"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<IActionResult> DeleteDatabase(int? ID)
+        {
+            int IDval = 0;
+            if(ID.HasValue)IDval=ID.Value;
+            ResultModel result = new ResultModel();
+
+            if (IDval<=0)
+            {
+                result.Code = ResultCode.Error;
+                result.Status = false;
+                result.Message = "ID 为空";
+            }
+            else 
+            {
+                bool deleteCode = await _DBHManagerBLLProvider.DeleteFsServiceEntity(IDval);
+                if (deleteCode)
+                {
+                    result.Code = ResultCode.Success;
+                    result.Status = true;
+                    result.Message = "删除成功";
+                }
+                else
+                {
+                    result.Code = ResultCode.Fail;
+                    result.Status = false;
+                    result.Message = "删除失败";
+                }
+            }
+            return Json(result);
+        }
+
+
         #endregion
     }
 }

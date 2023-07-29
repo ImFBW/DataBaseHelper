@@ -37,25 +37,26 @@
                     {
                         for (int i = 0; i < listEntity.Count; i++)
                         {
-                            string serverAddress = listEntity[i].ServerAddress;
-                            if (!string.IsNullOrEmpty(listEntity[i].ServerAddress2))
+                            FS_ServicesView item = listEntity[i];
+                            string serverAddress = item.ServerAddress;
+                            if (!string.IsNullOrEmpty(item.ServerAddress2))
                             {
-                                serverAddress += "(" + listEntity[i].ServerAddress2 + ")";
+                                serverAddress += "(" + item.ServerAddress2 + ")";
                             }
                             <div class="card">
-                                <a href="/database/search/?id=@(Html.Raw(listEntity[i].ID))" target="_self">
+                                <a href="/database/search/?id=@(Html.Raw(item.ID))" target="_self">
                                     <div class="card-body">
-                                        <h5 class="card-title">@(Html.Raw(listEntity[i].DataBaseName))</h5>
+                                        <h5 class="card-title">@(Html.Raw(item.DataBaseName))</h5>
                                         <p class="card-text">地址：@(Html.Raw(serverAddress))</p>
-                                        <p class="card-text">来源：@Html.Raw(listEntity[i].SourceName)</p>
-                                        <p class="card-text intro">简介：@(Html.Raw(listEntity[i].DataBaseIntro))</p>
+                                        <p class="card-text">来源：@Html.Raw(item.SourceName)</p>
+                                        <p class="card-text intro">简介：@(Html.Raw(item.DataBaseIntro))</p>
                                     </div>
                                 </a>
                                 <div class="actionTopannel"><a class="" href="javascript:void(0);" target="_self" onclick="cardActionPannel(this)"><i class="bi bi-chevron-double-left"></i></a></div>
                                 <div class="actionpannel border-start">
                                     <ul class="list-group list-group-flush">
-                                        <li class="list-group-item"> <a class="" href="javascript:void(0);" onclick="PopwinAddDataBaseConfig(@(listEntity[i].ID))"><div><i class="bi bi-filter-square"></i> 编辑</div></a></li>
-                                        <li class="list-group-item"> <a class="text-danger" href="javascript:void(0);"><div><i class="bi bi-x-square"></i> 删除</div></a></li>
+                                        <li class="list-group-item"> <a class="" href="javascript:void(0);" onclick="PopwinAddDataBaseConfig(@(item.ID))"><div><i class="bi bi-filter-square"></i> 编辑</div></a></li>
+                                        <li class="list-group-item"> <a class="text-danger" href="javascript:void(0);" onclick="deleteDatabase(@(item.ID))"><div><i class="bi bi-x-square"></i> 删除</div></a></li>
                                     </ul>
                                 </div>
                             </div>

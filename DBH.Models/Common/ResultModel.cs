@@ -15,11 +15,25 @@ namespace DBH.Models.Common
         /// 状态码
         /// </summary>
         public ResultCode Code { get; set; }
-
+        
+        private string _message = "";
         /// <summary>
         /// 消息内容
         /// </summary>
-        public string Message { get; set; }
+        public string Message
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(_message))
+                    return "";
+                else
+                    return _message;
+            }
+            set
+            {
+                _message = value;
+            }
+        }
 
         /// <summary>
         /// 结果状态

@@ -33,3 +33,18 @@ function removejscssfile(filename, filetype) {
             allsuspects[i].parentNode.removeChild(allsuspects[i]);
     }
 }
+
+var Valid = {
+    IsNullOrEmpty: function (a) {
+        if (a == undefined || a == null || a == "") {
+            return true;
+        }
+        return false;
+    },
+    NumberT1: function (a) {
+        var b = parseInt(a);
+        if (b == NaN) return false;
+        if (b > 0) return true;
+        return false;
+    }
+}
