@@ -77,12 +77,13 @@
         <div class="col-4">
         </div>
         <div class="col-4 d-grid">
-            <input type="hidden" id="hid_fsServiceID" value="@(Model.ID)" />
+            <input type="hidden" name="ID" id="hid_fsServiceID" value="@(Model.ID)" />
             <button class="btn btn-primary btn-sm" id="btnFormSubmit" type="submit">提 交</button>
         </div>
         <div class="col-4">
             <div class="testConnectionDiv d-flex flex-sm-row justify-content-center">
-                <button type="button" class="btn btn-link p-0"><span id="testConnLoadding" class="testConnectionTip spinner-border spinner-border-sm mt-2 mx-2"></span><i id="successConn" title="连接成功" class="bi bi-check-circle"></i>测试连接</button>
+               @* <i id="successConn" title="连接成功" class="bi bi-check-circle success"></i>*@
+                <button type="button" id="btn_TestConnection" onclick="testConnection()" class="btn btn-link p-0 mt-1">测试连接</button>
             </div>
         </div>
     </form>
@@ -104,11 +105,10 @@
                 //timeout:   3000
             }
             $("#saveDBserviceForm").submit(function () {
-            $(this).ajaxSubmit(options);
-
+                $(this).ajaxSubmit(options);
                 return false;
             })
-           // $("#saveDBserviceForm").ajaxSubmit(options);
+            // $("#saveDBserviceForm").ajaxSubmit(options);
         })
 
         /**
@@ -119,8 +119,8 @@
         */
         function formSubmitBefore(formData, jqForm, options) {
             var queryString = $.param(formData);
-            layer.alert('提交的参数: \n\n' + queryString);
-            return false;//返回false，阻止form提交
+            //layer.alert('提交的参数: \n\n' + queryString);
+            return true;//返回false，阻止form提交
         }
 
         /**
@@ -131,12 +131,58 @@
         * @@param {any} $form
         */
         function formSubmitSuccess(responseText, statusText, xhr, $form) {
-            alert('返回成功：\nstatus: ' + statusText + '\n\nresponseText: \n' + responseText +
-                '\n\nThe output div should have already been updated with the responseText.');
+            if (statusText == "success") {
+                if (responseText.entityCode == 1000) {
+                    parent.layer.msg("保存成功", { icon: 1, shade: 0.1 }, function () {
+                        // layer.msg('提示框关闭后的回调');
+                        window.parent.location.reload();
+                    });
+                } else {
+                    parent.layer.msg("保存失败", { icon: 0, shade: 0.1 }, function () {
+                    });
+                }
+            } else {
+                console.log(responseText);
+                parent.layer.msg("系统异常", { icon: 2, shade: 0.1 }, function () {
+                });
+            }
+        }
+        /**
+         * form submit error
+         */
+        function formSubmitError(x, s, h, f) {
+            console.log(s);
+            parent.layer.msg("系统异常", { icon: 2, shade: 0.1 }, function () {
+            });
         }
 
-        function formSubmitError(x, s, h, f) {
-            debugger
+        /**
+         * test connection
+         */
+        function testConnection() {
+            var layorIndex = layer.msg('<div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden">请等待...</span></div>', { shade: 0.1, time: 999999 });
+            $.ajax(
+                {
+                    url: '/DataBase/TestConnection/',
+                    type: 'get',
+                    data: $('#saveDBserviceForm').formSerialize(),
+                    dataType: "text",
+                    success: function (data) {
+                        if (data == "true") {
+                            layer.msg("连接成功");
+                        } else {
+                            layer.msg("连接失败");
+                        }
+                    },
+                    error: function (s, x) {
+                        layer.msg("请求异常");
+                        console.log(s);
+                    },
+                    complate: function (s, x) {
+                        layer.close(layorIndex);
+                        console.log(s);
+                    }
+                })
         }
     </script>
 }

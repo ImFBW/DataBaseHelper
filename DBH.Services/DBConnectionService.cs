@@ -36,10 +36,17 @@ namespace DBH.DALServices
         /// <summary>
         /// 根据不同数据库类型，返回对应的数据库连接类型
         /// </summary>
+        /// <param name="connString">连接字符串</param>
         /// <returns></returns>
-        public IDbConnection GetConnection()
+        /// <exception cref="ArgumentNullException"></exception>
+        public IDbConnection GetConnection(string connString = "")
         {
-            if (string.IsNullOrEmpty(this.ConnectionString))
+            string _connection = this.ConnectionString;
+            if (!string.IsNullOrEmpty(connString))
+            {
+                _connection = connString;
+            }
+            if (string.IsNullOrEmpty(_connection))
             {
                 throw new ArgumentNullException(nameof(this.ConnectionString));
             }
@@ -47,13 +54,13 @@ namespace DBH.DALServices
             switch (DBCategory)
             {
                 case DBCategory.SqlServer:
-                    connection = new SqlConnection(this.ConnectionString);
+                    connection = new SqlConnection(_connection);
                     break;
                 case DBCategory.MySql:
-                    connection = new MySqlConnection(this.ConnectionString);
+                    connection = new MySqlConnection(_connection);
                     break;
                 default:
-                    connection = new SqlConnection(this.ConnectionString);
+                    connection = new SqlConnection(_connection);
                     break;
             }
             return connection;

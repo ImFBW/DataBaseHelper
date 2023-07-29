@@ -1,8 +1,10 @@
 ﻿using DBH.BLLServiceProvider.MainBLL;
 using DBH.Core;
 using DBH.DALServiceProvider.MainDAL;
+using DBH.Models.Common;
 using DBH.Models.Entitys;
 using DBH.Models.EntityViews;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,6 +22,7 @@ namespace DBH.BLLService.MainBLL
             _dBHManagerDALProvider = dBHManagerDALProvider;
         }
 
+        #region Select
         /// <summary>
         /// 获取全部的服务配置
         /// </summary>
@@ -57,7 +60,39 @@ namespace DBH.BLLService.MainBLL
             return listEntity;
         }
 
+        /// <summary>
+        /// 测试一个连接字符串是否可以打开连接成功
+        /// </summary>
+        /// <param name="connectionString">连接字符串</param>
+        /// <returns></returns>
+        public async Task<bool> TestConnection(string connectionString)
+        {
+            if(string.IsNullOrEmpty(connectionString))return false;
+            return await _dBHManagerDALProvider.TestConnection(connectionString);
+        }
 
+
+        #endregion
+
+        #region Insert
+        /// <summary>
+        /// 插入一条数据
+        /// </summary>
+        /// <param name="fS_ServicesEntity"></param>
+        /// <returns></returns>
+        public async Task<EntityResult> InsertFsServiceEntity(FS_ServicesEntity fS_ServicesEntity)
+        {
+            try
+            {
+                return await _dBHManagerDALProvider.InsertFsServiceEntity(fS_ServicesEntity);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("InsertFsServiceEntity：" + ex.Message);
+                return new EntityResult() { ID = -1, Message = ex.Message, EntityCode = EntityCode.SysError };
+            }
+        }
+        #endregion
 
     }
 }

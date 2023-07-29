@@ -12,6 +12,8 @@ using DBH.Models.Entitys;
 using System.Data;
 using DBH.DALProvider;
 using DBH.Models.EntityViews;
+using DBH.Models.Common;
+using DBH.Core.Dapper;
 
 namespace DBH.DALServices.MainDAL
 {
@@ -24,7 +26,37 @@ namespace DBH.DALServices.MainDAL
             ConnectionProvider.ConnectionString = configuretion.GetConnectionString("DBMSToolConnection").ToString();//配置连接字符串
             ConnectionProvider.DBCategory = DBCategory.SqlServer;
         }
+        #region Insert
 
+        /// <summary>
+        /// 插入一条数据
+        /// </summary>
+        /// <param name="fS_ServicesEntity"></param>
+        /// <returns></returns>
+        public async Task<EntityResult> InsertFsServiceEntity(FS_ServicesEntity fS_ServicesEntity)
+        {
+            EntityResult entiyResult = new EntityResult();
+            using (var conn = ConnectionProvider.GetConnection())
+            {
+                //string sql = $"SELECT s.*,ss.SourceName From FS_Services  s WITH(NOLOCK) LEFT JOIN FS_ServiceSource ss WITH(NOLOCK) ON s.SourceID=ss.ID WHERE s.IsInUse=1 AND s.IsDel=0  ORDER BY s.id ASC";
+                //var resultData = await conn.q
+                int? newID = await conn.InsertAsync(fS_ServicesEntity);
+                if (newID.HasValue)
+                {
+                    entiyResult.ID = newID.Value;
+                    entiyResult.EntityCode = EntityCode.Success;
+                }
+                else
+                {
+                    entiyResult.ID = -1;
+                    entiyResult.EntityCode = EntityCode.Fail;
+                }
+            }
+            return entiyResult;
+        }
+        #endregion
+
+        #region Select
         /// <summary>
         /// 获取全部的服务配置
         /// </summary>
@@ -75,5 +107,40 @@ namespace DBH.DALServices.MainDAL
             }
             return listViewEntity;
         }
+
+        /// <summary>
+        /// 测试一个连接字符串是否可以打开连接成功
+        /// </summary>
+        /// <param name="connectionString">连接字符串</param>
+        /// <returns></returns>
+        public async Task<bool> TestConnection(string connectionString)
+        {
+            bool isConn = false;
+            try
+            {
+                using (var conn = ConnectionProvider.GetConnection(connectionString))
+                {
+                    conn.Open();
+                    isConn = true;
+                    conn.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                isConn = false;
+            }
+            return isConn;
+        }
+        #endregion
+
+        #region Update
+
+        #endregion
+
+        #region Delete
+
+        #endregion
+
+
     }
 }

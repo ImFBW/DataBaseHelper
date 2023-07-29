@@ -22,6 +22,6 @@ namespace DBH.DALProvider
         /// 获取数据连接方式
         /// </summary>
         /// <returns></returns>
-        IDbConnection GetConnection();
+        IDbConnection GetConnection(string connString="");
     }
 }

@@ -1,4 +1,5 @@
 ﻿using DBH.BLLServiceProvider.MainBLL;
+using DBH.Models.Common;
 using DBH.Models.Entitys;
 using DBH.Models.EntityViews;
 using Microsoft.AspNetCore.Mvc;
@@ -66,10 +67,39 @@ namespace DataBaseHelper.Controllers
         #endregion
 
         #region AjaxRequest的处理
-        public async Task<IActionResult> DBServcieSave()
+        /// <summary>
+        /// 保存数据库配置
+        /// </summary>
+        /// <param name="fSService"></param>
+        /// <returns></returns>
+        public async Task<IActionResult> DBServcieSave(RequestFSService fSService)
         {
-            object obj = new { message = "success", code = "100" };
-            return Json(obj);
+            var fsEntity = fSService.ToFSServiceEntity;
+            fsEntity.IsInUse = 1;
+            fsEntity.ServerType = (int)ServiceType.MSSql;//当前固定1：SqlServer，后期还要增加MySql的支持
+            EntityResult entityResult = await _DBHManagerBLLProvider.InsertFsServiceEntity(fsEntity);
+            _logger.LogInformation("Add new fs Service:DataBaseName:" + fSService.DBName, DateTime.UtcNow);
+
+            return Json(entityResult);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        public async Task<IActionResult> TestConnection()
+        {
+            string dbAddress = Request.Query["DBAddress"].ToString();
+            string dbPort = Request.Query["DBPort"].ToString();
+            string dbName = Request.Query["DBName"].ToString();
+            string dbLoginName = Request.Query["DBLoginName"].ToString();
+            string dbLoginPassword = Request.Query["DBLoginPassword"].ToString();
+            if (!string.IsNullOrEmpty(dbPort) && int.Parse(dbPort) > 0)
+                dbAddress += ":" + dbPort;
+            string connectionString = string.Format($"data source={dbAddress};persist security info=True;initial catalog={dbName};user id={dbLoginName};password={dbLoginPassword};");
+            bool isConn = await _DBHManagerBLLProvider.TestConnection(connectionString);
+            return Content(isConn ? "true" : "false");
         }
         #endregion
     }

@@ -14,7 +14,7 @@ namespace DBH.Models.Common
         /// <summary>
         /// 状态码
         /// </summary>
-        public StatusCode Code { get; set; }
+        public ResultCode Code { get; set; }
 
         /// <summary>
         /// 消息内容

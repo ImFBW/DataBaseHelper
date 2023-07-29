@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -9,6 +10,8 @@ namespace DBH.Models.Entitys
     /// <summary>
     /// 
     /// </summary>
+    [Serializable]
+    [Table(name: "FS_Services")]
     public class FS_ServicesEntity : BaseEntity
     {
         /// <summary>

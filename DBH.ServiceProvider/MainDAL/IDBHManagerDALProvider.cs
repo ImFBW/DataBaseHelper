@@ -1,4 +1,5 @@
-﻿using DBH.Models.Entitys;
+﻿using DBH.Models.Common;
+using DBH.Models.Entitys;
 using DBH.Models.EntityViews;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,7 @@ namespace DBH.DALServiceProvider.MainDAL
 {
     public interface IDBHManagerDALProvider : IBaseDALProvider
     {
+        #region select
         /// <summary>
         /// 获取全部的服务配置
         /// </summary>
@@ -28,6 +30,28 @@ namespace DBH.DALServiceProvider.MainDAL
         /// </summary>
         /// <returns></returns>
         Task<IList<FS_ServiceSourceEntity>> GetFSServiceSrouceListAsync();
+
+        /// <summary>
+        /// 测试一个连接字符串是否可以打开连接成功
+        /// </summary>
+        /// <param name="connectionString">连接字符串</param>
+        /// <returns></returns>
+        Task<bool> TestConnection(string connectionString);
+
+        #endregion
+
+        #region Insert
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fS_ServicesEntity"></param>
+        /// <returns></returns>
+        Task<EntityResult> InsertFsServiceEntity(FS_ServicesEntity fS_ServicesEntity);
+
+
+        #endregion
+
+
 
     }
 }
