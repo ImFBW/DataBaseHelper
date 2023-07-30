@@ -1,4 +1,6 @@
-﻿@{
+﻿@using DBH.Models.Entitys;
+@model FS_ServicesEntity
+@{
     Layout = "_LayoutMain";
     ViewData["Title"] = "搜索";
 }
@@ -7,10 +9,9 @@
     <link rel="stylesheet" href="~/lib/highlight/styles/vs.min.css">
         @* <!--Code Dark-->
         <link rel="stylesheet" href="~/lib/highlight/styles/nnfx-dark.min.css">*@
-        <style>
+    <style>
         .codeSql { }
-        .codeSql>ol>li::marker:is(:hover) {background-color:#6AF3D4;}
-        </style>
+        .codeSql > ol > li::marker:is(:hover) { background-color: #6AF3D4; }</style>
     }
 
 <div id="mainLeft" class="split clearfix split-horizontal">
@@ -19,6 +20,10 @@
             Html.RenderPartial("~/Views/component/_ViewLeft.cshtml");
         }
     </div>
+</div>
+<div>
+    <input type="hidden" id="CurrentDBAddress" value="@(ViewBag.CurrentDBAddress)" />
+    <input type="hidden" id="CurrentDBName" value="@(ViewBag.CurrentDBName)" />
 </div>
 <div id="mainRight" class="split clearfix split-horizontal">
     <div class="container-fluid right_container" id="right_container">
@@ -263,6 +268,7 @@
                 });
             })
             ShowLineNo();
+            setCurrentDBAddress();
             //切换Tabs选项卡
             $(".tab_list li").on("click", function () {
                 //$(this).addClass("active").siblings().removeClass("active");
@@ -280,7 +286,26 @@
                     $(this).closest("li").remove();
                 }
             });
+
         })
-       
+        /**
+         * 设置当前选择的数据库的地址显示
+         */
+        function setCurrentDBAddress() {
+            //设置当前选择的数据库地址
+            var CurrentDBAddress = $("#CurrentDBAddress").val();
+            var CurrentDBName = $("#CurrentDBName").val();
+            $("#current_Server_Title").html(CurrentDBName);
+            var toolTipEle = document.getElementById('current_Server_Title');
+            var tooltip = new bootstrap.Tooltip(toolTipEle, {
+                animation: true,
+                delay: 0,
+                placement: 'left',
+                title: CurrentDBAddress,
+                trigger: 'hover focus',
+                fallbackPlacements: ['right', 'top', 'bottom'],
+                //customClass: 'bg-success'
+            })
+        }
     </script>
 }

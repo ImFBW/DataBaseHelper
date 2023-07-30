@@ -1,4 +1,78 @@
-﻿/**
+﻿$(function () {
+    //搜索表单初始化
+    var options = {
+        beforeSubmit: function () {
+            var searchTxt = $.trim($("#serarch_main").val());
+            if (Valid.IsNullOrEmpty(searchTxt)) {
+                return false;
+            }
+            SearchLoading.Show();
+            return true;
+        }, //提交前，验证
+        success: SearchSuccess,  //提交成功后
+        error: SearchError,
+        //url:"",//form "action"已经配置了
+        //"type":"post",//form "method"已经配置了
+        //dataType:null,//'xml', 'script', or 'json'
+        //clearForm: false,//提交成功后，清空表单
+        //resetForm: false,//提交成功后，重置表单
+        //timeout:   3000
+    }
+    $("#form_Search").submit(function () {
+        $(this).ajaxSubmit(options);
+        return false;
+    })
+});
+/**
+ * 表单提交成功
+ * @param {any} responseText
+ * @param {any} statusText
+ * @param {any} xhr
+ * @param {any} $form
+ */
+function SearchSuccess(responseText, statusText, xhr, $form) {
+    SearchLoading.Hide();
+    if (statusText == "success") {
+        //debugger
+        if (responseText.status == true) {
+            layer.msg("success");
+        } else {
+            layer.msg(responseText.message, { icon: 0, shade: 0.1 }, function () {
+            });
+        }
+    } else {
+        console.log(responseText);
+        layer.msg("系统异常", { icon: 2, shade: 0.1 }, function () {
+        });
+    }
+}
+/**
+ * 表单提交异常
+ * @param {any} x
+ * @param {any} s
+ * @param {any} h
+ * @param {any} f
+ */
+function SearchError(x, s, h, f) {
+    layer.closeAll();
+    console.log(s);
+    layer.msg("系统异常", { icon: 2, shade: 0.1 }, function () {
+    });
+}
+SearchLoading = {
+    Show: function () {
+        var _loadShade = '<div class="layui-layer-shade search_Loading" style="z-index: 202301;background-color: rgb(0, 0, 0);opacity: 0.1;position:absolute;"></div>';
+        var _loading = '<div class="search_Loading  text-primary fs-6 p-1" style="min-width: 100px;filter: alpha(opacity=60);color: #fff;border: none;z-index: 202302;position: absolute;top:120px;left: 38%;"><div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden"></span></div> 搜索中...</div>';
+        var _loadHtml = _loadShade + _loading;
+        $("#searchResultList").append(_loadHtml);
+       
+    },
+    Hide: function () {
+        $(".search_Loading").remove();
+    }
+}
+
+/**
          * 点击切换搜索结果选项卡
          */
 function ActionToTabs(tabID) {

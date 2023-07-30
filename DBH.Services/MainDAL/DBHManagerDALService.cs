@@ -142,9 +142,9 @@ namespace DBH.DALServices.MainDAL
         public async Task<EntityResult> UpdateFsServiceEntity(FS_ServicesEntity entity)
         {
             EntityResult result = new EntityResult();
-            using (var conn=ConnectionProvider.GetConnection())
+            using (var conn = ConnectionProvider.GetConnection())
             {
-                string[] ignoreFields = new string[] { };
+                string[] ignoreFields = { ""};
                 if (string.IsNullOrEmpty(entity.LoginPassword))//如果密码为空，则默认为不更新，可忽略此字段的更新
                     ignoreFields[0] = "LoginPassword";
                 int code = await conn.UpdateIgnoreAppointAsync<FS_ServicesEntity>(entity, ignoreFields);

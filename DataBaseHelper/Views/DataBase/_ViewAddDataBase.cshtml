@@ -15,7 +15,7 @@
             <input type="text" class="form-control" id="databaseAddress" placeholder="数据库地址" aria-describedby="valid_ServerAddress" name="DBAddress" value="@(Model.ServerAddress)" required />
         </div>
         <div class="col-md-3">
-            <div id="valid_ServerAddress" class="vaild-feedback">请填写数据库地址！</div>
+            <div id="valid_ServerAddress" class="vaild-feedback"></div>
         </div>
         <div class="col-md-3 text-end"><label class="col-md-10 col-form-label">端口：</label></div>
         <div class="col-md-6">
@@ -111,6 +111,15 @@
             var fsServiceID = $("#hid_fsServiceID").val();
             if (fsServiceID > 0) {
                 $("#requireTipPassword").hide();
+                var passwordEle = document.getElementById('databaseLoginPassword');
+                var tooltip = new bootstrap.Tooltip(passwordEle, {
+                    animation:true,
+                    delay:0,
+                    placement:'right',
+                    title:'更新时，可以不更新密码',
+                    trigger:'hover focus',
+                    fallbackPlacements:['right','top','bottom']
+                })
             }
             // $("#saveDBserviceForm").ajaxSubmit(options);
         })
@@ -122,9 +131,20 @@
         * @@param {any} options 配置项
         */
         function formSubmitBefore(formData, jqForm, options) {
-            var queryString = $.param(formData);
+            //var queryString = $.param(formData);
             //$(jqForm).addClass("was-validated");//bootstrap验证
-            //layer.alert('提交的参数: \n\n' + queryString);
+            //alert('提交的参数: \n\n' + queryString);
+
+            var isValid = validFormInput();
+            if (isValid) {
+                layer.msg('<div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden"></span></div>保存中...', { shade: 0.1, time: 999999 });
+            }
+            return isValid;//返回false，阻止form提交
+        }
+        /**
+         * 验证表男内容
+         */
+        function validFormInput() {
             var hid_fsServiceID = $("#hid_fsServiceID").val();
             var databaseAddress = $.trim($("#databaseAddress").val());
             var databaseSource = $("#databaseSource").val();
@@ -154,10 +174,8 @@
                     $("#databaseLoginPassword").focus(); return false;
                 }
             }
-
-            return true;//返回false，阻止form提交
+            return true;
         }
-
         /**
         * form提交成功后返回
         * @@param {any} responseText
@@ -166,19 +184,20 @@
         * @@param {any} $form
         */
         function formSubmitSuccess(responseText, statusText, xhr, $form) {
+            layer.closeAll();
             if (statusText == "success") {
                 if (responseText.entityCode == 1000) {
-                    parent.layer.msg("保存成功", { icon: 1, shade: 0.1 }, function () {
+                    layer.msg("保存成功", { icon: 1, shade: 0.1 }, function () {
                         // layer.msg('提示框关闭后的回调');
                         window.parent.location.reload();
                     });
                 } else {
-                    parent.layer.msg(responseText.message, { icon: 0, shade: 0.1 }, function () {
+                    layer.msg(responseText.message, { icon: 0, shade: 0.1 }, function () {
                     });
                 }
             } else {
                 console.log(responseText);
-                parent.layer.msg("系统异常", { icon: 2, shade: 0.1 }, function () {
+                layer.msg("系统异常", { icon: 2, shade: 0.1 }, function () {
                 });
             }
         }
@@ -186,8 +205,9 @@
          * form submit error
          */
         function formSubmitError(x, s, h, f) {
+            layer.closeAll();
             console.log(s);
-            parent.layer.msg("系统异常", { icon: 2, shade: 0.1 }, function () {
+            layer.msg("系统异常", { icon: 2, shade: 0.1 }, function () {
             });
         }
 
@@ -195,6 +215,8 @@
          * test connection
          */
         function testConnection() {
+            var isValid = validFormInput();
+            if (!isValid) return false;
             var layorIndex = layer.msg('<div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden"></span></div>连接测试中...', { shade: 0.1, time: 999999 });
             $.ajax(
                 {

@@ -7,48 +7,53 @@
     .searchListContent i.icon { font-size: 1.15rem; display: contents; }
     .searchListContent a { overflow-wrap: anywhere; }
 </style>
-<div class="input-group  mb-3">
-    <form class="row g-3 needs-validation" novalidate>
+<div class="input-group row   mb-1" style=" margin-right:0;width: auto;">
+    <form class="needs-validation" id="form_Search" method="POST" action="/DataBase/Search" style="min-width: 180px;max-width: 680px;padding-right: 0;" novalidate>
         <div class="col-md">
             <div class="input-group has-validation">
 
                 <span class="input-group-text" id="basic-addon1">
                     <i class="bi-search"></i>
                 </span>
-                <input type="text" id="serarch_main" class="form-control" placeholder="表、存储过程、函数名" aria-label="表、存储过程、方法名"
+                <input type="text" id="serarch_main" name="SearchTxt" class="form-control" placeholder="表、存储过程、函数名" aria-label="表、存储过程、方法名"
                        aria-describedby="button-addon2" data-bs-toggle="tooltip" data-bs-placement="bottom" title="" required />
                 <button class="btn btn-outline-primary" type="submit" id="btn_search_main">搜索</button>
                 <div class="invalid-feedback">请输入搜索内容！</div>
             </div>
-            <nav class="navbar navbar-expand-lg navbar-light bg-light">
-                <div class="search_btn_tabs btn-group btn-group-sm flex-fill justify-content-between btn-tab" role="group" aria-label="Basic  radio toggle button group">
-                    <button type="button" rel="0" class="btn rounded-top btn-outline-light color-all tab-active" title="查看全部"><span class="icon iconfont icon-all"></span></button>
-                    <button type="button" rel="1" class="btn rounded-top btn-outline-secondary color-table" title="仅查看表"><i class="bi-table"></i></button>
-                    <button type="button" rel="2" class="btn rounded-top btn-outline-secondary color-proc" title="仅查看存储过程"><i class="bi-filter-square"></i></button>
-                    <button type="button" rel="3" class="btn rounded-top btn-outline-secondary color-func" title="仅查看表值函数"><i class="icon iconfont icon-tubiao-hanshu"></i></button>
-                </div>
-                @*<ul class="nav nav-tabs ">
-                <li class="nav-item">
-                <a class="nav-link active" aria-current="true" href="#"><span class="icon iconfont icon-all"></span></a>
-                </li>
-                <li class="nav-item">
-                <a class="nav-link" href="#"><i class="bi-table"></i></a>
-                </li>
-                <li class="nav-item">
-                <a class="nav-link"><i class="bi-filter-square"></i></a>
-                </li>
-                <li class="nav-item">
-                <a class="nav-link"><i class="icon iconfont icon-tubiao-hanshu"></i></a>
-                </li>
-                </ul>*@
-            </nav>
-            <div id="searchListContent" class="list-group list-group-flush searchListContent">
-                <a href="#" rel="1" class="list-group-item list-group-item-action  list-group-item-light"><i class="bi-table color-table"></i>ABCDEFGHIJKLMNOPQRSTUVWXYZ</a>
-                <a href="#" rel="1" class="list-group-item list-group-item-action  list-group-item-light"><i class="bi-table color-table"></i>BBBBBBBB</a>
-                <a href="#" rel="2" class="list-group-item list-group-item-action  list-group-item-light"><i class="bi-filter-square color-proc"></i>CCCCCCCCC</a>
-                <a href="#" rel="2" class="list-group-item list-group-item-action  list-group-item-light"><i class="bi-filter-square color-proc"></i>DDDDDDDDDD</a>
-                <a href="#" rel="3" class="list-group-item list-group-item-action  list-group-item-light"><i class="icon iconfont icon-tubiao-hanshu color-func"></i>EEEEEEEE</a>
-            </div>
         </div>
     </form>
+</div>
+
+<div class="input-group row" id="searchResultList" style="min-width: 180px;max-width: 680px; margin-right:0;width: auto; min-height:360px;">
+    <div class="col-md clearfix" style="padding-right: 0;">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div class="search_btn_tabs btn-group btn-group-sm flex-fill justify-content-between btn-tab" role="group" aria-label="Basic  radio toggle button group">
+                <button type="button" rel="0" class="btn rounded-top btn-outline-light color-all tab-active" title="查看全部"><span class="icon iconfont icon-all"></span></button>
+                <button type="button" rel="1" class="btn rounded-top btn-outline-secondary color-table" title="仅查看表"><i class="bi-table"></i></button>
+                <button type="button" rel="2" class="btn rounded-top btn-outline-secondary color-proc" title="仅查看存储过程"><i class="bi-filter-square"></i></button>
+                <button type="button" rel="3" class="btn rounded-top btn-outline-secondary color-func" title="仅查看表值函数"><i class="icon iconfont icon-tubiao-hanshu"></i></button>
+            </div>
+            @*<ul class="nav nav-tabs ">
+            <li class="nav-item">
+            <a class="nav-link active" aria-current="true" href="#"><span class="icon iconfont icon-all"></span></a>
+            </li>
+            <li class="nav-item">
+            <a class="nav-link" href="#"><i class="bi-table"></i></a>
+            </li>
+            <li class="nav-item">
+            <a class="nav-link"><i class="bi-filter-square"></i></a>
+            </li>
+            <li class="nav-item">
+            <a class="nav-link"><i class="icon iconfont icon-tubiao-hanshu"></i></a>
+            </li>
+            </ul>*@
+        </nav>
+        <div id="searchListContent" class="list-group list-group-flush searchListContent">
+            <a href="#" rel="1" class="list-group-item list-group-item-action  list-group-item-light"><i class="bi-table color-table"></i>ABCDEFGHIJKLMNOPQRSTUVWXYZ</a>
+            <a href="#" rel="1" class="list-group-item list-group-item-action  list-group-item-light"><i class="bi-table color-table"></i>BBBBBBBB</a>
+            <a href="#" rel="2" class="list-group-item list-group-item-action  list-group-item-light"><i class="bi-filter-square color-proc"></i>CCCCCCCCC</a>
+            <a href="#" rel="2" class="list-group-item list-group-item-action  list-group-item-light"><i class="bi-filter-square color-proc"></i>DDDDDDDDDD</a>
+            <a href="#" rel="3" class="list-group-item list-group-item-action  list-group-item-light"><i class="icon iconfont icon-tubiao-hanshu color-func"></i>EEEEEEEE</a>
+        </div>
+    </div>
 </div>

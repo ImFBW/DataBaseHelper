@@ -59,10 +59,28 @@ namespace DataBaseHelper.Controllers
         /// <summary>
         /// 搜索页，主要的搜索功能的页面，可搜索表、存储过程、表值函数
         /// </summary>
+        /// <param name="ID">数据库配置表主键ID</param>
         /// <returns></returns>
-        public async Task<IActionResult> Search()
+        public async Task<IActionResult> Search(int? ID)
         {
-            return View();
+            int IDval = 0;
+            if (ID.HasValue) IDval = ID.Value;
+            FS_ServicesEntity fsServiceEntity = new FS_ServicesEntity();
+            if (IDval > 0)
+            {
+                fsServiceEntity = await _DBHManagerBLLProvider.GetServicesEnvityAsync(IDval);
+            }
+
+            string currentDBAddress = "--";//当前选择的数据库地址
+            if (fsServiceEntity != null)
+            {
+                currentDBAddress = fsServiceEntity.ServerAddress;
+                if (fsServiceEntity.ServerPortNo > 0)
+                    currentDBAddress += ":" + fsServiceEntity.ServerPortNo.ToString();
+            }
+            ViewBag.CurrentDBName = fsServiceEntity.DataBaseName;
+            ViewBag.CurrentDBAddress = currentDBAddress;
+            return View(fsServiceEntity);
         }
 
         #endregion
@@ -79,15 +97,15 @@ namespace DataBaseHelper.Controllers
             fsEntity.IsInUse = 1;
             fsEntity.ServerType = (int)ServiceType.MSSql;//当前固定1：SqlServer，后期还要增加MySql的支持
             EntityResult entityResult = new EntityResult();
-            if(entityResult!=null && entityResult.ID > 0)//更新
+            if (fsEntity.ID > 0)//更新
             {
                 entityResult = await _DBHManagerBLLProvider.UpdateFsServiceEntity(fsEntity);
             }
             else//新增
             {
                 entityResult = await _DBHManagerBLLProvider.InsertFsServiceEntity(fsEntity);
-            }          
-            
+            }
+
             _logger.LogInformation("Save fs Service:DataBaseName:" + fSService.DBName, DateTime.UtcNow);
 
             return Json(entityResult);
@@ -121,16 +139,16 @@ namespace DataBaseHelper.Controllers
         public async Task<IActionResult> DeleteDatabase(int? ID)
         {
             int IDval = 0;
-            if(ID.HasValue)IDval=ID.Value;
+            if (ID.HasValue) IDval = ID.Value;
             ResultModel result = new ResultModel();
 
-            if (IDval<=0)
+            if (IDval <= 0)
             {
                 result.Code = ResultCode.Error;
                 result.Status = false;
                 result.Message = "ID 为空";
             }
-            else 
+            else
             {
                 bool deleteCode = await _DBHManagerBLLProvider.DeleteFsServiceEntity(IDval);
                 if (deleteCode)
@@ -149,7 +167,19 @@ namespace DataBaseHelper.Controllers
             return Json(result);
         }
 
+        /// <summary>
+        /// 搜索：表名、表字段名、存储过程名、表值函数名
+        /// </summary>
+        /// <param name="SearchTxt"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<IActionResult> Search(string SearchTxt)
+        {
+            ResultModel result = new ResultModel();
+            result.Message = SearchTxt;
 
+            return Json(result);
+        }
         #endregion
     }
 }
