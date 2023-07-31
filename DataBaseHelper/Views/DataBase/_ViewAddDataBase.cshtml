@@ -116,7 +116,7 @@
                     animation:true,
                     delay:0,
                     placement:'right',
-                    title:'更新时，可以不更新密码',
+                    title:'更新时，为空则不更新密码',
                     trigger:'hover focus',
                     fallbackPlacements:['right','top','bottom']
                 })
@@ -165,12 +165,12 @@
                 $("#databaseName").focus(); return false;
             }
             if (Valid.IsNullOrEmpty(databaseLoginName)) {
-                layer.msg("请填写数据库登录名");
+                layer.msg("请填写登录名");
                 $("#databaseLoginName").focus(); return false;
             }
             if (hid_fsServiceID <= 0) {
                 if (Valid.IsNullOrEmpty(databaseLoginPassword)) {
-                    layer.msg("请填写数据库地址");
+                    layer.msg("请填写登录密码");
                     $("#databaseLoginPassword").focus(); return false;
                 }
             }
@@ -217,6 +217,11 @@
         function testConnection() {
             var isValid = validFormInput();
             if (!isValid) return false;
+            var databaseLoginPassword = $.trim($("#databaseLoginPassword").val());
+            if (Valid.IsNullOrEmpty(databaseLoginPassword)) {
+                layer.msg("请填写登录密码");
+                $("#databaseLoginPassword").focus(); return false;
+            }
             var layorIndex = layer.msg('<div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden"></span></div>连接测试中...', { shade: 0.1, time: 999999 });
             $.ajax(
                 {

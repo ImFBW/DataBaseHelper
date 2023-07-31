@@ -3,9 +3,14 @@
     var options = {
         beforeSubmit: function () {
             var searchTxt = $.trim($("#serarch_main").val());
+            var fsServiceID = $.trim($("#hid_fsServiceEntityID").val());
             if (Valid.IsNullOrEmpty(searchTxt)) {
                 return false;
             }
+            if (fsServiceID <= 0) {
+                layer.msg("未选择数据库", { icon: 0 }); return false;
+            }
+            $("#hid_SearchFSServcieEntityID").val(fsServiceID);
             SearchLoading.Show();
             return true;
         }, //提交前，验证
@@ -35,7 +40,18 @@ function SearchSuccess(responseText, statusText, xhr, $form) {
     if (statusText == "success") {
         //debugger
         if (responseText.status == true) {
-            layer.msg("success");
+            var _resultHtml = '';
+            $.each(responseText.result, function (i, n) {
+                if (n.dbObjectType == 1) {//Table
+                    _resultHtml += '<a href="#" rel="' + (i + 1) + '" class="list-group-item list-group-item-action  list-group-item-light"><i class="bi-table color-table"></i>' + n.typeName + '</a>';
+                } else if (n.dbObjectType == 2) {//Proc
+                    _resultHtml += '<a href="#" rel="' + (i + 1) + '" class="list-group-item list-group-item-action  list-group-item-light"><i class="bi-filter-square color-proc"></i>' + n.typeName + '</a>';
+                } else if (n.dbObjectType == 3) {//Fun_Table
+                    _resultHtml += '<a href="#" rel="' + (i + 1) + '" class="list-group-item list-group-item-action  list-group-item-light"><i class="icon iconfont icon-tubiao-hanshu color-func"></i>' + n.typeName + '</a>';
+                }
+            })
+            $("#searchListContent").html('');
+            $("#searchListContent").html(_resultHtml);
         } else {
             layer.msg(responseText.message, { icon: 0, shade: 0.1 }, function () {
             });

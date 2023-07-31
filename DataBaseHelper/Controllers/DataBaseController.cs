@@ -1,9 +1,11 @@
-﻿using DBH.BLLServiceProvider.MainBLL;
+﻿using DBH.BLLProvider.MainBLL;
+using DBH.BLLServiceProvider.MainBLL;
 using DBH.Models.Common;
 using DBH.Models.Entitys;
 using DBH.Models.EntityViews;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Xml.Linq;
 using static Dapper.SqlMapper;
 
 namespace DataBaseHelper.Controllers
@@ -15,10 +17,12 @@ namespace DataBaseHelper.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IDBHManagerBLLProvider _DBHManagerBLLProvider;
-        public DataBaseController(ILogger<HomeController> logger, IDBHManagerBLLProvider dBHManagerBLLProvider)
+        private readonly ISqlServerManagerBLLProvider _sqlServerManagerBLLProvider;
+        public DataBaseController(ILogger<HomeController> logger, IDBHManagerBLLProvider dBHManagerBLLProvider, ISqlServerManagerBLLProvider sqlServerManagerBLLProvider)
         {
             _logger = logger;
             _DBHManagerBLLProvider = dBHManagerBLLProvider;
+            _sqlServerManagerBLLProvider = sqlServerManagerBLLProvider;
         }
         #region DataBase 页面
         /// <summary>
@@ -71,14 +75,16 @@ namespace DataBaseHelper.Controllers
                 fsServiceEntity = await _DBHManagerBLLProvider.GetServicesEnvityAsync(IDval);
             }
 
-            string currentDBAddress = "--";//当前选择的数据库地址
-            if (fsServiceEntity != null)
+            string currentDBAddress = "";//当前选择的数据库地址
+            string currentDBName = "--";
+            if (fsServiceEntity != null && !string.IsNullOrEmpty(fsServiceEntity.ServerAddress))
             {
                 currentDBAddress = fsServiceEntity.ServerAddress;
                 if (fsServiceEntity.ServerPortNo > 0)
                     currentDBAddress += ":" + fsServiceEntity.ServerPortNo.ToString();
+                currentDBName = fsServiceEntity.DataBaseName;
             }
-            ViewBag.CurrentDBName = fsServiceEntity.DataBaseName;
+            ViewBag.CurrentDBName = currentDBName;
             ViewBag.CurrentDBAddress = currentDBAddress;
             return View(fsServiceEntity);
         }
@@ -173,11 +179,44 @@ namespace DataBaseHelper.Controllers
         /// <param name="SearchTxt"></param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<IActionResult> Search(string SearchTxt)
+        public async Task<IActionResult> SearchSubmit(int? ID, string SearchTxt)
         {
             ResultModel result = new ResultModel();
-            result.Message = SearchTxt;
+            result.Status = false;
+            int IDval = 0;
+            if (ID.HasValue) { IDval = ID.Value; }
+            else
+            {
+                result.Message = "未选择数据库";
+                return Json(result);
+            }
+            if (string.IsNullOrEmpty(SearchTxt))
+            {
+                result.Message = "搜索参数为空";
+                return Json(result);
+            }
 
+            FS_ServicesEntity fsServiceEntity = new FS_ServicesEntity();
+            fsServiceEntity = await _DBHManagerBLLProvider.GetServicesEnvityAsync(IDval);
+            if (fsServiceEntity == null || fsServiceEntity.ID <= 0 || string.IsNullOrEmpty(fsServiceEntity.ServerAddress) || string.IsNullOrEmpty(fsServiceEntity.DataBaseName))
+            {
+                result.Message = "数据库配置错误";
+                return Json(result);
+            }
+            result.Message = SearchTxt;
+            IList<SysDataBaseSearchView> listView =new List<SysDataBaseSearchView>();
+            if (fsServiceEntity.ServerType==1)//SqlServer
+            {
+                string connectionString = string.Format($"data source={fsServiceEntity.ServerAddress};persist security info=True;initial catalog={fsServiceEntity.DataBaseName};user id={fsServiceEntity.LoginName};password={fsServiceEntity.LoginPassword};");
+                _sqlServerManagerBLLProvider.SetConnectionString(connectionString);
+                listView = await _sqlServerManagerBLLProvider.SearchAction(SearchTxt);
+            }
+            else if(fsServiceEntity.ServerType == 1)//MySQL
+            {
+                //暂不支持
+            }
+            result.Status = true;
+            result.Result = listView;
             return Json(result);
         }
         #endregion

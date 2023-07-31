@@ -22,6 +22,7 @@
     </div>
 </div>
 <div>
+    <input type="hidden" id="hid_fsServiceEntityID" value="@(Model.ID)" />
     <input type="hidden" id="CurrentDBAddress" value="@(ViewBag.CurrentDBAddress)" />
     <input type="hidden" id="CurrentDBName" value="@(ViewBag.CurrentDBName)" />
 </div>
@@ -295,6 +296,8 @@
             //设置当前选择的数据库地址
             var CurrentDBAddress = $("#CurrentDBAddress").val();
             var CurrentDBName = $("#CurrentDBName").val();
+            var hidID = $("#hid_fsServiceEntityID").val();
+            $("#hid_SearchFSServcieEntityID").val(hidID);
             $("#current_Server_Title").html(CurrentDBName);
             var toolTipEle = document.getElementById('current_Server_Title');
             var tooltip = new bootstrap.Tooltip(toolTipEle, {

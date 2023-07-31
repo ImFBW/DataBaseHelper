@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 
 namespace DBH.BLLService.MainBLL
 {
-    public class MySqlManagerBLLServer : BaseBLLService, IMySqlManagerBLLProvider
+    public class MySqlManagerBLLService : BaseBLLService, IMySqlManagerBLLProvider
     {
         private readonly IMySqlManagerDALProvider _mySqlManagerDALProvider;
-        public MySqlManagerBLLServer(IMySqlManagerDALProvider mySqlManagerDALProvider)
+        public MySqlManagerBLLService(IMySqlManagerDALProvider mySqlManagerDALProvider)
         {
             _mySqlManagerDALProvider = mySqlManagerDALProvider;
         }

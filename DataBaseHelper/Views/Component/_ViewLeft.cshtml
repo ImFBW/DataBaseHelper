@@ -8,13 +8,14 @@
     .searchListContent a { overflow-wrap: anywhere; }
 </style>
 <div class="input-group row   mb-1" style=" margin-right:0;width: auto;">
-    <form class="needs-validation" id="form_Search" method="POST" action="/DataBase/Search" style="min-width: 180px;max-width: 680px;padding-right: 0;" novalidate>
+    <form class="needs-validation" id="form_Search" method="POST" action="/DataBase/SearchSubmit" style="min-width: 180px;max-width: 680px;padding-right: 0;" novalidate>
         <div class="col-md">
             <div class="input-group has-validation">
 
                 <span class="input-group-text" id="basic-addon1">
                     <i class="bi-search"></i>
                 </span>
+                <input type="hidden" name="ID" id="hid_SearchFSServcieEntityID" value="0" />
                 <input type="text" id="serarch_main" name="SearchTxt" class="form-control" placeholder="表、存储过程、函数名" aria-label="表、存储过程、方法名"
                        aria-describedby="button-addon2" data-bs-toggle="tooltip" data-bs-placement="bottom" title="" required />
                 <button class="btn btn-outline-primary" type="submit" id="btn_search_main">搜索</button>
@@ -49,11 +50,11 @@
             </ul>*@
         </nav>
         <div id="searchListContent" class="list-group list-group-flush searchListContent">
-            <a href="#" rel="1" class="list-group-item list-group-item-action  list-group-item-light"><i class="bi-table color-table"></i>ABCDEFGHIJKLMNOPQRSTUVWXYZ</a>
+            @*<a href="#" rel="1" class="list-group-item list-group-item-action  list-group-item-light"><i class="bi-table color-table"></i>ABCDEFGHIJKLMNOPQRSTUVWXYZ</a>
             <a href="#" rel="1" class="list-group-item list-group-item-action  list-group-item-light"><i class="bi-table color-table"></i>BBBBBBBB</a>
             <a href="#" rel="2" class="list-group-item list-group-item-action  list-group-item-light"><i class="bi-filter-square color-proc"></i>CCCCCCCCC</a>
             <a href="#" rel="2" class="list-group-item list-group-item-action  list-group-item-light"><i class="bi-filter-square color-proc"></i>DDDDDDDDDD</a>
-            <a href="#" rel="3" class="list-group-item list-group-item-action  list-group-item-light"><i class="icon iconfont icon-tubiao-hanshu color-func"></i>EEEEEEEE</a>
+            <a href="#" rel="3" class="list-group-item list-group-item-action  list-group-item-light"><i class="icon iconfont icon-tubiao-hanshu color-func"></i>EEEEEEEE</a>*@
         </div>
     </div>
 </div>

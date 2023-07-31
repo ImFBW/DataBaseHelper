@@ -10,9 +10,12 @@ using System.Threading.Tasks;
 
 namespace DBH.DALServices.MainDAL
 {
-    public class MySqlManagerDALServer : BaseDALService, IMySqlManagerDALProvider
+    /// <summary>
+    /// 关于配置的查询-MySql数据库类型
+    /// </summary>
+    public class MySqlManagerDALService : BaseDALService, IMySqlManagerDALProvider
     {
-        public MySqlManagerDALServer(IConfiguration configuretion, IDBConnectionProvider dBConnectionProvider)
+        public MySqlManagerDALService(IConfiguration configuretion, IDBConnectionProvider dBConnectionProvider)
         {
             ConnectionProvider = dBConnectionProvider;
             ConnectionProvider.ConnectionString = configuretion.GetConnectionString("DBMSToolConnection").ToString();//配置连接字符串
