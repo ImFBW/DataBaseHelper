@@ -4,6 +4,7 @@ using DBH.Models.Common;
 using DBH.Models.Entitys;
 using DBH.Models.EntityViews;
 using Microsoft.AspNetCore.Mvc;
+using MySqlX.XDevAPI.Common;
 using System.Collections.Generic;
 using System.Xml.Linq;
 using static Dapper.SqlMapper;
@@ -38,29 +39,6 @@ namespace DataBaseHelper.Controllers
         }
 
         /// <summary>
-        ///  视图-弹出框-添加数据库
-        /// </summary>
-        /// <param name="id">大于0表示编辑</param>
-        /// <returns></returns>
-        public async Task<IActionResult> _ViewAddDataBase(int? id)
-        {
-            int databaseIDval = 0;
-            if (id.HasValue) databaseIDval = id.Value; else databaseIDval = 0;
-            FS_ServicesEntity fsServiceEntity = new FS_ServicesEntity();
-            if (databaseIDval > 0)
-            {
-                fsServiceEntity = await _DBHManagerBLLProvider.GetServicesEnvityAsync(databaseIDval);
-            }
-            IList<FS_ServiceSourceEntity> listSourceEntity = new List<FS_ServiceSourceEntity>();
-            listSourceEntity = await _DBHManagerBLLProvider.GetFSServiceSrouceListAsync();
-            ViewData["listEntity"] = listSourceEntity;
-
-            return View(fsServiceEntity);
-        }
-        #endregion
-
-        #region Search 页面
-        /// <summary>
         /// 搜索页，主要的搜索功能的页面，可搜索表、存储过程、表值函数
         /// </summary>
         /// <param name="ID">数据库配置表主键ID</param>
@@ -89,7 +67,97 @@ namespace DataBaseHelper.Controllers
             return View(fsServiceEntity);
         }
 
+        /// <summary>
+        ///  视图-弹出框-添加数据库
+        /// </summary>
+        /// <param name="id">大于0表示编辑</param>
+        /// <returns></returns>
+        public async Task<IActionResult> _ViewAddDataBase(int? id)
+        {
+            int databaseIDval = 0;
+            if (id.HasValue) databaseIDval = id.Value; else databaseIDval = 0;
+            FS_ServicesEntity fsServiceEntity = new FS_ServicesEntity();
+            if (databaseIDval > 0)
+            {
+                fsServiceEntity = await _DBHManagerBLLProvider.GetServicesEnvityAsync(databaseIDval);
+            }
+            IList<FS_ServiceSourceEntity> listSourceEntity = new List<FS_ServiceSourceEntity>();
+            listSourceEntity = await _DBHManagerBLLProvider.GetFSServiceSrouceListAsync();
+            ViewData["listEntity"] = listSourceEntity;
+
+            return View(fsServiceEntity);
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="typeID"></param>
+        /// <param name="typeName"></param>
+        /// <returns></returns>
+        public async Task<IActionResult> PartialViewForSearchResult(int? id, int? typeID, string typeName)
+        {
+            int databaseIDval = 0;
+            if (id.HasValue) databaseIDval = id.Value; else databaseIDval = 0;
+            FS_ServicesEntity fsServiceEntity = new FS_ServicesEntity();
+            if (databaseIDval > 0)
+            {
+                fsServiceEntity = await _DBHManagerBLLProvider.GetServicesEnvityAsync(databaseIDval);
+            }
+            if (!typeID.HasValue || string.IsNullOrEmpty(typeName))
+            {
+                return Content("");
+            }
+            if (fsServiceEntity == null || fsServiceEntity.ID <= 0 || string.IsNullOrEmpty(fsServiceEntity.ServerAddress) || string.IsNullOrEmpty(fsServiceEntity.DataBaseName))
+            {
+                Content("");
+            }
+            string connectionString = string.Empty;
+            if (fsServiceEntity.ServerType == 1)//SqlServer
+            {
+                connectionString = string.Format($"data source={fsServiceEntity.ServerAddress};persist security info=True;initial catalog={fsServiceEntity.DataBaseName};user id={fsServiceEntity.LoginName};password={fsServiceEntity.LoginPassword};");
+                _sqlServerManagerBLLProvider.SetConnectionString(connectionString);
+            }
+            else if (fsServiceEntity.ServerType == 1)//MySQL
+            {
+                //暂不支持
+            }
+
+            ViewBag.TypeID = typeID;
+            ViewBag.TypeName = typeName;
+            ViewData["fsServiceEntity"] = fsServiceEntity;
+            SysDataBaseSearchView searchView = new SysDataBaseSearchView()
+            {
+                DBObjectType = (DBObjectType)(typeID.Value),
+                TypeName = (string)typeName
+            };
+            //根据不同的数据类型，返回不同的页面代码
+            if (typeID == (int)DBObjectType.U)
+            {
+
+                return View("~/Views/Component/_PartialViewSearchAsTable.cshtml", fsServiceEntity);
+            }
+            else if (typeID == (int)DBObjectType.P)
+            {
+                IList<Definition> listDefinition = await _sqlServerManagerBLLProvider.GetDefinitionsAsync(typeName);
+                if (listDefinition != null)
+                    searchView.Definition = listDefinition.ToList();
+                else
+                    searchView.Definition = new List<Definition>();
+                return View("~/Views/Component/_PartialViewSearchAsProc.cshtml", searchView);
+            }
+            else if (typeID == (int)DBObjectType.TF)
+            {
+                return View("~/Views/Component/_PartialViewSearchAsTFunc.cshtml", fsServiceEntity);
+            }
+            else
+            {
+                return Content("");
+            }
+        }
+
         #endregion
+
 
         #region AjaxRequest的处理
         /// <summary>
@@ -105,11 +173,11 @@ namespace DataBaseHelper.Controllers
             EntityResult entityResult = new EntityResult();
             if (fsEntity.ID > 0)//更新
             {
-                entityResult = await _DBHManagerBLLProvider.UpdateFsServiceEntity(fsEntity);
+                entityResult = await _DBHManagerBLLProvider.UpdateFsServiceEntityAsync(fsEntity);
             }
             else//新增
             {
-                entityResult = await _DBHManagerBLLProvider.InsertFsServiceEntity(fsEntity);
+                entityResult = await _DBHManagerBLLProvider.InsertFsServiceEntityAsync(fsEntity);
             }
 
             _logger.LogInformation("Save fs Service:DataBaseName:" + fSService.DBName, DateTime.UtcNow);
@@ -132,7 +200,7 @@ namespace DataBaseHelper.Controllers
             if (!string.IsNullOrEmpty(dbPort) && int.Parse(dbPort) > 0)
                 dbAddress += ":" + dbPort;
             string connectionString = string.Format($"data source={dbAddress};persist security info=True;initial catalog={dbName};user id={dbLoginName};password={dbLoginPassword};");
-            bool isConn = await _DBHManagerBLLProvider.TestConnection(connectionString);
+            bool isConn = await _DBHManagerBLLProvider.TestConnectionAsync(connectionString);
             return Content(isConn ? "true" : "false");
         }
 
@@ -156,7 +224,7 @@ namespace DataBaseHelper.Controllers
             }
             else
             {
-                bool deleteCode = await _DBHManagerBLLProvider.DeleteFsServiceEntity(IDval);
+                bool deleteCode = await _DBHManagerBLLProvider.DeleteFsServiceEntityAsync(IDval);
                 if (deleteCode)
                 {
                     result.Code = ResultCode.Success;
@@ -204,14 +272,14 @@ namespace DataBaseHelper.Controllers
                 return Json(result);
             }
             result.Message = SearchTxt;
-            IList<SysDataBaseSearchView> listView =new List<SysDataBaseSearchView>();
-            if (fsServiceEntity.ServerType==1)//SqlServer
+            IList<SysDataBaseSearchView> listView = new List<SysDataBaseSearchView>();
+            if (fsServiceEntity.ServerType == 1)//SqlServer
             {
                 string connectionString = string.Format($"data source={fsServiceEntity.ServerAddress};persist security info=True;initial catalog={fsServiceEntity.DataBaseName};user id={fsServiceEntity.LoginName};password={fsServiceEntity.LoginPassword};");
                 _sqlServerManagerBLLProvider.SetConnectionString(connectionString);
                 listView = await _sqlServerManagerBLLProvider.SearchAction(SearchTxt);
             }
-            else if(fsServiceEntity.ServerType == 1)//MySQL
+            else if (fsServiceEntity.ServerType == 1)//MySQL
             {
                 //暂不支持
             }

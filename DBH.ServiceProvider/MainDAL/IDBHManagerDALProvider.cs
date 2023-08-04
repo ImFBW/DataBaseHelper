@@ -11,6 +11,17 @@ namespace DBH.DALServiceProvider.MainDAL
 {
     public interface IDBHManagerDALProvider : IBaseDALProvider
     {
+        #region Insert
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fS_ServicesEntity"></param>
+        /// <returns></returns>
+        Task<EntityResult> InsertFsServiceEntityAsync(FS_ServicesEntity fS_ServicesEntity);
+
+
+        #endregion
+
         #region select
         /// <summary>
         /// 获取全部的服务配置
@@ -36,19 +47,9 @@ namespace DBH.DALServiceProvider.MainDAL
         /// </summary>
         /// <param name="connectionString">连接字符串</param>
         /// <returns></returns>
-        Task<bool> TestConnection(string connectionString);
+        Task<bool> TestConnectionAsync(string connectionString);
 
-        #endregion
-
-        #region Insert
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fS_ServicesEntity"></param>
-        /// <returns></returns>
-        Task<EntityResult> InsertFsServiceEntity(FS_ServicesEntity fS_ServicesEntity);
-
-
+        
         #endregion
 
         #region Update
@@ -58,7 +59,7 @@ namespace DBH.DALServiceProvider.MainDAL
         /// </summary>
         /// <param name="entity">实体</param>
         /// <returns></returns>
-        Task<EntityResult> UpdateFsServiceEntity(FS_ServicesEntity entity);
+        Task<EntityResult> UpdateFsServiceEntityAsync(FS_ServicesEntity entity);
 
 
         /// <summary>
@@ -66,7 +67,7 @@ namespace DBH.DALServiceProvider.MainDAL
         /// </summary>
         /// <param name="ID">主键ID</param>
         /// <returns></returns>
-        Task<bool> DeleteFsServiceEntity(int ID);
+        Task<bool> DeleteFsServiceEntityAsync(int ID);
 
         #endregion
 

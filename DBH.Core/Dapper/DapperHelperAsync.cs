@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
@@ -737,6 +738,43 @@ namespace DBH.Core.Dapper
                 Trace.WriteLine($"RecordCount<{currenttype}>: {sb}");
 
             return connection.ExecuteScalarAsync<int>(sb.ToString(), whereConditions, transaction, commandTimeout);
+        }
+
+
+        /// <summary>
+        /// 根据sql语句查询返回DataTable
+        /// </summary>
+        /// <param name="connection"></param>
+        /// <param name="sql"></param>
+        /// <returns></returns>
+        public static async Task<DataSet> ExecuteTableAsync(this IDbConnection connection, string sql)
+        {
+            var reader = await connection.ExecuteReaderAsync(sql);
+            DataTable dt = new DataTable();
+            DataSet ds = new DataSet();
+            ds.Tables.Add(dt);
+            ds.Load(reader, LoadOption.Upsert, dt);
+            return ds;
+        }
+
+        /// <summary>
+        /// 根据sql语句查询返回DataTable
+        /// </summary>
+        /// <param name="connection"></param>
+        /// <param name="sql"></param>
+        /// <param name="parameters"></param>
+        /// <param name="commandType"></param>
+        /// <param name="commandTimeout"></param>
+        /// <returns></returns>
+
+        public static async Task<DataSet> ExecuteTableAsync(this IDbConnection connection, string sql, object parameters = null, CommandType? commandType = null, int? commandTimeout = null)
+        {
+            var reader = await connection.ExecuteReaderAsync(sql, parameters, null, commandTimeout, commandType);
+            DataTable dt = new DataTable();
+            DataSet ds = new DataSet();
+            ds.Tables.Add(dt);
+            ds.Load(reader, LoadOption.Upsert, dt);
+            return ds;
         }
     }
 }

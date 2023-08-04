@@ -89,12 +89,12 @@ namespace DBH.BLLService.MainBLL
         /// </summary>
         /// <param name="connectionString">连接字符串</param>
         /// <returns></returns>
-        public async Task<bool> TestConnection(string connectionString)
+        public async Task<bool> TestConnectionAsync(string connectionString)
         {
             try
             {
                 if (string.IsNullOrEmpty(connectionString)) return false;
-                return await _dBHManagerDALProvider.TestConnection(connectionString);
+                return await _dBHManagerDALProvider.TestConnectionAsync(connectionString);
             }
             catch (Exception ex)
             {
@@ -112,7 +112,7 @@ namespace DBH.BLLService.MainBLL
         /// </summary>
         /// <param name="fS_ServicesEntity"></param>
         /// <returns></returns>
-        public async Task<EntityResult> InsertFsServiceEntity(FS_ServicesEntity fS_ServicesEntity)
+        public async Task<EntityResult> InsertFsServiceEntityAsync(FS_ServicesEntity fS_ServicesEntity)
         {
             try
             {
@@ -142,12 +142,12 @@ namespace DBH.BLLService.MainBLL
                 {
                     result.EntityCode = EntityCode.PramIsNull;
                     result.Message = "登陆密码不可为空";
-                } 
+                }
                 #endregion
 
                 if (result.Message == "")
                 {
-                    result = await _dBHManagerDALProvider.InsertFsServiceEntity(fS_ServicesEntity);
+                    result = await _dBHManagerDALProvider.InsertFsServiceEntityAsync(fS_ServicesEntity);
                 }
                 return result;
             }
@@ -166,7 +166,7 @@ namespace DBH.BLLService.MainBLL
         /// </summary>
         /// <param name="entity">实体</param>
         /// <returns></returns>
-        public async Task<EntityResult> UpdateFsServiceEntity(FS_ServicesEntity entity)
+        public async Task<EntityResult> UpdateFsServiceEntityAsync(FS_ServicesEntity entity)
         {
             try
             {
@@ -195,7 +195,7 @@ namespace DBH.BLLService.MainBLL
                 #endregion
                 if (result.Message == "")
                 {
-                    return await _dBHManagerDALProvider.UpdateFsServiceEntity(entity);
+                    return await _dBHManagerDALProvider.UpdateFsServiceEntityAsync(entity);
                 }
                 return result;
             }
@@ -211,11 +211,11 @@ namespace DBH.BLLService.MainBLL
         /// </summary>
         /// <param name="ID">主键ID</param>
         /// <returns></returns>
-        public async Task<bool> DeleteFsServiceEntity(int ID)
+        public async Task<bool> DeleteFsServiceEntityAsync(int ID)
         {
             try
             {
-                return await _dBHManagerDALProvider.DeleteFsServiceEntity(ID);
+                return await _dBHManagerDALProvider.DeleteFsServiceEntityAsync(ID);
             }
             catch (Exception ex)
             {

@@ -228,7 +228,14 @@
     <script src="~/js/search/searchmain.js"></script>
     <script>hljs.highlightAll();</script>
     <script type="text/javascript">
-
+        /**
+         * 全局数据，数据库配置表实体部分数据
+         */
+        var ServcieData = {
+            ID: @(Model.ID) ,
+            DBAddress: '@(ViewBag.CurrentDBAddress)',
+            DBName: '@(ViewBag.CurrentDBName)'
+        };
         var columns = [
             { field: "ID", title: "ID" },
             { field: "ColumnName", title: "字段列名" },
@@ -256,55 +263,22 @@
             });
             setSplitPageHight();
             //DynamicSetSplitSliderHight();
-            $(".search_btn_tabs .btn").on("click", function () {
-                var searchType = $(this).attr("rel");
-                $(this).addClass("tab-active").siblings().removeClass("tab-active");
-                $(this).addClass("btn-outline-light").removeClass("btn-outline-secondary").siblings().removeClass("btn-outline-light").addClass("btn-outline-secondary");
-                $("#searchListContent").find("a").each(function (i, n) {
-                    var searchContentType = $(n).attr("rel");
-                    $(n).show();
-                    if (searchType != "0" && searchType != searchContentType) {
-                        $(n).hide();
-                    }
-                });
-            })
             ShowLineNo();
             setCurrentDBAddress();
-            //切换Tabs选项卡
-            $(".tab_list li").on("click", function () {
-                //$(this).addClass("active").siblings().removeClass("active");
-                var tabID = $(this).data("tab");
-                ActionToTabs(tabID);
-            });
-            $(".tab_list .close").on("click", function () {
-                var tabID = $(this).closest("li").data("tab");
-                var parent = $(".content_wrapper");
-                parent.find(".accordian_header.tab_" + tabID).remove();
-                if ($(this).closest("li").hasClass("active")) {
-                    $(this).closest("li").remove();
-                    ActionToTabs(0);
-                } else {
-                    $(this).closest("li").remove();
-                }
-            });
 
         })
         /**
          * 设置当前选择的数据库的地址显示
          */
         function setCurrentDBAddress() {
-            //设置当前选择的数据库地址
-            var CurrentDBAddress = $("#CurrentDBAddress").val();
-            var CurrentDBName = $("#CurrentDBName").val();
-            var hidID = $("#hid_fsServiceEntityID").val();
-            $("#hid_SearchFSServcieEntityID").val(hidID);
-            $("#current_Server_Title").html(CurrentDBName);
+            $("#hid_SearchFSServcieEntityID").val(ServcieData.ID);
+            $("#current_Server_Title").html(ServcieData.DBName);
             var toolTipEle = document.getElementById('current_Server_Title');
             var tooltip = new bootstrap.Tooltip(toolTipEle, {
                 animation: true,
                 delay: 0,
                 placement: 'left',
-                title: CurrentDBAddress,
+                title: ServcieData.DBAddress,
                 trigger: 'hover focus',
                 fallbackPlacements: ['right', 'top', 'bottom'],
                 //customClass: 'bg-success'

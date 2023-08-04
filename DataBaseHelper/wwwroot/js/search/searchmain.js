@@ -1,9 +1,12 @@
-﻿$(function () {
+﻿var SearchData = {
+    TabIndex: 10, //定义已经打开的Tab的数量
+}
+$(function () {
     //搜索表单初始化
     var options = {
         beforeSubmit: function () {
             var searchTxt = $.trim($("#serarch_main").val());
-            var fsServiceID = $.trim($("#hid_fsServiceEntityID").val());
+            var fsServiceID = ServcieData.ID;
             if (Valid.IsNullOrEmpty(searchTxt)) {
                 return false;
             }
@@ -26,6 +29,37 @@
     $("#form_Search").submit(function () {
         $(this).ajaxSubmit(options);
         return false;
+    });
+    var _noDataHtml = $("#searchNoDataHtml").html();
+    $("#searchListContent").append(_noDataHtml);
+    //切换搜索分类的Tab
+    $(".search_btn_tabs .btn").on("click", function () {
+        var searchType = $(this).attr("rel");
+        $(this).addClass("tab-active").siblings().removeClass("tab-active");
+        $(this).addClass("btn-outline-light").removeClass("btn-outline-secondary").siblings().removeClass("btn-outline-light").addClass("btn-outline-secondary");
+        var showLength = 0;
+        $("#searchListContent").find("a").each(function (i, n) {
+            var searchContentType = $(n).attr("rel");
+            $(n).show();
+            showLength++;
+            if (searchType != "0" && searchType != searchContentType) {
+                $(n).hide();
+                showLength--;
+            }
+        });
+        var noData = $("#searchListContent").find('.searchNoData').length;
+        if (showLength == 0) {
+            if (noData > 0) {
+                $("#searchListContent").find('.searchNoData').show();
+            } else {
+                var _noDataHtml = $("#searchNoDataHtml").html();
+                $("#searchListContent").append(_noDataHtml);
+            }
+        } else {
+            if (noData > 0) {
+                $("#searchListContent").find('.searchNoData').hide();
+            }
+        }
     })
 });
 /**
@@ -39,19 +73,34 @@ function SearchSuccess(responseText, statusText, xhr, $form) {
     SearchLoading.Hide();
     if (statusText == "success") {
         //debugger
+        $(".search_btn_tabs .btn:eq(0)").click();
         if (responseText.status == true) {
             var _resultHtml = '';
             $.each(responseText.result, function (i, n) {
+                var _styleIcon = "";
+                var relType = 0;
                 if (n.dbObjectType == 1) {//Table
-                    _resultHtml += '<a href="#" rel="' + (i + 1) + '" class="list-group-item list-group-item-action  list-group-item-light"><i class="bi-table color-table"></i>' + n.typeName + '</a>';
+                    _styleIcon = '<i class="bi-table color-table"></i>';
+                    relType = 1;
                 } else if (n.dbObjectType == 2) {//Proc
-                    _resultHtml += '<a href="#" rel="' + (i + 1) + '" class="list-group-item list-group-item-action  list-group-item-light"><i class="bi-filter-square color-proc"></i>' + n.typeName + '</a>';
+                    _styleIcon = '<i class="bi-filter-square color-proc"></i>';
+                    relType = 2;
                 } else if (n.dbObjectType == 3) {//Fun_Table
-                    _resultHtml += '<a href="#" rel="' + (i + 1) + '" class="list-group-item list-group-item-action  list-group-item-light"><i class="icon iconfont icon-tubiao-hanshu color-func"></i>' + n.typeName + '</a>';
+                    _styleIcon = '<i class="icon iconfont icon-tubiao-hanshu color-func"></i>';
+                    relType = 3;
+                } else if (n.dbObjectType == 4) {//Table_Column
+                    //这种是搜索字段得出的表名
+                    relType = 1;
                 }
+                _resultHtml += '<a href="#" onclick="LoadData(' + n.dbObjectType + ',\'' + n.typeName + '\')" rel="' + relType + '" class="list-group-item list-group-item-action  list-group-item-light">' + _styleIcon + n.typeName + '</a>';
             })
             $("#searchListContent").html('');
-            $("#searchListContent").html(_resultHtml);
+            if (_resultHtml != '') {
+                $("#searchListContent").html(_resultHtml);
+            } else {
+                var _noDataHtml = $("#searchNoDataHtml").html();
+                $("#searchListContent").html(_noDataHtml);
+            }
         } else {
             layer.msg(responseText.message, { icon: 0, shade: 0.1 }, function () {
             });
@@ -61,6 +110,57 @@ function SearchSuccess(responseText, statusText, xhr, $form) {
         layer.msg("系统异常", { icon: 2, shade: 0.1 }, function () {
         });
     }
+}
+/**
+ * 加载数据，表Table，存储过程、表值函数内容
+ * @param {any} typeID
+ * @param {any} typeName
+ */
+function LoadData(typeID, typeName) {
+    var id = ServcieData.ID;
+    //debugger
+    $.ajax({
+        url: '/database/PartialViewForSearchResult/',
+        type: 'GET',
+        data: { id: id, typeID: typeID, typeName: typeName },
+        dataType: 'html',
+        success: function (data) {
+            SearchData.TabIndex = SearchData.TabIndex + 1;
+            var tabHtml = '<li data-tab="' + SearchData.TabIndex + '"><span class="tab_title">' + typeName + '</span><span class="close"><i class="bi bi-x-square"></i></span></li>';
+            $('.tab_list').append(tabHtml);//追加Tab按钮
+            $("#content_wrapper").append(data);//追加内容
+            $("#content_wrapper").find("div.accordian_header:last").addClass("tab_" + SearchData.TabIndex);//给内容设置特定的class
+            EventTabAction();//注册Tab事件
+            hljs.highlightAll();//执行插件，设置代码格式
+            ActionToTabs(SearchData.TabIndex);//触发当前Tab按钮的点击事件，进行切换
+        },
+        error: function (x, s, e) {
+            layer.msg("系统异常", { icon: 2, shade: 0.1 }, function () {
+            });
+        }
+    })
+}
+/**
+ * 注册打开的选项卡的切换和关闭事件
+ */
+function EventTabAction() {
+    //切换Tabs选项卡
+    $(".tab_list li").on("click", function () {
+        //$(this).addClass("active").siblings().removeClass("active");
+        var tabID = $(this).data("tab");
+        ActionToTabs(tabID);
+    });
+    $(".tab_list .close").on("click", function () {
+        var tabID = $(this).closest("li").data("tab");
+        var parent = $(".content_wrapper");
+        parent.find(".accordian_header.tab_" + tabID).remove();
+        if ($(this).closest("li").hasClass("active")) {
+            $(this).closest("li").remove();
+            ActionToTabs(0);
+        } else {
+            $(this).closest("li").remove();
+        }
+    });
 }
 /**
  * 表单提交异常
@@ -75,13 +175,16 @@ function SearchError(x, s, h, f) {
     layer.msg("系统异常", { icon: 2, shade: 0.1 }, function () {
     });
 }
+/**
+ * 搜索时的遮罩层和loadding提示
+ */
 SearchLoading = {
     Show: function () {
         var _loadShade = '<div class="layui-layer-shade search_Loading" style="z-index: 202301;background-color: rgb(0, 0, 0);opacity: 0.1;position:absolute;"></div>';
         var _loading = '<div class="search_Loading  text-primary fs-6 p-1" style="min-width: 100px;filter: alpha(opacity=60);color: #fff;border: none;z-index: 202302;position: absolute;top:120px;left: 38%;"><div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden"></span></div> 搜索中...</div>';
         var _loadHtml = _loadShade + _loading;
         $("#searchResultList").append(_loadHtml);
-       
+
     },
     Hide: function () {
         $(".search_Loading").remove();

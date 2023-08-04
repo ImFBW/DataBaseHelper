@@ -14,6 +14,7 @@ using DBH.Core;
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Configuration;
 using System.Reflection;
+using System.Data;
 
 namespace DBH.DALServices.MainDAL
 {
@@ -89,6 +90,24 @@ namespace DBH.DALServices.MainDAL
         }
 
 
+        /// <summary>
+        /// 查询存储过程、表值函数，返回结果集(以行为单位显示)
+        /// </summary>
+        /// <param name="dbTypeName">存储过程名或函数名</param>
+        /// <returns></returns>
+        public async Task<IList<Definition>> GetDefinitionsAsync(string dbTypeName)
+        {
+            IList<Definition> listDefinition = new List<Definition>();
+            using (var conn = ConnectionProvider.GetConnection(this.ConnectionString))
+            {
+                DataSet ds = await conn.ExecuteTableAsync("sp_helptext", new { objname = dbTypeName }, CommandType.StoredProcedure);
+                if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
+                {
+                    listDefinition = DataHelper.DataTableToList<Definition>(ds.Tables[0]);
+                }
+            }
+            return listDefinition;
+        }
 
     }
 }

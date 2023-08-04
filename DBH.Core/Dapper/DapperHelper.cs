@@ -805,6 +805,40 @@ namespace DBH.Core.Dapper
             });
         }
 
+        /// <summary>
+        /// 根据sql语句查询返回DataTable
+        /// </summary>
+        /// <param name="connection"></param>
+        /// <param name="sql"></param>
+        /// <returns></returns>
+        public static DataSet ExecuteTable(this IDbConnection connection, string sql)
+        {
+            var reader = connection.ExecuteReader(sql);
+            DataTable dt = new DataTable();
+            DataSet ds = new DataSet();
+            ds.Load(reader, LoadOption.Upsert, dt);
+            return ds;
+        }
+
+        /// <summary>
+        /// 根据sql语句查询返回DataTable
+        /// </summary>
+        /// <param name="connection"></param>
+        /// <param name="sql"></param>
+        /// <param name="parameters"></param>
+        /// <param name="commandType"></param>
+        /// <param name="commandTimeout"></param>
+        /// <returns></returns>
+
+        public static DataSet ExecuteTable(this IDbConnection connection, string sql, object parameters = null, CommandType? commandType = null, int? commandTimeout = null)
+        {
+            var reader = connection.ExecuteReader(sql, parameters, null, commandTimeout, commandType);
+            DataTable dt = new DataTable();
+            DataSet ds = new DataSet();
+            ds.Load(reader, LoadOption.Upsert, dt);
+            return ds;
+        }
+
         //build insert parameters which include all properties in the class that are not:
         //marked with the Editable(false) attribute
         //marked with the [Key] attribute

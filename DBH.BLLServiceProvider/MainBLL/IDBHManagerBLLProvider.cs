@@ -11,6 +11,16 @@ namespace DBH.BLLServiceProvider.MainBLL
 {
     public interface IDBHManagerBLLProvider : IBaseBLLProvider
     {
+        #region Insert
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fS_ServicesEntity"></param>
+        /// <returns></returns>
+        Task<EntityResult> InsertFsServiceEntityAsync(FS_ServicesEntity fS_ServicesEntity);
+
+        #endregion
+
         #region Select
         /// <summary>
         /// 获取全部的服务配置
@@ -36,17 +46,7 @@ namespace DBH.BLLServiceProvider.MainBLL
         /// </summary>
         /// <param name="connectionString">连接字符串</param>
         /// <returns></returns>
-        Task<bool> TestConnection(string connectionString);
-
-        #endregion
-
-        #region Insert
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="fS_ServicesEntity"></param>
-        /// <returns></returns>
-        Task<EntityResult> InsertFsServiceEntity(FS_ServicesEntity fS_ServicesEntity);
+        Task<bool> TestConnectionAsync(string connectionString);
 
         #endregion
 
@@ -57,14 +57,14 @@ namespace DBH.BLLServiceProvider.MainBLL
         /// </summary>
         /// <param name="entity">实体</param>
         /// <returns></returns>
-        Task<EntityResult> UpdateFsServiceEntity(FS_ServicesEntity entity);
+        Task<EntityResult> UpdateFsServiceEntityAsync(FS_ServicesEntity entity);
 
         /// <summary>
         /// 删除一条数据库配置数据
         /// </summary>
         /// <param name="ID">主键ID</param>
         /// <returns></returns>
-        Task<bool> DeleteFsServiceEntity(int ID);
+        Task<bool> DeleteFsServiceEntityAsync(int ID);
         #endregion
 
     }

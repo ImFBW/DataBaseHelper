@@ -34,7 +34,11 @@ namespace DBH.Models.EntityViews
     /// </summary>
     public class Definition
     {
-        public string Content { get; set; }
+        /// <summary>
+        /// 用于存储过程、表值函数查出的结果集，以行为单位
+        /// 即存储过程：sp_helptext的结果集
+        /// </summary>
+        public string Text { get; set; }
     }
 
     

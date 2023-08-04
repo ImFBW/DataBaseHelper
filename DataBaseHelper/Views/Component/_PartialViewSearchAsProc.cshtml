@@ -1,0 +1,39 @@
+﻿@using DBH.Models.Entitys;
+@using DBH.Models.EntityViews;
+@model SysDataBaseSearchView
+@{
+    Layout = null;
+    FS_ServicesEntity fsServiceEntity = (FS_ServicesEntity)ViewData["fsServiceEntity"];
+}
+@*<h2>存储过程,数据库名：@(fsServiceEntity.DataBaseName)</h2>
+<h4>TypeID=@(ViewBag.TypeID)</h4>
+<h4>TypeName=@(ViewBag.TypeName)</h4>
+*@
+@*tab_2*@
+<div class="accordian_header">
+    <nav class="navbar navbar-light bg-light rounded px-2 shadow-sm">
+        <div class="navbar-collapse">
+            <span class="color-func"><i class="icon iconfont icon-tubiao-hanshu"></i> <strong>函数：<span class="tab_content_title text-primary">@(Model.TypeName)</span></strong></span>
+            <span class="text-secondary">说明。。。。。。</span>
+        </div>
+    </nav>
+    <div class="position-relative">
+        <pre>
+        <div class="btn-group position-absolute top-0 end-0" role="group" aria-label="Basic outlined example" style="top: 42px !important;">
+                @* <button type="button" onclick="BtnSetLineNo()" data-default="1" class="btn border btn-outline-primary"><i class="bi-list-ol"></i></button>*@
+        <button type="button" onclick="BtnChangeTheme(this)" data-default="1" class="btn switch_bgColor border btn-outline-secondary"><i class="bi-sun-fill"></i></button>
+                                                                    </div>
+        <code class="shadow border language-sql">
+                @{
+                    if (Model.Definition!=null && Model.Definition.Count>0)
+                    {
+                        foreach (var item in Model.Definition)
+                        {
+                            @Html.Raw(item.Text.ToString());
+                        }
+                    }
+                }   
+                </code>
+        </pre>
+    </div>
+</div>

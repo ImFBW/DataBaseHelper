@@ -29,5 +29,12 @@ namespace DBH.DALProvider.MainDAL
         /// <returns></returns>
         Task<IList<SysDataBaseSearchView>> SearchAction(string searchText, int top = 100);
 
+        /// <summary>
+        /// 查询存储过程、表值函数，返回结果集(以行为单位显示)
+        /// </summary>
+        /// <param name="dbTypeName">存储过程名或函数名</param>
+        /// <returns></returns>
+        Task<IList<Definition>> GetDefinitionsAsync(string dbTypeName);
+
     }
 }

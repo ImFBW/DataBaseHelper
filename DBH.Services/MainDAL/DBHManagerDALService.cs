@@ -33,7 +33,7 @@ namespace DBH.DALServices.MainDAL
         /// </summary>
         /// <param name="fS_ServicesEntity"></param>
         /// <returns></returns>
-        public async Task<EntityResult> InsertFsServiceEntity(FS_ServicesEntity fS_ServicesEntity)
+        public async Task<EntityResult> InsertFsServiceEntityAsync(FS_ServicesEntity fS_ServicesEntity)
         {
             EntityResult entiyResult = new EntityResult();
             using (var conn = ConnectionProvider.GetConnection())
@@ -113,7 +113,7 @@ namespace DBH.DALServices.MainDAL
         /// </summary>
         /// <param name="connectionString">连接字符串</param>
         /// <returns></returns>
-        public async Task<bool> TestConnection(string connectionString)
+        public async Task<bool> TestConnectionAsync(string connectionString)
         {
             bool isConn = false;
             try
@@ -132,7 +132,6 @@ namespace DBH.DALServices.MainDAL
             return isConn;
         }
 
-
         #endregion
 
         #region Update
@@ -141,12 +140,12 @@ namespace DBH.DALServices.MainDAL
         /// </summary>
         /// <param name="entity">实体</param>
         /// <returns></returns>
-        public async Task<EntityResult> UpdateFsServiceEntity(FS_ServicesEntity entity)
+        public async Task<EntityResult> UpdateFsServiceEntityAsync(FS_ServicesEntity entity)
         {
             EntityResult result = new EntityResult();
             using (var conn = ConnectionProvider.GetConnection())
             {
-                string[] ignoreFields = { ""};
+                string[] ignoreFields = { "" };
                 if (string.IsNullOrEmpty(entity.LoginPassword))//如果密码为空，则默认为不更新，可忽略此字段的更新
                     ignoreFields[0] = "LoginPassword";
                 int code = await conn.UpdateIgnoreAppointAsync<FS_ServicesEntity>(entity, ignoreFields);
@@ -165,7 +164,7 @@ namespace DBH.DALServices.MainDAL
         /// </summary>
         /// <param name="ID">主键ID</param>
         /// <returns></returns>
-        public async Task<bool> DeleteFsServiceEntity(int ID)
+        public async Task<bool> DeleteFsServiceEntityAsync(int ID)
         {
             bool isDelete = false;
             using (var conn = ConnectionProvider.GetConnection())
