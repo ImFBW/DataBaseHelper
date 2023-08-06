@@ -15,6 +15,11 @@ namespace DBH.Models.Common
     {
         [Description("用户表")]
         U = 1,
+        /// <summary>
+        /// 通过搜索字段找到的表
+        /// </summary>
+        [Description("用户表")]
+        U_C = 4,
         [Description("存储过程")]
         P = 2,
         [Description("表值函数")]

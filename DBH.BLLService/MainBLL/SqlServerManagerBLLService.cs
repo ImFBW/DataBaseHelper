@@ -42,15 +42,15 @@ namespace DBH.BLLService.MainBLL
         /// <param name="top">默认查询的数量(合并查询，结果可能超出此值)，
         /// 太多没意义，分页没必要，可以通过精确搜索查出范围内的数据</param>
         /// <returns></returns>
-        public async Task<IList<SysDataBaseSearchView>> SearchAction(string searchText,int top=100)
+        public async Task<IList<SysDataBaseSearchView>> SearchActionAsync(string searchText, int top = 100)
         {
             try
             {
-                return await _sqlServerManagerDALProvider.SearchAction(searchText, top);
+                return await _sqlServerManagerDALProvider.SearchActionAsync(searchText, top);
             }
             catch (Exception ex)
             {
-                Logger.LogError("SQLServer_SearchAction：" + ex.Message);
+                Logger.LogError("SQLServer_SearchActionAsync：" + ex.Message);
                 throw ex;
             }
         }
@@ -70,9 +70,30 @@ namespace DBH.BLLService.MainBLL
             }
             catch (Exception ex)
             {
-                Logger.LogError("GetDefinitionsAsync：" + ex.Message);
+                Logger.LogError("SQLServer_GetDefinitionsAsync：" + ex.Message);
                 throw ex;
             }
+        }
+
+
+        /// <summary>
+        /// 查询表的全部列，返回List
+        /// </summary>
+        /// <param name="tableName">表名</param>
+        /// <returns></returns>
+        public async Task<IList<DB_TableColumnsView>> GetTableColumnsListAsync(string tableName)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(tableName)) return null;
+                return await _sqlServerManagerDALProvider.GetTableColumnsListAsync(tableName);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("SQLServer_GetTableColumnsList：" + ex.Message);
+                throw ex;
+            }
+
         }
 
     }

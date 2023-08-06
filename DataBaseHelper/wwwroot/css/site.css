@@ -60,12 +60,12 @@ input:focus { outline: none !important; /*border-color: #cfdc00; box-shadow: 0 0
 .color-border { }
 .hljs { border: 0; font-size: 12px; display: block; padding: 1px; margin: 0; 100%; font-weight: 200; color: #333; white-space: pre-wrap }
 .hljs ol { list-style: decimal; margin: 0px 0px 0 40px !important; padding: 0px; }
-.hljs ol li { list-style: decimal-leading-zero; border-left: 1px solid #ddd !important; padding: 0px !important; margin: 0 !important; white-space: pre; }
-
+.hljs ol li { list-style: decimal-leading-zero; border-left: 1px solid #ddd !important; padding: 0 0 0 1rem !important; margin: 0 !important; white-space: pre; }
+.float-right{float:right;}
 /*Tabsѡ�*/
 .tab_list { clear: both; display: inline-block; width: 100%; border-bottom: 1px solid #49a4d9; }
 .tab_list li { float: left; cursor: pointer; font-weight: bold; padding: 8px 18px; border: 1px solid #ccc; font-size: 0.75em; border-bottom: 0; position: relative; border-top: 3px solid #ccc; color: #999; margin: 0 5px 0 0; }
-.tab_list li span.tab_title { line-height: 1rem; max-width: 10rem; display: inline-flex; overflow: hidden; white-space: nowrap; }
+.tab_list li span.tab_title { line-height: 1rem; max-width: 20rem; display: inline-flex; overflow: hidden; white-space: nowrap; }
 .tab_list li:hover { color: #49a4d9; }
 .tab_list li.active { border-color: #49a4d9; color: #49a4d9; }
 .tab_list li.active::after { content: ""; position: absolute; bottom: -1px; height: 1px; left: 0; background: #fff; width: 100%; }

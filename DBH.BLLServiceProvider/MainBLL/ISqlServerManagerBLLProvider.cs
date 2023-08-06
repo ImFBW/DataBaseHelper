@@ -29,7 +29,7 @@ namespace DBH.BLLProvider.MainBLL
         /// <param name="top">默认查询的数量(合并查询，结果可能超出此值)，
         /// 太多没意义，分页没必要，可以通过精确搜索查出范围内的数据</param>
         /// <returns></returns>
-        Task<IList<SysDataBaseSearchView>> SearchAction(string searchText, int top = 100);
+        Task<IList<SysDataBaseSearchView>> SearchActionAsync(string searchText, int top = 100);
 
 
         /// <summary>
@@ -38,6 +38,13 @@ namespace DBH.BLLProvider.MainBLL
         /// <param name="dbTypeName">存储过程名或函数名</param>
         /// <returns></returns>
         Task<IList<Definition>> GetDefinitionsAsync(string dbTypeName);
+
+        /// <summary>
+        /// 查询表的全部列，返回List
+        /// </summary>
+        /// <param name="tableName">表名</param>
+        /// <returns></returns>
+        Task<IList<DB_TableColumnsView>> GetTableColumnsListAsync(string tableName);
 
     }
 }

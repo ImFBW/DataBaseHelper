@@ -1,6 +1,113 @@
 ﻿var SearchData = {
     TabIndex: 10, //定义已经打开的Tab的数量
 }
+var table_columns = [
+    { field: "RowNumber", title: "#", width: 80, sortable: true },
+    { field: "ColumnName", title: "字段列名", width: 240, sortable: true },
+    { field: "ColumnDesc", title: "字段说明" },
+    { field: "ColumnDataType", title: "数据类型", width: 100, sortable: true },
+    { field: "ColumnDataLength", title: "数据长度", width: 80, sortable: true },
+    {
+        field: "IsIdentity", title: "是否标识列", width: 80, formatter: function (value, row, index) {
+            var _tmpHtml = '';
+            if (value == 1) {
+                _tmpHtml = '是'
+            }
+            return _tmpHtml;
+        }
+    },
+    {
+        field: "IsKey", title: "是否主键", width: 80, formatter: function (value, row, index) {
+            var _tmpHtml = '';
+            if (value == 1) {
+                _tmpHtml = '是'
+            }
+            return _tmpHtml;
+        }
+    },
+    {
+        field: "IsNullable", title: "可否为NULL", width: 80, formatter: function (value, row, index) {
+            var _tmpHtml = '';
+            if (value == 1) {
+                _tmpHtml = '是'
+            }
+            return _tmpHtml;
+        }
+    },
+    { field: "DefaultValue", width: 100, title: "默认值" },
+    {
+        field: "ColumnName", title: "操作", width: 180, align: 'left', valign: 'middle', formatter: function (value, row, index) {
+            var _tableName = row.TableName;
+            var _columnName = value;
+            var _html = "";
+            _html = '<button type="button" class="btn btn-sm btn-outline-primary" onclick=\'EditColumnDesc(this)\'><i class="bi bi-card-text"></i> 修改注释</button>';
+            return _html;
+        }
+    }
+];
+var table_options = {
+    url: '/database/GetTableData/',                    //请求后台的URL（*）
+    method: 'POST',              //请求方式（*）
+    toolbar: '.btn-toolbar',        //工具按钮用哪个容器
+    striped: true,                //是否显示行间隔色
+    cache: false,                 //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+    pagination: true,             //是否显示分页（*）
+    sortable: true,               //是否启用排序
+    sortOrder: "asc",             //排序方式
+    sidePagination: "client",     //分页方式：client客户端分页，server服务端分页（*）
+    pageNumber: 1,                //初始化加载第一页，默认第一页,并记录
+    pageSize: 20,               //每页的记录行数（*）
+    pageList: [20, 50, 100, 500],//可供选择的每页的行数（*）
+    search: true,                //是否显示表格搜索
+    searchOnEnterKey: true,       //回车后执行搜索
+    strictSearch: true,
+    //showColumns: true,            //是否显示所有的列（选择显示的列）
+    showRefresh: false,           //是否显示刷新按钮
+    //minimumCountColumns: 2,       //最少允许的列数
+    //clickToSelect: true,          //是否启用点击选中行
+    //height: 500,                //行高，如果没有设置height属性，表格自动根据记录条数设置表格高度
+    uniqueId: "ColumnName",               //每一行的唯一标识，一般为主键列
+    formatSearch: function () { return '搜索列名' },
+    //showToggle: true,             //是否显示详细视图和列表视图的切换按钮
+    //cardView: true,              //是否显示详细视图
+    //detailView: true,            //是否显示父子表
+    //得到查询的参数
+    //queryParams: function (params) {
+    //    var temp = {
+    //        rows: params.limit,                         //页面大小
+    //        page: (params.offset / params.limit) + 1,   //页码
+    //        sort: params.sort,      //排序列名
+    //        sortOrder: params.order //排位命令（desc，asc）
+    //    };
+    //    return temp;
+    //},
+    searchAlign:'left',
+    formatLoadingMessage: function () {
+        return '<div class="spinner-border text-secondary" role="status"><span class="visually-hidden">Loading...</span></div> 加载中...';
+    },
+    onSearch: TableOnSearch,
+    formatShowingRows: function (pageFrom, pageTo, totalRows, totalNotFiltered) {
+        return '<span class="pagination-info">总数据 ' + totalRows + ' </span>';
+    },
+    formatRecordsPerPage: function (pageNumber) {
+        return "".concat(pageNumber, " 行/页");
+    },
+    customSearch: TableSearch,
+    onLoadSuccess: function (data) {
+        if (data != null && data.rows) {
+            if (data.rows.length > 0) {
+                var tableName = data.rows[0].TableName;
+                var tableDesc = data.rows[0].TableDesc;
+                $("span.desc_1_" + tableName).html(tableDesc);
+            }
+        }
+    },
+    onLoadError: function () {
+        layer.msg("加载失败", { icon: 0, shade: 0.1 }, function () {
+        });
+    },
+    columns: table_columns
+}
 $(function () {
     //搜索表单初始化
     var options = {
@@ -26,6 +133,7 @@ $(function () {
         //resetForm: false,//提交成功后，重置表单
         //timeout:   3000
     }
+    $("#mainTable").bootstrapTable(table_options);
     $("#form_Search").submit(function () {
         $(this).ajaxSubmit(options);
         return false;
@@ -83,12 +191,13 @@ function SearchSuccess(responseText, statusText, xhr, $form) {
                     _styleIcon = '<i class="bi-table color-table"></i>';
                     relType = 1;
                 } else if (n.dbObjectType == 2) {//Proc
-                    _styleIcon = '<i class="bi-filter-square color-proc"></i>';
+                    _styleIcon = '<i class="bi bi-file-earmark-ppt color-proc"></i>';
                     relType = 2;
                 } else if (n.dbObjectType == 3) {//Fun_Table
                     _styleIcon = '<i class="icon iconfont icon-tubiao-hanshu color-func"></i>';
                     relType = 3;
                 } else if (n.dbObjectType == 4) {//Table_Column
+                    _styleIcon = '<i class="bi-table color-table"></i><i class="bi bi-layout-split text-danger"></i>';
                     //这种是搜索字段得出的表名
                     relType = 1;
                 }
@@ -101,6 +210,14 @@ function SearchSuccess(responseText, statusText, xhr, $form) {
                 var _noDataHtml = $("#searchNoDataHtml").html();
                 $("#searchListContent").html(_noDataHtml);
             }
+            /*设置左侧的高度*/
+            setSplitPageHight();
+            //var gHeight = $(".gutter-horizontal").height();
+            //var searchFormH = $(".searchForm").height();
+            //var searchBtnnavBarH = $(".searchBtnnavBar").height();
+            //$("#mainLeft").css({ "height": gHeight + "px" });//设置主布局高度
+            //$("#searchListContent").css({ "height": (gHeight - searchFormH - searchBtnnavBarH - 40) + "px", "overflow": "hidden", "overflow-y": "auto" });//设置搜索的结果展示部分高度.
+            //$("#mainLeft").css({ "height": "auto" });//设置主布局高度
         } else {
             layer.msg(responseText.message, { icon: 0, shade: 0.1 }, function () {
             });
@@ -118,6 +235,14 @@ function SearchSuccess(responseText, statusText, xhr, $form) {
  */
 function LoadData(typeID, typeName) {
     var id = ServcieData.ID;
+    //查找当前是否已有相同的类型，如果有就显示即可，不必再查询
+    var _typeEve = $("span.desc_" + typeID + "_" + typeName);
+    var isHasType = _typeEve.length;
+    if (isHasType > 0) {
+        var _tabID = _typeEve.data("tabID");
+        ActionToTabs(_tabID);
+        return;
+    }
     //debugger
     $.ajax({
         url: '/database/PartialViewForSearchResult/',
@@ -130,8 +255,19 @@ function LoadData(typeID, typeName) {
             $('.tab_list').append(tabHtml);//追加Tab按钮
             $("#content_wrapper").append(data);//追加内容
             $("#content_wrapper").find("div.accordian_header:last").addClass("tab_" + SearchData.TabIndex);//给内容设置特定的class
-            EventTabAction();//注册Tab事件
-            hljs.highlightAll();//执行插件，设置代码格式
+            $("#content_wrapper").find("div.accordian_header:last").find(".headerNameDesc").addClass("desc_" + typeID + "_" + typeName);
+            $("#content_wrapper").find("div.accordian_header:last").find(".headerNameDesc").data("tabID", SearchData.TabIndex);
+            EventTabAction();//注册Tab事件           
+            if (typeID == 1 || typeID == 4) {//Table模式
+                var tableEve = $("#content_wrapper").find("div.accordian_header:last").find('table')[0];
+                table_options.url = '/database/GetTableData/?ID=' + id + "&tableName=" + typeName;
+                $(tableEve).bootstrapTable(table_options);//用bootstrap-table 插件初始化Table
+            } else {//其他模式，存储过程+表函数
+                var codeEve = $("#content_wrapper").find("div.accordian_header:last").find('code')[0];
+                //hljs.highlightAll();//执行插件，设置代码高亮highlightAuto(code, languageSubset) highlightElement(element)
+                hljs.highlightElement(codeEve);
+                ShowLineNo(SearchData.TabIndex);//显示行号
+            }
             ActionToTabs(SearchData.TabIndex);//触发当前Tab按钮的点击事件，进行切换
         },
         error: function (x, s, e) {
@@ -140,17 +276,37 @@ function LoadData(typeID, typeName) {
         }
     })
 }
+
+function EditColumnDesc(tableName, columnName) {
+    layer.msg("修改字段说明：" + tableName + "." + columnName)
+}
+/**
+ * table search自定义事件
+ * @param {any} text
+ */
+function TableSearch(data, text) {
+    var searchResultData = data.filter(function (row) {
+        return (row.ColumnName.toLowerCase() + "").indexOf(text.toLowerCase()) > -1
+    })
+    return searchResultData;
+}
+/**
+ * table search后调用
+ */
+function TableOnSearch(txt) {
+    console.log('search:' + txt);
+}
 /**
  * 注册打开的选项卡的切换和关闭事件
  */
 function EventTabAction() {
     //切换Tabs选项卡
-    $(".tab_list li").on("click", function () {
+    $(".tab_list li").unbind('click').bind("click", function () {
         //$(this).addClass("active").siblings().removeClass("active");
         var tabID = $(this).data("tab");
         ActionToTabs(tabID);
     });
-    $(".tab_list .close").on("click", function () {
+    $(".tab_list .close").unbind('click').bind("click", function () {
         var tabID = $(this).closest("li").data("tab");
         var parent = $(".content_wrapper");
         parent.find(".accordian_header.tab_" + tabID).remove();
@@ -214,10 +370,16 @@ function ActionToTabs(tabID) {
 /**
  * 显示行号 
  */
-function ShowLineNo() {
-    $("code").each(function (i, n) {
-        $(n).html("<ol><li>" + $(n).html().replace(/[\r\n]/g, "</li><li>") + "</li></ol>");
-    });
+function ShowLineNo(tabID) {
+    if (tabID == '') {
+        $("code").each(function (i, n) {
+            $(n).html("<ol><li>" + $(n).html().replace(/[\r\n]/g, "</li><li>") + "</li></ol>");
+        });
+    } else {
+        var parent = $(".content_wrapper");
+        var codeEve = parent.find(".accordian_header.tab_" + tabID).find('code');
+        $(codeEve).html("<ol><li>" + $(codeEve).html().replace(/[\r\n]/g, "</li><li>") + "</li></ol>");
+    }
 }
 /**
  * 隐藏行号
@@ -242,7 +404,7 @@ function BtnSetLineNo() {
         $(this).addClass("btn-outline-secondary");
         $(this).removeClass("btn-outline-primary");
     } else {
-        ShowLineNo();
+        ShowLineNo('');
         defaultSet = "1";
         $(this).addClass("btn-outline-primary");
         $(this).removeClass("btn-outline-secondary");
@@ -268,36 +430,43 @@ function BtnChangeTheme(ele) {
     }
     $("button.switch_bgColor").data("default", defaultSet);
 }
+
 /**
         * 设置split slider高度，以适应页面
         */
 function setSplitPageHight() {
     var eve_Left = $("#mainLeft");
-    var eve_Right = $(".accordian_header.active");
-    if (!eve_Right) eve_Right = $("#mainRight");
+    var eve_Right = $("#mainRight");
+    if ($(".accordian_header.active").length > 0) {
+        eve_Right = $(".accordian_header.active");
+    }
     var mainRight = $("#mainRight");
+    var rightTabHeight = $("#right_container").find(".tab_list").height();
+    var winHeight = $(window).height();
+    var headerHeight = $("header").height();
+    var footerHeight = $("footer").height();
+    var winSetH = winHeight - headerHeight - footerHeight - 30;//当前页面可现实的高度
     var leftH = eve_Left.height();
-    var rightH = eve_Right.height();//mainRight
+    var rightH = eve_Right.height();//右侧当前动态高度
+    // - footerHeight - rightTabHeight - 20;
+    var setHeight = Math.max(winSetH, rightH);
+    //console.log('winSetH = ' + winSetH + '  rightH = ' + rightH + '  setHeight = ' + setHeight);
+    var masterH = 0;//master主容器的高度
+    var spiderHeight = setHeight;//分割块的高度
+    if (winSetH > rightH) {
+        masterH = winSetH + footerHeight + rightTabHeight - 12;
+    } else {
+        masterH = winSetH + footerHeight + rightTabHeight + 80;
+        spiderHeight = spiderHeight - footerHeight - rightTabHeight;
+    }
+    //$("#masterMain").css({ "height": masterH + "px" });
     $("#masterMain").css({ "height": "auto" });
-    var mainH = $("#masterMain").height();
-    eve_Left.css({ "min-height": leftH + "px" });
-    eve_Right.css({ "min-height": rightH + "px" });
-    //$("#masterMain").css({ "min-height": mainH + "px" });
-    eve_Left.css({ "height": "auto" });
-    eve_Right.css({ "height": "auto" });
-    leftH = eve_Left.height();
-    rightH = eve_Right.height();
-    var setHeight = Math.max(leftH, rightH);
-    //mainH = mainH-70;
-    //setHeight = Math.max(mainH, setHeight);
-    //console.log("Height:" + setHeight);
-    if (rightH > leftH) setHeight = setHeight + 100;
-    $("#masterMain").css({ "height": setHeight + "px" });
-    mainRight.css({ "height": setHeight + "px" });
-    if (rightH > leftH) setHeight = setHeight - 70;
-    $(".gutter-horizontal").css({ "height": setHeight + "px" });
+    eve_Left.css({ "height": setHeight + "px" });
+    var searchFormH = $(".searchForm").height();
+    var searchBtnnavBarH = $(".searchBtnnavBar").height();
+    $("#searchListContent").css({ "height": (setHeight - searchFormH - searchBtnnavBarH - 40) + "px", "overflow": "hidden", "overflow-y": "auto" });//设置搜索的结果展示部分高度.
+    $(".gutter-horizontal").css({ "height": spiderHeight + "px" });
 }
-
 /**
  * 动态的监听高度变化，自动设置split slider的高度(已废弃)
  */

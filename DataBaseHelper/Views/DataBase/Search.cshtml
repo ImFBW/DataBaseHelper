@@ -29,12 +29,12 @@
 <div id="mainRight" class="split clearfix split-horizontal">
     <div class="container-fluid right_container" id="right_container">
         <ul class="tab_list" data-count="2">
-            <li class="active" data-tab="1"><span class="tab_title">Table Name</span><span class="close"><i class="bi bi-x-square"></i></span></li>
+            @*<li class="active" data-tab="1"><span class="tab_title">Table Name</span><span class="close"><i class="bi bi-x-square"></i></span></li>
             <li data-tab="2"><span class="tab_title">Function Name Thisisaproducenameplaceholder</span><span class="close"><i class="bi bi-x-square"></i></span></li>
-            <li data-tab="3"><span class="tab_title">Produce Name [dbo].[pages_list]</span><span class="close"><i class="bi bi-x-square"></i></span></li>
+            <li data-tab="3"><span class="tab_title">Produce Name [dbo].[pages_list]</span><span class="close"><i class="bi bi-x-square"></i></span></li>*@
         </ul>
         <div id="content_wrapper" class="content_wrapper">
-            <div class="accordian_header tab_1 active" style="display:block;">
+           @* <div class="accordian_header tab_1 active" style="display:block;">
                 <nav class="navbar navbar-light bg-light rounded px-2 shadow-sm">
                     <div class="navbar-collapse">
                         <span class="color-table"><i class="bi-table"></i> <strong>表：<span class="tab_content_title text-primary">FS_Services</span></strong></span>
@@ -60,7 +60,7 @@
                 <div class="position-relative">
                     <pre>
                     <div class="btn-group position-absolute top-0 end-0" role="group" aria-label="Basic outlined example" style="top: 42px !important;">
-                            @* <button type="button" onclick="BtnSetLineNo()" data-default="1" class="btn border btn-outline-primary"><i class="bi-list-ol"></i></button>*@
+                          
                     <button type="button" onclick="BtnChangeTheme(this)" data-default="1" class="btn switch_bgColor border btn-outline-secondary"><i class="bi-sun-fill"></i></button>
                                                                     </div>
                     <code class="shadow border language-sql">
@@ -104,14 +104,14 @@
             <div class="accordian_header tab_3">
                 <nav class="navbar navbar-light bg-light rounded px-2 shadow-sm">
                     <div class="navbar-collapse">
-                        <span class="color-proc"><i class="bi-filter-square"></i> <strong>存储过程：<span class="tab_content_title text-primary">pages_list</span></strong></span>
+                        <span class="color-proc"><i class="bi bi-file-earmark-ppt"></i> <strong>存储过程：<span class="tab_content_title text-primary">pages_list</span></strong></span>
                         <span class="text-secondary">通用分页列表查询功能</span>
                     </div>
                 </nav>
                 <div class="position-relative">
                     <pre>
                     <div class="btn-group position-absolute top-0 end-0" role="group" aria-label="Basic outlined example" style="top: 42px !important;">
-                            @* <button type="button" onclick="BtnSetLineNo()" data-default="1" class="btn border btn-outline-primary"><i class="bi-list-ol"></i></button>*@
+                          
                     <button type="button" onclick="BtnChangeTheme(this)" data-default="1" class="btn switch_bgColor border btn-outline-secondary"><i class="bi-sun-fill"></i></button>
                                                                     </div>
                     <code class="shadow border language-sql codeSql">
@@ -214,7 +214,7 @@
                                                      </code>
                                    </pre>
                 </div>
-            </div>
+            </div>*@
         </div>
     </div>
 </div>
@@ -226,7 +226,9 @@
     @*Split插件，详见：http://www.htmleaf.com/Demo/201512072873.html*@
     <script src="~/lib/splitpage/js/split.js" charset="gb2312"></script>
     <script src="~/js/search/searchmain.js"></script>
-    <script>hljs.highlightAll();</script>
+    <script>
+        hljs.highlightAll();
+    </script>
     <script type="text/javascript">
         /**
          * 全局数据，数据库配置表实体部分数据
@@ -236,23 +238,7 @@
             DBAddress: '@(ViewBag.CurrentDBAddress)',
             DBName: '@(ViewBag.CurrentDBName)'
         };
-        var columns = [
-            { field: "ID", title: "ID" },
-            { field: "ColumnName", title: "字段列名" },
-            { field: "ColumnDesc", title: "字段说明" },
-            { field: "ColumnDataType", title: "数据类型" },
-            { field: "ColumnDataLength", title: "数据长度" },
-            { field: "IsIdentity", title: "是否标识列" },
-            { field: "IsKey", title: "是否主键" },
-            { field: "IsNullable", title: "可否为NULL" },
-            { field: "DefaultValue", title: "默认值" },
-        ];
-        $("#mainTable").bootstrapTable({
-            columns: columns,
-            data: [],
-            pagination: true,//开启分页
-            search: true, //开启刷选
-        });
+       
         $(function () {
             Split(['#mainLeft', '#mainRight'], {
                 sizes: [15, 85],//左右初始宽度比例%
@@ -263,7 +249,7 @@
             });
             setSplitPageHight();
             //DynamicSetSplitSliderHight();
-            ShowLineNo();
+            ShowLineNo('');
             setCurrentDBAddress();
 
         })

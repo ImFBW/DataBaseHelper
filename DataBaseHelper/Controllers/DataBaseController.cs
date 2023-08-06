@@ -6,8 +6,11 @@ using DBH.Models.EntityViews;
 using Microsoft.AspNetCore.Mvc;
 using MySqlX.XDevAPI.Common;
 using System.Collections.Generic;
+using System.Text.Json;
+using Newtonsoft.Json;
 using System.Xml.Linq;
 using static Dapper.SqlMapper;
+using Newtonsoft.Json.Converters;
 
 namespace DataBaseHelper.Controllers
 {
@@ -110,7 +113,7 @@ namespace DataBaseHelper.Controllers
             }
             if (fsServiceEntity == null || fsServiceEntity.ID <= 0 || string.IsNullOrEmpty(fsServiceEntity.ServerAddress) || string.IsNullOrEmpty(fsServiceEntity.DataBaseName))
             {
-                Content("");
+                return Content("");
             }
             string connectionString = string.Empty;
             if (fsServiceEntity.ServerType == 1)//SqlServer
@@ -132,10 +135,10 @@ namespace DataBaseHelper.Controllers
                 TypeName = (string)typeName
             };
             //根据不同的数据类型，返回不同的页面代码
-            if (typeID == (int)DBObjectType.U)
+            if (typeID == (int)DBObjectType.U || typeID == (int)DBObjectType.U_C)
             {
 
-                return View("~/Views/Component/_PartialViewSearchAsTable.cshtml", fsServiceEntity);
+                return View("~/Views/Component/_PartialViewSearchAsTable.cshtml", searchView);
             }
             else if (typeID == (int)DBObjectType.P)
             {
@@ -148,7 +151,12 @@ namespace DataBaseHelper.Controllers
             }
             else if (typeID == (int)DBObjectType.TF)
             {
-                return View("~/Views/Component/_PartialViewSearchAsTFunc.cshtml", fsServiceEntity);
+                IList<Definition> listDefinition = await _sqlServerManagerBLLProvider.GetDefinitionsAsync(typeName);
+                if (listDefinition != null)
+                    searchView.Definition = listDefinition.ToList();
+                else
+                    searchView.Definition = new List<Definition>();
+                return View("~/Views/Component/_PartialViewSearchAsTFunc.cshtml", searchView);
             }
             else
             {
@@ -277,7 +285,7 @@ namespace DataBaseHelper.Controllers
             {
                 string connectionString = string.Format($"data source={fsServiceEntity.ServerAddress};persist security info=True;initial catalog={fsServiceEntity.DataBaseName};user id={fsServiceEntity.LoginName};password={fsServiceEntity.LoginPassword};");
                 _sqlServerManagerBLLProvider.SetConnectionString(connectionString);
-                listView = await _sqlServerManagerBLLProvider.SearchAction(SearchTxt);
+                listView = await _sqlServerManagerBLLProvider.SearchActionAsync(SearchTxt);
             }
             else if (fsServiceEntity.ServerType == 1)//MySQL
             {
@@ -286,6 +294,58 @@ namespace DataBaseHelper.Controllers
             result.Status = true;
             result.Result = listView;
             return Json(result);
+        }
+
+        /// <summary>
+        /// 加载Table的字段数据，一次性加载全部字段，前端分页
+        /// </summary>
+        /// <param name="ID">服务数据库配置ID</param>
+        /// <param name="tableName">要搜索的表名</param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<IActionResult> GetTableData(int? ID, string tableName)
+        {
+            ResultModel result = new ResultModel();
+            result.Status = false;
+            int IDval = 0;
+            if (ID.HasValue) { IDval = ID.Value; }
+            else
+            {
+                result.Message = "未选择数据库";
+                return Json(result);
+            }
+            if (string.IsNullOrEmpty(tableName))
+            {
+                result.Message = "表名参数为空";
+                return Json(result);
+            }
+
+            FS_ServicesEntity fsServiceEntity = new FS_ServicesEntity();
+            fsServiceEntity = await _DBHManagerBLLProvider.GetServicesEnvityAsync(IDval);
+            if (fsServiceEntity == null || fsServiceEntity.ID <= 0 || string.IsNullOrEmpty(fsServiceEntity.ServerAddress) || string.IsNullOrEmpty(fsServiceEntity.DataBaseName))
+            {
+                result.Message = "数据库配置错误";
+                return Json(result);
+            }
+            IList<DB_TableColumnsView> listColumn = new List<DB_TableColumnsView>();
+            if (fsServiceEntity.ServerType == 1)//SqlServer
+            {
+                listColumn = await _sqlServerManagerBLLProvider.GetTableColumnsListAsync(tableName);
+            }
+            else if (fsServiceEntity.ServerType == 1)//MySQL
+            {
+                //暂不支持
+            }
+            result.Result = listColumn;
+            result.Status = true;
+            result.Message = "success";
+            //string resultJson = JsonConvert.SerializeObject(listColumn, Formatting.Indented);
+            //Json格式的要求{total:123,rows:{}}
+            //构造成Json的格式传递
+            var resultJson = new { total = listColumn.Count, rows = listColumn.ToList() };
+
+            string stringJson = JsonConvert.SerializeObject(resultJson, Formatting.Indented);
+            return Content(stringJson);
         }
         #endregion
     }

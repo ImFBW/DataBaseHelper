@@ -38,7 +38,7 @@ namespace DBH.BLLService.MainBLL
             }
             catch (Exception ex)
             {
-                Logger.LogError("GetServicesConfigListAsync：" + ex.Message);
+                Logger.LogError("DBHManagerBLLService_GetServicesConfigListAsync：" + ex.Message);
                 throw ex;
             }
         }
@@ -59,7 +59,7 @@ namespace DBH.BLLService.MainBLL
             }
             catch (Exception ex)
             {
-                Logger.LogError("GetServicesEnvityAsync：" + ex.Message);
+                Logger.LogError("DBHManagerBLLService_GetServicesEnvityAsync：" + ex.Message);
                 throw ex;
             }
         }
@@ -79,7 +79,7 @@ namespace DBH.BLLService.MainBLL
             }
             catch (Exception ex)
             {
-                Logger.LogError("GetFSServiceSrouceListAsync：" + ex.Message);
+                Logger.LogError("DBHManagerBLLService_GetFSServiceSrouceListAsync：" + ex.Message);
                 throw ex;
             }
         }
@@ -98,7 +98,7 @@ namespace DBH.BLLService.MainBLL
             }
             catch (Exception ex)
             {
-                Logger.LogError("TestConnection：" + ex.Message);
+                Logger.LogError("DBHManagerBLLService_TestConnectionAsync：" + ex.Message);
                 throw ex;
             }
         }
@@ -153,7 +153,7 @@ namespace DBH.BLLService.MainBLL
             }
             catch (Exception ex)
             {
-                Logger.LogError("InsertFsServiceEntity：" + ex.Message);
+                Logger.LogError("DBHManagerBLLService_InsertFsServiceEntityAsync：" + ex.Message);
                 return new EntityResult() { ID = -1, Message = ex.Message, EntityCode = EntityCode.SysError };
             }
         }
@@ -201,7 +201,7 @@ namespace DBH.BLLService.MainBLL
             }
             catch (Exception ex)
             {
-                Logger.LogError("UpdateFsServiceEntity：" + ex.Message);
+                Logger.LogError("DBHManagerBLLService_UpdateFsServiceEntityAsync：" + ex.Message);
                 return new EntityResult() { ID = -1, Message = ex.Message, EntityCode = EntityCode.SysError };
             }
         }
@@ -219,7 +219,7 @@ namespace DBH.BLLService.MainBLL
             }
             catch (Exception ex)
             {
-                Logger.LogError("DeleteFsServiceEntity：" + ex.Message);
+                Logger.LogError("DBHManagerBLLService_DeleteFsServiceEntityAsync：" + ex.Message);
                 throw ex;
             }
         }

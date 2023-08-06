@@ -54,7 +54,7 @@ namespace DBH.DALServices.MainDAL
         /// <param name="top">默认查询的数量(合并查询，结果可能超出此值)，
         /// 太多没意义，分页没必要，可以通过精确搜索查出范围内的数据</param>
         /// <returns></returns>
-        public async Task<IList<SysDataBaseSearchView>> SearchAction(string searchText, int top = 100)
+        public async Task<IList<SysDataBaseSearchView>> SearchActionAsync(string searchText, int top = 100)
         {
             List<SysDataBaseSearchView> listView = new List<SysDataBaseSearchView>();
             using (var conn = ConnectionProvider.GetConnection(this.ConnectionString))
@@ -70,14 +70,14 @@ namespace DBH.DALServices.MainDAL
                 }
                 #endregion
 
-                #region 第二步：搜索表字段
-                sqlQuery = string.Format($"SELECT DISTINCT TOP {top} 1 AS DBObjectType,obj.name AS TypeName FROM dbo.syscolumns col INNER JOIN dbo.sysobjects obj ON col.id = obj.id  AND obj.xtype = 'U' AND obj.status >= 0 WHERE col.name LIKE'%" + @searchText + "%'");
+                #region 第二步：搜索表字段,返回表名
+                sqlQuery = string.Format($"SELECT DISTINCT TOP {top} 4 AS DBObjectType,obj.name AS TypeName FROM dbo.syscolumns col INNER JOIN dbo.sysobjects obj ON col.id = obj.id  AND obj.xtype = 'U' AND obj.status >= 0 WHERE col.name LIKE'%" + @searchText + "%'");
                 var list2 = await conn.QueryAsync<SysDataBaseSearchView>(sqlQuery, new { searchText = searchText });
                 if (list2 != null && list2.Count() > 0)
                 {
                     foreach (var item in list2)
                     {
-                        if (listView.Count(p => p.TypeName == item.TypeName && p.DBObjectType == item.DBObjectType) == 0)
+                        if (listView.Count(p => p.TypeName == item.TypeName && p.DBObjectType==DBObjectType.U) == 0)
                         {
                             listView.Add(item);
                         }
@@ -109,5 +109,63 @@ namespace DBH.DALServices.MainDAL
             return listDefinition;
         }
 
+        /// <summary>
+        /// 查询表的全部列，返回List
+        /// </summary>
+        /// <param name="tableName">表名</param>
+        /// <returns></returns>
+        public async Task<IList<DB_TableColumnsView>> GetTableColumnsListAsync(string tableName)
+        {
+            IList<DB_TableColumnsView> listView = new List<DB_TableColumnsView>();
+            using (var conn = ConnectionProvider.GetConnection(this.ConnectionString))
+            {
+                string querySql = string.Format(@"SELECT  
+        col.colorder AS RowNumber ,obj.name AS TableName,ISNULL(eptable.value,'') AS TableDesc,
+        col.name AS ColumnName ,
+        ISNULL(ep.[value], '') AS ColumnDesc ,
+        t.name AS ColumnDataType ,
+        col.length AS ColumnDataLength ,
+        CASE WHEN COLUMNPROPERTY(col.id, col.name, 'IsIdentity') = 1 THEN 1
+             ELSE 0
+        END AS IsIdentity ,
+        CASE WHEN EXISTS ( SELECT   1
+                           FROM     dbo.sysindexes si
+                                    INNER JOIN dbo.sysindexkeys sik ON si.id = sik.id
+                                                              AND si.indid = sik.indid
+                                    INNER JOIN dbo.syscolumns sc ON sc.id = sik.id
+                                                              AND sc.colid = sik.colid
+                                    INNER JOIN dbo.sysobjects so ON so.name = si.name
+                                                              AND so.xtype = 'PK'
+                           WHERE    sc.id = col.id
+                                    AND sc.colid = col.colid ) THEN 1
+             ELSE 0
+        END AS IsKey,
+        CASE WHEN col.isnullable = 1 THEN 1  ELSE 0  END AS [IsNullable],
+        ISNULL(comm.text, '') AS DefaultValue
+FROM    dbo.syscolumns col
+        LEFT  JOIN dbo.systypes t ON col.xtype = t.xusertype
+        inner JOIN dbo.sysobjects obj ON col.id = obj.id
+                                         AND obj.xtype = 'U'
+                                         AND obj.status >= 0
+        LEFT  JOIN dbo.syscomments comm ON col.cdefault = comm.id
+        LEFT  JOIN sys.extended_properties eptable ON obj.id = eptable.major_id
+                                                         AND eptable.minor_id = 0
+                                                         AND eptable.name = 'MS_Description'
+        LEFT  JOIN sys.extended_properties ep ON col.id = ep.major_id
+                                                      AND col.colid = ep.minor_id
+                                                      AND ep.name = 'MS_Description'
+        LEFT  JOIN sys.extended_properties epTwo ON obj.id = epTwo.major_id
+                                                         AND epTwo.minor_id = 0
+                                                         AND epTwo.name = 'MS_Description'
+WHERE   obj.name = @tableName--表名
+ORDER BY col.colorder ; ");
+                var resData = await conn.QueryAsync<DB_TableColumnsView>(querySql, new { tableName = tableName });
+                if(resData != null && resData.Count()>0)
+                {
+                    listView = resData.ToList();
+                }
+            }
+            return listView;
+        }
     }
 }

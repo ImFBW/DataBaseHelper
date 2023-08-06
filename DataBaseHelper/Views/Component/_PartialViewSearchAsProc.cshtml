@@ -13,11 +13,11 @@
 <div class="accordian_header">
     <nav class="navbar navbar-light bg-light rounded px-2 shadow-sm">
         <div class="navbar-collapse">
-            <span class="color-func"><i class="icon iconfont icon-tubiao-hanshu"></i> <strong>函数：<span class="tab_content_title text-primary">@(Model.TypeName)</span></strong></span>
-            <span class="text-secondary">说明。。。。。。</span>
+            <span class="color-func"><i class="bi bi-file-earmark-ppt"></i> <strong>存储过程：<span class="tab_content_title text-primary">@(Model.TypeName)</span></strong></span>
+            <span class="text-secondary headerNameDesc"></span>
         </div>
     </nav>
-    <div class="position-relative">
+    <div class="position-relative codeLightElement">
         <pre>
         <div class="btn-group position-absolute top-0 end-0" role="group" aria-label="Basic outlined example" style="top: 42px !important;">
                 @* <button type="button" onclick="BtnSetLineNo()" data-default="1" class="btn border btn-outline-primary"><i class="bi-list-ol"></i></button>*@
@@ -27,10 +27,12 @@
                 @{
                     if (Model.Definition!=null && Model.Definition.Count>0)
                     {
+                        @Html.Raw("<ol>");
                         foreach (var item in Model.Definition)
                         {
-                            @Html.Raw(item.Text.ToString());
+                            @Html.Raw("<li>"+item.Text.ToString()+"</li>");
                         }
+                        @Html.Raw("</ol>");
                     }
                 }   
                 </code>

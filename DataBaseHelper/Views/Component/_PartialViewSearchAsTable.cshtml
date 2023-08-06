@@ -1,8 +1,24 @@
 ﻿@using DBH.Models.Entitys;
-@model FS_ServicesEntity
+@using DBH.Models.EntityViews;
+@model SysDataBaseSearchView
 @{
     Layout = null;
+    FS_ServicesEntity fsServiceEntity = (FS_ServicesEntity)ViewData["fsServiceEntity"];
 }
-<h2>哈哈哈Table,数据库名：@(Model.DataBaseName)</h2>
-<h4>TypeID=@(ViewBag.TypeID)</h4>
-<h4>TypeName=@(ViewBag.TypeName)</h4>
+<div class="accordian_header">
+    <nav class="navbar navbar-light bg-light rounded px-2 shadow-sm">
+        <div class="navbar-collapse">
+            <span class="color-table"><i class="bi-table"></i> <strong>表：<span class="tab_content_title text-primary">@(Model.TypeName)</span></strong></span>
+            <span class="text-secondary headerNameDesc"></span>
+        </div>
+    </nav>
+    <div class="position-relative tablePositionContent table-responsive">
+        <div class="btn-toolbar"></div>
+        <table class="table table-hover table-striped mt-2">
+            <thead>
+                <tr>
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
