@@ -218,11 +218,35 @@
         </div>
     </div>
 </div>
-
+<div id="pop_UpdateColumnDesc" class="d-none">
+    <form class="row g-3 m-0">
+        <div class="col-1"></div>
+        <div class="col-10">
+            <label class="form-label fs-5">{TitleName}</label>
+            <div class="alert alert-primary m-0" role="alert">
+                <p class="chose_CurrentData fs-6">
+                    <span class="chose_TableName {TableNameClass}">{TableName}</span>
+                    <span class="chose_TableColumn text-danger">{ColumnName}</span><span class="chose_ColumnInfo">{ColumnInfo}</span>
+                </p>
+            </div>            
+        </div>
+        <div class="col-1"></div>
+        <div class="col-1"></div>
+        <div class="col-10">
+            <label class="form-label fs-5">说明</label>
+            <textarea class="form-control chose_CurrentDesc" style="height:150px;" placeholder="说明" required>{Desc}</textarea>          
+        </div>
+        <div class="col-1"></div>
+        <div class="col-7"></div>
+        <div class="col-4">
+            <button type="submit" class="btn btn-primary btn-sm">&nbsp;&nbsp;&nbsp;&nbsp;提&nbsp;&nbsp;交&nbsp;&nbsp;&nbsp;&nbsp;</button>
+        </div>
+        <div class="col-1"></div>
+    </form>
+</div>
 @section scripts{
     <script src="~/lib/highlight/highlight.js"></script>
     <script src="~/lib/highlight/languages/sql.min.js"></script>
-    <script src="~/lib/bootstrap/bootstrap-table/js/bootstrap-table.js"></script>
     @*Split插件，详见：http://www.htmleaf.com/Demo/201512072873.html*@
     <script src="~/lib/splitpage/js/split.js" charset="gb2312"></script>
     <script src="~/js/search/searchmain.js"></script>

@@ -44,6 +44,8 @@ input:focus { outline: none !important; /*border-color: #cfdc00; box-shadow: 0 0
 /*Tip提示-颜色修改*/
 .tooltip-inner { background-color: #087990; color: #FFF; }
 .arrow::before, .bs-tooltip-top .arrow::before { border-top-color: #087990; }
+.bs-tooltip-top .tooltip-arrow::before { border-top-color: #087990; }
+.bs-tooltip-bottom .tooltip-arrow::before { border-bottom-color: #087990; }
 .bs-tooltip-start .tooltip-arrow::before { border-left-color: #087990; }/*#0dcaf0*/
 .bs-tooltip-end .tooltip-arrow::before { border-right-color: #087990; }
 /**Layui输入框样式改为bootstrap*/
@@ -58,7 +60,7 @@ input:focus { outline: none !important; /*border-color: #cfdc00; box-shadow: 0 0
 .color-proc { color: #996633; }
 .color-func { color: #999900; }
 .color-border { }
-.hljs { border: 0; font-size: 12px; display: block; padding: 1px; margin: 0; 100%; font-weight: 200; color: #333; white-space: pre-wrap }
+.hljs { border: 0; font-size: 12px; display: block; padding: 1px; margin: 0; font-weight: 200; color: #333; white-space: pre-wrap }
 .hljs ol { list-style: decimal; margin: 0px 0px 0 40px !important; padding: 0px; }
 .hljs ol li { list-style: decimal-leading-zero; border-left: 1px solid #ddd !important; padding: 0 0 0 1rem !important; margin: 0 !important; white-space: pre; }
 .float-right{float:right;}

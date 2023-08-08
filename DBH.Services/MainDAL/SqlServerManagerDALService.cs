@@ -154,9 +154,6 @@ FROM    dbo.syscolumns col
         LEFT  JOIN sys.extended_properties ep ON col.id = ep.major_id
                                                       AND col.colid = ep.minor_id
                                                       AND ep.name = 'MS_Description'
-        LEFT  JOIN sys.extended_properties epTwo ON obj.id = epTwo.major_id
-                                                         AND epTwo.minor_id = 0
-                                                         AND epTwo.name = 'MS_Description'
 WHERE   obj.name = @tableName--表名
 ORDER BY col.colorder ; ");
                 var resData = await conn.QueryAsync<DB_TableColumnsView>(querySql, new { tableName = tableName });
@@ -167,5 +164,7 @@ ORDER BY col.colorder ; ");
             }
             return listView;
         }
+
+        //public async Task<EntityResult>
     }
 }

@@ -48,3 +48,10 @@ var Valid = {
         return false;
     }
 }
+/**
+ * 触发tooltip 功能
+ */
+function tooltipTrigger() {
+    var tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+    var tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
+}

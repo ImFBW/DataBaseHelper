@@ -37,10 +37,9 @@ var table_columns = [
     { field: "DefaultValue", width: 100, title: "默认值" },
     {
         field: "ColumnName", title: "操作", width: 180, align: 'left', valign: 'middle', formatter: function (value, row, index) {
-            var _tableName = row.TableName;
-            var _columnName = value;
+            var _rowJson = JSON.stringify(row);
             var _html = "";
-            _html = '<button type="button" class="btn btn-sm btn-outline-primary" onclick=\'EditColumnDesc(this)\'><i class="bi bi-card-text"></i> 修改注释</button>';
+            _html = '<button type="button" class="btn btn-sm btn-outline-primary" onclick=\'EditColumnDesc(' + _rowJson + ',"column")\'><i class="bi bi-card-text"></i> 修改注释</button>';
             return _html;
         }
     }
@@ -48,7 +47,8 @@ var table_columns = [
 var table_options = {
     url: '/database/GetTableData/',                    //请求后台的URL（*）
     method: 'POST',              //请求方式（*）
-    toolbar: '.btn-toolbar',        //工具按钮用哪个容器
+    toolbar: '.table-toolbar',        //工具按钮用哪个容器
+    toolbarAlign: 'right',           //工具栏对齐方式
     striped: true,                //是否显示行间隔色
     cache: false,                 //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
     pagination: true,             //是否显示分页（*）
@@ -60,7 +60,7 @@ var table_options = {
     pageList: [20, 50, 100, 500],//可供选择的每页的行数（*）
     search: true,                //是否显示表格搜索
     searchOnEnterKey: true,       //回车后执行搜索
-    strictSearch: true,
+    //strictSearch: true,
     //showColumns: true,            //是否显示所有的列（选择显示的列）
     showRefresh: false,           //是否显示刷新按钮
     //minimumCountColumns: 2,       //最少允许的列数
@@ -81,7 +81,7 @@ var table_options = {
     //    };
     //    return temp;
     //},
-    searchAlign:'left',
+    searchAlign: 'left',
     formatLoadingMessage: function () {
         return '<div class="spinner-border text-secondary" role="status"><span class="visually-hidden">Loading...</span></div> 加载中...';
     },
@@ -262,6 +262,7 @@ function LoadData(typeID, typeName) {
                 var tableEve = $("#content_wrapper").find("div.accordian_header:last").find('table')[0];
                 table_options.url = '/database/GetTableData/?ID=' + id + "&tableName=" + typeName;
                 $(tableEve).bootstrapTable(table_options);//用bootstrap-table 插件初始化Table
+                tooltipTrigger();
             } else {//其他模式，存储过程+表函数
                 var codeEve = $("#content_wrapper").find("div.accordian_header:last").find('code')[0];
                 //hljs.highlightAll();//执行插件，设置代码高亮highlightAuto(code, languageSubset) highlightElement(element)
@@ -277,14 +278,47 @@ function LoadData(typeID, typeName) {
     })
 }
 
-function EditColumnDesc(tableName, columnName) {
-    layer.msg("修改字段说明：" + tableName + "." + columnName)
+function EditColumnDesc(row, type) {
+    var id = ServcieData.ID;
+    //layer.alert("选择：" + row.TableName + "." + row.ColumnName + "[" + row.ColumnDataType + "(" + row.ColumnDataLength + ")" + "]");
+    var _openHtml = $("#pop_UpdateColumnDesc").html();
+    var titleName = '';
+    var tableName = row.TableName;
+    var columnName = '';
+    var columnInfo = '';
+    var desc = '';
+    var tableNameClass = '';
+    if (type == "column") {
+        titleName = '列名';
+        columnName = "<b>.</b>" + row.ColumnName;
+        columnInfo = " [" + row.ColumnDataType + "(" + row.ColumnDataLength + ")" + "]";
+        desc = row.ColumnDesc;
+        tableNameClass = 'text-secondary';
+    } else if (type == "table") {
+        titleName = '表名';
+        desc = row.TableDesc;
+        tableNameClass = 'text-danger';
+    }
+    _openHtml = _openHtml.replace("{TitleName}", titleName).replace("{TableName}", tableName).replace("{TableNameClass}", tableNameClass).replace("{ColumnName}", columnName).replace("{ColumnInfo}", columnInfo).replace("{Desc}", desc);
+    layer.open({
+        type: 1,
+        content: _openHtml,
+        area: ['620px', '460px'],
+        title: "修改说明",
+        shade: 0.6,
+        shadeClose: false,
+        btnAlign: 'r',
+        maxmin: false,
+        btn: ["关闭"],
+        //
+    })
 }
 /**
  * table search自定义事件
  * @param {any} text
  */
 function TableSearch(data, text) {
+    if (text == undefined) text = '';
     var searchResultData = data.filter(function (row) {
         return (row.ColumnName.toLowerCase() + "").indexOf(text.toLowerCase()) > -1
     })
