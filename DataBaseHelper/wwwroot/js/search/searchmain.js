@@ -636,7 +636,6 @@ function DynamicSetSplitSliderHight() {
         TabContainerList.push(_this);
 
         _this.InitAction = function () {
-            layer.msg("开始");
             var newWrapper = $(".tab_" + this.option.TabID);
             var tableEve = newWrapper.find('table')[0];
             table_options.url = '/database/GetTableData/?ID=' + this.option.DBID + "&tableName=" + this.option.TypeName;
