@@ -9,14 +9,14 @@
     <nav class="navbar navbar-light bg-light rounded px-2 shadow-sm">
         <div class="navbar-collapse">
             <span class="color-table"><i class="bi-table"></i> <strong>表：<span class="tab_content_title text-primary">@(Model.TypeName)</span></strong></span>
-            <span class="text-secondary headerNameDesc"></span>
+            <span class="text-secondary headerNameDesc"></span><button type="button" class="tableDescEdit btn  btn-sm btn-outline-primary border-0">修改</button>
         </div>
     </nav>
     <div class="position-relative  mt-2 tablePositionContent table-responsive">
         <div class="table-toolbar  toolbar">
             <div class="btn-group" role="group" aria-label="Basic outlined example">
-                <button type="button" class="btn btn-outline-primary" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="刷新"><i class="bi bi-arrow-repeat"></i></button>
-                <button type="button" class="btn btn-outline-primary" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="导出Excel"><i class="bi bi-box-arrow-right"></i></button>
+                <button type="button" class="btn btn-outline-primary btn_table_refresh" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="刷新"><i class="bi bi-arrow-repeat"></i></button>
+                <button type="button" class="btn btn-outline-primary btn_table_export" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="导出Excel"><i class="bi bi-box-arrow-right"></i></button>
             </div>
             @*<ul class="nav justify-content-end">
                 <li class="nav-item">
@@ -35,3 +35,5 @@
         </table>
     </div>
 </div>
+
+@*<div class="table-toolbar  toolbar"><div class="btn-group" role="group" aria-label="Basic outlined example"><button type="button" class="btn btn-outline-primary" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="刷新"><i class="bi bi-arrow-repeat"></i></button><button type="button" class="btn btn-outline-primary" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="导出Excel"><i class="bi bi-box-arrow-right"></i></button></div></div>*@

@@ -77,7 +77,7 @@ namespace DBH.DALServices.MainDAL
                 {
                     foreach (var item in list2)
                     {
-                        if (listView.Count(p => p.TypeName == item.TypeName && p.DBObjectType==DBObjectType.U) == 0)
+                        if (listView.Count(p => p.TypeName == item.TypeName && p.DBObjectType == DBObjectType.U) == 0)
                         {
                             listView.Add(item);
                         }
@@ -157,7 +157,7 @@ FROM    dbo.syscolumns col
 WHERE   obj.name = @tableName--表名
 ORDER BY col.colorder ; ");
                 var resData = await conn.QueryAsync<DB_TableColumnsView>(querySql, new { tableName = tableName });
-                if(resData != null && resData.Count()>0)
+                if (resData != null && resData.Count() > 0)
                 {
                     listView = resData.ToList();
                 }
@@ -165,6 +165,105 @@ ORDER BY col.colorder ; ");
             return listView;
         }
 
+        /// <summary>
+        /// 更新表、字段的说明
+        /// </summary>
+        /// <param name="tableColumnDescription">数据实体类</param>
+        /// <returns></returns>
+        public async Task<EntityResult> UpdateTableColumnDescriptionAsync(TableColumnDescription tableColumnDescription)
+        {
+            EntityResult result = new EntityResult();
+            using (var conn = ConnectionProvider.GetConnection(this.ConnectionString))
+            {
+                string sql = string.Empty;
+                if (tableColumnDescription.TypeID == 1)
+                {
+                    sql = string.Format(@"IF EXISTS(SELECT 1 FROM    dbo.syscolumns col
+                                        LEFT  JOIN dbo.systypes t ON col.xtype = t.xusertype
+                                        inner JOIN dbo.sysobjects obj ON col.id = obj.id
+                                                                         AND obj.xtype = 'U'
+                                                                         AND obj.status >= 0
+                                        LEFT  JOIN sys.extended_properties eptable ON obj.id = eptable.major_id
+                                                                                         AND eptable.minor_id = 0
+                                                                                         AND eptable.name = 'MS_Description'
+                                        LEFT  JOIN sys.extended_properties ep ON col.id = ep.major_id
+                                                      AND col.colid = ep.minor_id
+                                                      AND ep.name = 'MS_Description' WHERE obj.name = @TableName AND col.name=@TableColumn  AND eptable.name IS NOT null)
+                            BEGIN
+	                            --更新说明
+                            EXEC sys.sp_updateextendedproperty @name = 'MS_Description',     -- sysname
+                                                            @value = @Description,  -- sql_variant
+                                                            @level0type = 'schema',       -- varchar(128)
+                                                            @level0name = N'dbo',         -- sysname
+                                                            @level1type = N'table',       -- varchar(128)
+                                                            @level1name = @TableName -- sysname
+								SELECT 1
+                            END 
+                            ELSE
+                            BEGIN
+                            --新增说明
+                             EXEC sys.sp_addextendedproperty @name = 'MS_Description',     -- sysname
+                                                            @value = @Description,  -- sql_variant
+                                                            @level0type = 'schema',       -- varchar(128)
+                                                            @level0name = N'dbo',         -- sysname
+                                                            @level1type = N'table',       -- varchar(128)
+                                                            @level1name = @TableName -- sysname
+								SELECT 1
+                            END");
+                }
+                else if (tableColumnDescription.TypeID == 2)
+                {
+                    sql = string.Format(@"IF EXISTS(SELECT 1 FROM    dbo.syscolumns col
+                                        LEFT  JOIN dbo.systypes t ON col.xtype = t.xusertype
+                                        inner JOIN dbo.sysobjects obj ON col.id = obj.id
+                                                                         AND obj.xtype = 'U'
+                                                                         AND obj.status >= 0
+                                        LEFT  JOIN sys.extended_properties eptable ON obj.id = eptable.major_id
+                                                                                         AND eptable.minor_id = 0
+                                                                                         AND eptable.name = 'MS_Description'
+                                        LEFT  JOIN sys.extended_properties ep ON col.id = ep.major_id
+                                                      AND col.colid = ep.minor_id
+                                                      AND ep.name = 'MS_Description' WHERE   obj.name = @TableName AND col.name=@TableColumn AND ep.value IS NOT NULL)
+                            BEGIN
+	                            --更新说明
+                            EXEC sys.sp_updateextendedproperty @name = 'MS_Description',     -- sysname
+                                                            @value = @Description,  -- sql_variant
+                                                            @level0type = 'schema',       -- varchar(128)
+                                                            @level0name = N'dbo',         -- sysname
+                                                            @level1type = N'table',       -- varchar(128)
+                                                            @level1name = @TableName, -- sysname
+                                                            @level2type = N'column',      -- varchar(128)
+                                                            @level2name = @TableColumn;
+								SELECT 1
+                            END 
+                            ELSE
+                            BEGIN
+                            --新增说明
+                             EXEC sys.sp_addextendedproperty @name = 'MS_Description',     -- sysname
+                                                            @value = @Description,  -- sql_variant
+                                                            @level0type = 'schema',       -- varchar(128)
+                                                            @level0name = N'dbo',         -- sysname
+                                                            @level1type = N'table',       -- varchar(128)
+                                                            @level1name = @TableName, -- sysname
+                                                            @level2type = N'column',      -- varchar(128)
+                                                            @level2name = @TableColumn;
+								SELECT 1
+                            END");
+                }
+                object code = await conn.ExecuteScalarAsync(sql, new { TableName = tableColumnDescription.TableName, TableColumn = tableColumnDescription.TableColumn, Description = tableColumnDescription.Description });
+                if (code != null && int.Parse(code.ToString()) > 0)
+                {
+                    result.EntityCode = EntityCode.Success;
+                    result.Message = "success";
+                }
+                else
+                {
+                    result.EntityCode = EntityCode.Fail;
+                    result.Message = "fail";
+                }
+            }
+            return result;
+        }
         //public async Task<EntityResult>
     }
 }

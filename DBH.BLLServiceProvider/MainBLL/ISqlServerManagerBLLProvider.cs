@@ -46,5 +46,12 @@ namespace DBH.BLLProvider.MainBLL
         /// <returns></returns>
         Task<IList<DB_TableColumnsView>> GetTableColumnsListAsync(string tableName);
 
+
+        /// <summary>
+        /// 更新表、字段的说明
+        /// </summary>
+        /// <param name="tableColumnDescription">数据实体类</param>
+        /// <returns></returns>
+        Task<EntityResult> UpdateTableColumnDescriptionAsync(TableColumnDescription tableColumnDescription);
     }
 }

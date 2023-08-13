@@ -20,7 +20,7 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-myNavColor border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand nav-link" href="/home/index/">
+                <a class="navbar-brand nav-link" asp-area="" asp-controller="DataBase" asp-action="Index">
                     <div class="header_logo_jpg d-flex">
                         <img src="~/lib/images/dbms_logo.jpg" alt="LOGO" width="40" height="40" class="img-fluid" />
                         <p class="p-2">数据库工具</p>
@@ -34,18 +34,16 @@
                         </li>
                     </ul>
                     @*顶部导航-[服务器-数据库]展示*@
-                    <ul class="navbar-nav flex-grow-1 justify-content-end">
+                    <ul class="navbar-nav flex-grow-1 justify-content-center">
                         <li class="nav-item text-light">
-                            <!--<div class="text-light d-inline-block" style="width:3px;height:100%;background-color:#727cf5;margin-right:10px;float: left;"></div>-->
                             当前：<span id="current_Server_Title">--</span>                     
                         </li>
                     </ul>
-                    @*顶部导航-最右侧的按钮*@
-                    @*<ul class="navbar-nav nav justify-content-end flex-grow-1">
-                        <li class="nav-item">
-                    <a class="nav-link text-white" href="/database/index"><i class="bi-server"></i>选择数据库</a>
+                    <ul class="navbar-nav flex-grow-1 justify-content-end">
+                        <li class="nav-item text-light">
+                           <button type="button" class="btn btn-outline-light border-0">导出</button>
                         </li>
-                    </ul>*@
+                    </ul>
                 </div>
             </div>
         </nav>

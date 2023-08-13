@@ -3,7 +3,18 @@
 }
 var table_columns = [
     { field: "RowNumber", title: "#", width: 80, sortable: true },
-    { field: "ColumnName", title: "字段列名", width: 240, sortable: true },
+    {
+        field: "ColumnName", title: "字段列名", width: 240, sortable: true, formatter: function (value, row, index) {
+            var _tmpHtml = value;
+            var searchContent = $("#serarch_main").val();
+            var regMatch = new RegExp(searchContent, 'i');
+            if (regMatch.test(value)) {
+                var newCon = value.match(regMatch)[0];
+                _tmpHtml = value.replace(regMatch, "<span class='text-danger'>" + newCon + "</span>");
+            }
+            return _tmpHtml;
+        }
+    },
     { field: "ColumnDesc", title: "字段说明" },
     { field: "ColumnDataType", title: "数据类型", width: 100, sortable: true },
     { field: "ColumnDataLength", title: "数据长度", width: 80, sortable: true },
@@ -39,7 +50,7 @@ var table_columns = [
         field: "ColumnName", title: "操作", width: 180, align: 'left', valign: 'middle', formatter: function (value, row, index) {
             var _rowJson = JSON.stringify(row);
             var _html = "";
-            _html = '<button type="button" class="btn btn-sm btn-outline-primary" onclick=\'EditColumnDesc(' + _rowJson + ',"column")\'><i class="bi bi-card-text"></i> 修改注释</button>';
+            _html = '<button type="button" class="btn btn-sm btn-outline-primary border-0" onclick=\'EditColumnDesc(' + _rowJson + ',"column")\'><i class="bi bi-card-text"></i> 修改</button>';
             return _html;
         }
     }
@@ -47,10 +58,11 @@ var table_columns = [
 var table_options = {
     url: '/database/GetTableData/',                    //请求后台的URL（*）
     method: 'POST',              //请求方式（*）
-    toolbar: '.table-toolbar',        //工具按钮用哪个容器
+    toolbar: '.table-toolbar:last',        //工具按钮用哪个容器
     toolbarAlign: 'right',           //工具栏对齐方式
     striped: true,                //是否显示行间隔色
     cache: false,                 //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+    //showPaginationSwitch: true,
     pagination: true,             //是否显示分页（*）
     sortable: true,               //是否启用排序
     sortOrder: "asc",             //排序方式
@@ -93,12 +105,17 @@ var table_options = {
         return "".concat(pageNumber, " 行/页");
     },
     customSearch: TableSearch,
-    onLoadSuccess: function (data) {
+    onLoadSuccess: function (data, aaa) {
         if (data != null && data.rows) {
             if (data.rows.length > 0) {
                 var tableName = data.rows[0].TableName;
                 var tableDesc = data.rows[0].TableDesc;
-                $("span.desc_1_" + tableName).html(tableDesc);
+                var headerContainer = $("div.desc_14_" + tableName);
+                headerContainer.find("span.headerNameDesc").html(tableDesc);
+                //注册表名的说明【修改】按钮事件
+                headerContainer.find("button.tableDescEdit").unbind('click').bind("click", function () {
+                    EditColumnDesc(data.rows[0], 'table');
+                })
             }
         }
     },
@@ -121,7 +138,8 @@ $(function () {
                 layer.msg("未选择数据库", { icon: 0 }); return false;
             }
             $("#hid_SearchFSServcieEntityID").val(fsServiceID);
-            SearchLoading.Show();
+            var loading = SearchLoading({ Title: '搜索中...', TargetID: '#searchListContent' });
+            loading.Show();
             return true;
         }, //提交前，验证
         success: SearchSuccess,  //提交成功后
@@ -178,7 +196,7 @@ $(function () {
  * @param {any} $form
  */
 function SearchSuccess(responseText, statusText, xhr, $form) {
-    SearchLoading.Hide();
+    SearchLoading().CloseAll();
     if (statusText == "success") {
         //debugger
         $(".search_btn_tabs .btn:eq(0)").click();
@@ -235,14 +253,18 @@ function SearchSuccess(responseText, statusText, xhr, $form) {
  */
 function LoadData(typeID, typeName) {
     var id = ServcieData.ID;
+    var formatTypeID = typeID;
+    if (typeID == 1 || typeID == 4) { formatTypeID = 14; }//1、4都是Table，所以用一个ID=14表示，省的考虑2种情况，这样只需要考虑一种14即可。
     //查找当前是否已有相同的类型，如果有就显示即可，不必再查询
-    var _typeEve = $("span.desc_" + typeID + "_" + typeName);
+    var _typeEve = $("div.desc_" + formatTypeID + "_" + typeName);
     var isHasType = _typeEve.length;
     if (isHasType > 0) {
         var _tabID = _typeEve.data("tabID");
         ActionToTabs(_tabID);
         return;
     }
+    var loading = SearchLoading({ Title: '加载中...', TargetID: '#mainRight' });
+    loading.Show();
     //debugger
     $.ajax({
         url: '/database/PartialViewForSearchResult/',
@@ -251,18 +273,22 @@ function LoadData(typeID, typeName) {
         dataType: 'html',
         success: function (data) {
             SearchData.TabIndex = SearchData.TabIndex + 1;
+
             var tabHtml = '<li data-tab="' + SearchData.TabIndex + '"><span class="tab_title">' + typeName + '</span><span class="close"><i class="bi bi-x-square"></i></span></li>';
             $('.tab_list').append(tabHtml);//追加Tab按钮
             $("#content_wrapper").append(data);//追加内容
-            $("#content_wrapper").find("div.accordian_header:last").addClass("tab_" + SearchData.TabIndex);//给内容设置特定的class
-            $("#content_wrapper").find("div.accordian_header:last").find(".headerNameDesc").addClass("desc_" + typeID + "_" + typeName);
-            $("#content_wrapper").find("div.accordian_header:last").find(".headerNameDesc").data("tabID", SearchData.TabIndex);
+            var newWrapper = $("#content_wrapper").find("div.accordian_header:last");//最新的tab内容
+            newWrapper.addClass("tab_" + SearchData.TabIndex);//给内容设置特定的class
+            newWrapper.addClass("desc_" + formatTypeID + "_" + typeName);//给一个唯一的class便于查找,用TypeID+typename,防止重复出现。
+            newWrapper.data("tabID", SearchData.TabIndex);//给内容设置ID，便于后期使用
             EventTabAction();//注册Tab事件           
-            if (typeID == 1 || typeID == 4) {//Table模式
-                var tableEve = $("#content_wrapper").find("div.accordian_header:last").find('table')[0];
-                table_options.url = '/database/GetTableData/?ID=' + id + "&tableName=" + typeName;
-                $(tableEve).bootstrapTable(table_options);//用bootstrap-table 插件初始化Table
-                tooltipTrigger();
+            if (formatTypeID == 14) {//Table模式
+                var options = {
+                    DBID: ServcieData.ID,     //当前选择的数据库的配置ID
+                    TypeName: typeName,    //当前的数据类型的名称、表名、存储过程名等
+                    TabID: SearchData.TabIndex   //当前TabID 
+                }
+                var a = new TabContainer(options).InitAction();
             } else {//其他模式，存储过程+表函数
                 var codeEve = $("#content_wrapper").find("div.accordian_header:last").find('code')[0];
                 //hljs.highlightAll();//执行插件，设置代码高亮highlightAuto(code, languageSubset) highlightElement(element)
@@ -274,10 +300,17 @@ function LoadData(typeID, typeName) {
         error: function (x, s, e) {
             layer.msg("系统异常", { icon: 2, shade: 0.1 }, function () {
             });
+        },
+        complete: function () {
+            SearchLoading().CloseAll();
         }
     })
 }
-
+/**
+ * 弹出编辑说明 * 
+ * @param {any} row
+ * @param {any} type
+ */
 function EditColumnDesc(row, type) {
     var id = ServcieData.ID;
     //layer.alert("选择：" + row.TableName + "." + row.ColumnName + "[" + row.ColumnDataType + "(" + row.ColumnDataLength + ")" + "]");
@@ -288,16 +321,19 @@ function EditColumnDesc(row, type) {
     var columnInfo = '';
     var desc = '';
     var tableNameClass = '';
+    var TypeID = 0;
     if (type == "column") {
         titleName = '列名';
         columnName = "<b>.</b>" + row.ColumnName;
         columnInfo = " [" + row.ColumnDataType + "(" + row.ColumnDataLength + ")" + "]";
         desc = row.ColumnDesc;
+        TypeID = 2;
         tableNameClass = 'text-secondary';
     } else if (type == "table") {
         titleName = '表名';
         desc = row.TableDesc;
         tableNameClass = 'text-danger';
+        TypeID = 1;
     }
     _openHtml = _openHtml.replace("{TitleName}", titleName).replace("{TableName}", tableName).replace("{TableNameClass}", tableNameClass).replace("{ColumnName}", columnName).replace("{ColumnInfo}", columnInfo).replace("{Desc}", desc);
     layer.open({
@@ -310,7 +346,61 @@ function EditColumnDesc(row, type) {
         btnAlign: 'r',
         maxmin: false,
         btn: ["关闭"],
+        success: function () {
+            $(".chose_CurrentDesc").focus();
+            var data = {
+                ID: ServcieData.ID,
+                TypeID: TypeID,
+                TableName: tableName,
+                TableColumn: row.ColumnName,
+                Description: '',
+            }
+            $(".save_submit").unbind('click').bind('click', function (e) { SaveTableColumnDesc(e, data) });
+        }
         //
+    })
+}
+/**
+ * 保存说明，提交
+ * @param {any} e
+ * @param {any} config
+ */
+function SaveTableColumnDesc(e, config) {
+    var _thisForm = $(e.currentTarget).parents('form');
+    var descContent = _thisForm.find(".chose_CurrentDesc").val();
+    var parmater = {
+        ...config,
+        Description: descContent,
+    }
+    layer.msg("savwe..==" + JSON.stringify(parmater))
+    $.ajax({
+        url: '/database/UpdateTableColumnDesc/',
+        type: 'POST',
+        data: parmater,
+        dataType: 'JSON',
+        success: function (data) {
+            if (data.status) {
+                layer.closeAll();
+                layer.msg("更新成功！");
+                var _typeEve = $(".accordian_header.active");
+                var currentTabID = 0;
+                if (_typeEve.length > 0) {
+                    currentTabID = _typeEve.data("tabID");
+                }
+                //刷新表格
+                var options = {
+                    TabID: currentTabID   //当前TabID 
+                }
+                var curContainer = new TabContainer(options);
+                curContainer.TableRefresh();
+            } else {
+                layer.msg('更新失败：' + data.message);
+            }
+        },
+        error: function (x, s, e) {
+            layer.msg("系统异常", { icon: 2, shade: 0.1 }, function () {
+            });
+        }
     })
 }
 /**
@@ -324,6 +414,7 @@ function TableSearch(data, text) {
     })
     return searchResultData;
 }
+
 /**
  * table search后调用
  */
@@ -364,21 +455,6 @@ function SearchError(x, s, h, f) {
     console.log(s);
     layer.msg("系统异常", { icon: 2, shade: 0.1 }, function () {
     });
-}
-/**
- * 搜索时的遮罩层和loadding提示
- */
-SearchLoading = {
-    Show: function () {
-        var _loadShade = '<div class="layui-layer-shade search_Loading" style="z-index: 202301;background-color: rgb(0, 0, 0);opacity: 0.1;position:absolute;"></div>';
-        var _loading = '<div class="search_Loading  text-primary fs-6 p-1" style="min-width: 100px;filter: alpha(opacity=60);color: #fff;border: none;z-index: 202302;position: absolute;top:120px;left: 38%;"><div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden"></span></div> 搜索中...</div>';
-        var _loadHtml = _loadShade + _loading;
-        $("#searchResultList").append(_loadHtml);
-
-    },
-    Hide: function () {
-        $(".search_Loading").remove();
-    }
 }
 
 /**
@@ -535,4 +611,57 @@ function DynamicSetSplitSliderHight() {
     // 之后，可停止观察
     //observer.disconnect();
 }
+/**
+ * 每开启一个tab，则初始化一个对象，然后在对象内操作各种事件
+ * TabContainer
+ */
+(function () {
+    var TabContainer = function (options) {
+        var _this = this;
+        _this.option = {
+            DBID: 0,     //当前选择的数据库的配置ID
+            TypeName: '',    //当前的数据类型的名称、表名、存储过程名等
+            TabID: 0,   //当前TabID
+            BootStrapTable: null,    //当前bootstrap-Table的对象
+        }
+        _this.option = { ..._this.option, ...options };
+        if (TabContainerList.length > 0) {
+            var matchContainer = TabContainerList.filter((n, i, self) => {
+                if (n.option.TabID == _this.option.TabID) {
+                    return n;
+                }
+            });
+            if (matchContainer != undefined && matchContainer != null && matchContainer.length > 0) return matchContainer[0];
+        }
+        TabContainerList.push(_this);
 
+        _this.InitAction = function () {
+            layer.msg("开始");
+            var newWrapper = $(".tab_" + this.option.TabID);
+            var tableEve = newWrapper.find('table')[0];
+            table_options.url = '/database/GetTableData/?ID=' + this.option.DBID + "&tableName=" + this.option.TypeName;
+            _this.option.BootStrapTable = $(tableEve).bootstrapTable(table_options);//用bootstrap-table 插件初始化Table
+            //注册几个事件
+            newWrapper.find("button.btn_table_refresh").on('click', function () { _this.TableRefresh() });
+            newWrapper.find("button.btn_table_export").on('click', function () {
+                layer.msg('功能待开发...');
+            });
+            tooltipTrigger();
+        }
+        /**
+         * 刷新表格数据
+         */
+        _this.TableRefresh = function () {
+            if (_this.option.BootStrapTable == null) return;
+            $(_this.option.BootStrapTable).data('bootstrap.table').refresh();
+        }
+        return _this;
+        //TabContainer.InitAction();
+    }
+    //全局
+    if (typeof window !== 'undefined') {
+        window.TabContainer = TabContainer;
+        window.TabContainerList = [];
+    }
+
+})();

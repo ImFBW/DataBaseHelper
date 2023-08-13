@@ -92,7 +92,7 @@ namespace DataBaseHelper.Controllers
         }
 
         /// <summary>
-        /// 
+        /// 获取不同的结果的页面的HTML
         /// </summary>
         /// <param name="id"></param>
         /// <param name="typeID"></param>
@@ -330,6 +330,8 @@ namespace DataBaseHelper.Controllers
             IList<DB_TableColumnsView> listColumn = new List<DB_TableColumnsView>();
             if (fsServiceEntity.ServerType == 1)//SqlServer
             {
+                string connectionString = string.Format($"data source={fsServiceEntity.ServerAddress};persist security info=True;initial catalog={fsServiceEntity.DataBaseName};user id={fsServiceEntity.LoginName};password={fsServiceEntity.LoginPassword};");
+                _sqlServerManagerBLLProvider.SetConnectionString(connectionString);
                 listColumn = await _sqlServerManagerBLLProvider.GetTableColumnsListAsync(tableName);
             }
             else if (fsServiceEntity.ServerType == 1)//MySQL
@@ -346,6 +348,65 @@ namespace DataBaseHelper.Controllers
 
             string stringJson = JsonConvert.SerializeObject(resultJson, Formatting.Indented);
             return Content(stringJson);
+        }
+
+        /// <summary>
+        /// 更新表、字段的说明
+        /// </summary>
+        /// <param name="ID">当前选择的数据库配置ID</param>
+        /// <param name="tableColumnDescription">数据实体</param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<IActionResult> UpdateTableColumnDesc(int? ID , TableColumnDescription tableColumnDescription)
+        {
+            ResultModel result = new ResultModel();
+            result.Status = false;
+            int IDval = 0;
+            if (ID.HasValue) { IDval = ID.Value; }
+            else
+            {
+                result.Message = "未选择数据库";
+                return Json(result);
+            }
+            if (string.IsNullOrEmpty(tableColumnDescription.TableName))
+            {
+                result.Message = "表名参数为空";
+                return Json(result);
+            }
+            if (tableColumnDescription.TypeID==2  && string.IsNullOrEmpty(tableColumnDescription.TableColumn))
+            {
+                result.Message = "列名参数为空";
+                return Json(result);
+            }
+            FS_ServicesEntity fsServiceEntity = new FS_ServicesEntity();
+            fsServiceEntity = await _DBHManagerBLLProvider.GetServicesEnvityAsync(IDval);
+            if (fsServiceEntity == null || fsServiceEntity.ID <= 0 || string.IsNullOrEmpty(fsServiceEntity.ServerAddress) || string.IsNullOrEmpty(fsServiceEntity.DataBaseName))
+            {
+                result.Message = "数据库配置错误";
+                return Json(result);
+            }
+            EntityResult entityResult = new EntityResult();
+            if (fsServiceEntity.ServerType == 1)//SqlServer
+            {
+                string connectionString = string.Format($"data source={fsServiceEntity.ServerAddress};persist security info=True;initial catalog={fsServiceEntity.DataBaseName};user id={fsServiceEntity.LoginName};password={fsServiceEntity.LoginPassword};");
+                _sqlServerManagerBLLProvider.SetConnectionString(connectionString);
+                entityResult = await _sqlServerManagerBLLProvider.UpdateTableColumnDescriptionAsync(tableColumnDescription);
+            }
+            else if (fsServiceEntity.ServerType == 1)//MySQL
+            {
+                //暂不支持
+            }
+            if (entityResult.EntityCode==EntityCode.Success)
+            {
+                result.Status = true;
+                result.Message = "success";
+            }
+            else
+            {
+                result.Status = false;
+                result.Message = entityResult.Message;
+            }
+            return Json(result);
         }
         #endregion
     }

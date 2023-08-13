@@ -219,7 +219,7 @@
     </div>
 </div>
 <div id="pop_UpdateColumnDesc" class="d-none">
-    <form class="row g-3 m-0">
+    <form class="row g-3 m-0" action="#">
         <div class="col-1"></div>
         <div class="col-10">
             <label class="form-label fs-5">{TitleName}</label>
@@ -234,12 +234,12 @@
         <div class="col-1"></div>
         <div class="col-10">
             <label class="form-label fs-5">说明</label>
-            <textarea class="form-control chose_CurrentDesc" style="height:150px;" placeholder="说明" required>{Desc}</textarea>          
+            <textarea class="form-control chose_CurrentDesc" maxlength="180" onchange="this.value=this.value.substring(0, 180)" onkeydown="this.value=this.value.substring(0, 180)" onkeyup="this.value=this.value.substring(0, 180)" style="height:150px;" placeholder="说明" required>{Desc}</textarea>
         </div>
         <div class="col-1"></div>
         <div class="col-7"></div>
         <div class="col-4">
-            <button type="submit" class="btn btn-primary btn-sm">&nbsp;&nbsp;&nbsp;&nbsp;提&nbsp;&nbsp;交&nbsp;&nbsp;&nbsp;&nbsp;</button>
+            <button type="button" class="btn btn-primary btn-sm save_submit">&nbsp;&nbsp;&nbsp;&nbsp;提&nbsp;&nbsp;交&nbsp;&nbsp;&nbsp;&nbsp;</button>
         </div>
         <div class="col-1"></div>
     </form>
@@ -287,10 +287,10 @@
             var tooltip = new bootstrap.Tooltip(toolTipEle, {
                 animation: true,
                 delay: 0,
-                placement: 'left',
+                placement: 'right',
                 title: ServcieData.DBAddress,
                 trigger: 'hover focus',
-                fallbackPlacements: ['right', 'top', 'bottom'],
+                fallbackPlacements: ['right','bottom'],
                 //customClass: 'bg-success'
             })
         }

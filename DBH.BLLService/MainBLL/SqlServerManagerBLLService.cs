@@ -1,6 +1,7 @@
 ﻿using DBH.BLLProvider.MainBLL;
 using DBH.DALProvider.MainDAL;
 using DBH.DALServiceProvider.MainDAL;
+using DBH.Models.Common;
 using DBH.Models.EntityViews;
 using Microsoft.Extensions.Logging;
 using System;
@@ -90,11 +91,49 @@ namespace DBH.BLLService.MainBLL
             }
             catch (Exception ex)
             {
-                Logger.LogError("SQLServer_GetTableColumnsList：" + ex.Message);
+                Logger.LogError("SQLServer_GetTableColumnsListAsync：" + ex.Message);
                 throw ex;
             }
 
         }
+
+
+        /// <summary>
+        /// 更新表、字段的说明
+        /// </summary>
+        /// <param name="tableColumnDescription">数据实体类</param>
+        /// <returns></returns>
+        public async Task<EntityResult> UpdateTableColumnDescriptionAsync(TableColumnDescription tableColumnDescription)
+        {
+            try
+            {
+                EntityResult result = new EntityResult();
+                if (string.IsNullOrEmpty(tableColumnDescription.TableName))
+                {
+                    result.EntityCode = EntityCode.PramIsNull;
+                    result.Message = "表名为空";
+                }
+                if (tableColumnDescription.TypeID == 2)
+                {
+                    if (string.IsNullOrEmpty(tableColumnDescription.TableColumn))
+                    {
+                        result.EntityCode = EntityCode.PramIsNull;
+                        result.Message = "列名为空";
+                    }
+                }
+                if (!string.IsNullOrEmpty(result.Message)) return result;
+                return await _sqlServerManagerDALProvider.UpdateTableColumnDescriptionAsync(tableColumnDescription);
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("SQLServer_UpdateTableColumnDescriptionAsync：" + ex.Message);
+                throw ex;
+            }
+
+
+        }
+
+
 
     }
 }
