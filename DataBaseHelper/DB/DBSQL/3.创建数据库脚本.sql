@@ -1,0 +1,11 @@
+
+INSERT INTO FS_ServiceSource(SourceName,Createtime)
+VALUES('本地',GETDATE())
+INSERT INTO FS_ServiceSource(SourceName,Createtime)
+VALUES('阿里云',GETDATE())
+INSERT INTO FS_ServiceSource(SourceName,Createtime)
+VALUES('腾讯云',GETDATE())
+INSERT INTO FS_ServiceSource(SourceName,Createtime)
+VALUES('公司机房',GETDATE())
+INSERT INTO FS_ServiceSource(SourceName,Createtime)
+VALUES('电信通',GETDATE())
