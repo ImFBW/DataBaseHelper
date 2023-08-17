@@ -372,7 +372,6 @@ function SaveTableColumnDesc(e, config) {
         ...config,
         Description: descContent,
     }
-    layer.msg("savwe..==" + JSON.stringify(parmater))
     $.ajax({
         url: '/database/UpdateTableColumnDesc/',
         type: 'POST',
@@ -643,6 +642,9 @@ function DynamicSetSplitSliderHight() {
             //注册几个事件
             newWrapper.find("button.btn_table_refresh").on('click', function () { _this.TableRefresh() });
             newWrapper.find("button.btn_table_export").on('click', function () {
+                layer.msg('功能待开发...');
+            });
+            newWrapper.find("button.btn_table_toClass").on('click', function () {
                 layer.msg('功能待开发...');
             });
             tooltipTrigger();

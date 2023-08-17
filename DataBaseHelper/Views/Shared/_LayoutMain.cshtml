@@ -20,30 +20,37 @@
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-myNavColor border-bottom box-shadow mb-3">
             <div class="container-fluid">
-                <a class="navbar-brand nav-link" asp-area="" asp-controller="DataBase" asp-action="Index">
-                    <div class="header_logo_jpg d-flex">
-                        <img src="~/lib/images/dbms_logo.jpg" alt="LOGO" width="40" height="40" class="img-fluid" />
-                        <p class="p-2">数据库工具</p>
-                    </div>
-                </a>
                 <div class="navbar-collapse fs-6 collapse d-sm-inline-flex justify-content-between">
-                    @*选择数据库按钮*@
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link nav-myLink text-light" asp-area="" asp-controller="DataBase" asp-action="Index">选择数据库</a>
-                        </li>
-                    </ul>
+                    <div class="col-4">
+                        <ul class="navbar-nav flex-grow  justify-content-start">
+                            <li class="nav-item d-flex">
+                                @*LOGO按钮*@
+                                <a class="navbar-brand nav-link" asp-area="" asp-controller="DataBase" asp-action="Index">
+                                    <div class="header_logo_jpg d-flex">
+                                        <img src="~/lib/images/dbms_logo.jpg" alt="LOGO" width="40" height="40" class="img-fluid" />
+                                        <span class="p-2">数据库工具</span>
+                                    </div>
+                                </a>
+                                @*选择数据库按钮*@
+                                <a class="nav-link nav-myLink text-light mt-2" asp-area="" asp-controller="DataBase" asp-action="Index">选择数据库</a>
+                            </li>
+                        </ul>
+                    </div>
                     @*顶部导航-[服务器-数据库]展示*@
-                    <ul class="navbar-nav flex-grow-1 justify-content-center">
-                        <li class="nav-item text-light">
-                            当前：<span id="current_Server_Title">--</span>                     
-                        </li>
-                    </ul>
-                    <ul class="navbar-nav flex-grow-1 justify-content-end">
-                        <li class="nav-item text-light">
-                           <button type="button" class="btn btn-outline-light border-0">导出</button>
-                        </li>
-                    </ul>
+                    <div class="col-4">
+                        <ul class="navbar-nav flex-grow justify-content-center">
+                            <li class="nav-item text-light">
+                                当前：<span id="current_Server_Title">--</span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-4">
+                        <ul class="navbar-nav flex-grow justify-content-end">
+                            <li class="nav-item text-light">
+                                <button type="button" class="btn btn-outline-light border-0">导出</button>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </nav>

@@ -188,7 +188,7 @@ ORDER BY col.colorder ; ");
                                                                                          AND eptable.name = 'MS_Description'
                                         LEFT  JOIN sys.extended_properties ep ON col.id = ep.major_id
                                                       AND col.colid = ep.minor_id
-                                                      AND ep.name = 'MS_Description' WHERE obj.name = @TableName AND col.name=@TableColumn  AND eptable.name IS NOT null)
+                                                      AND ep.name = 'MS_Description' WHERE obj.name = @TableName AND col.name=@TableColumn  AND eptable.major_id IS NOT null)
                             BEGIN
 	                            --更新说明
                             EXEC sys.sp_updateextendedproperty @name = 'MS_Description',     -- sysname
@@ -223,7 +223,7 @@ ORDER BY col.colorder ; ");
                                                                                          AND eptable.name = 'MS_Description'
                                         LEFT  JOIN sys.extended_properties ep ON col.id = ep.major_id
                                                       AND col.colid = ep.minor_id
-                                                      AND ep.name = 'MS_Description' WHERE   obj.name = @TableName AND col.name=@TableColumn AND ep.value IS NOT NULL)
+                                                      AND ep.name = 'MS_Description' WHERE   obj.name = @TableName AND col.name=@TableColumn AND ep.major_id IS NOT NULL)
                             BEGIN
 	                            --更新说明
                             EXEC sys.sp_updateextendedproperty @name = 'MS_Description',     -- sysname
