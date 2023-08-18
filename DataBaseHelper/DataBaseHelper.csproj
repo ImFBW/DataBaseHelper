@@ -17,4 +17,11 @@
     <ProjectReference Include="..\DBH.Services\DBH.DALServices.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="wwwroot\lib\favicon.ico">
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>

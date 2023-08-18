@@ -67,11 +67,11 @@ var table_options = {
     sortable: true,               //是否启用排序
     sortOrder: "asc",             //排序方式
     sidePagination: "client",     //分页方式：client客户端分页，server服务端分页（*）
+    search: true,                //是否显示表格搜索
+    searchOnEnterKey: true,       //回车后执行搜索
     pageNumber: 1,                //初始化加载第一页，默认第一页,并记录
     pageSize: 20,               //每页的记录行数（*）
     pageList: [20, 50, 100, 500],//可供选择的每页的行数（*）
-    search: true,                //是否显示表格搜索
-    searchOnEnterKey: true,       //回车后执行搜索
     //strictSearch: true,
     //showColumns: true,            //是否显示所有的列（选择显示的列）
     showRefresh: false,           //是否显示刷新按钮
