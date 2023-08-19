@@ -97,7 +97,7 @@ var table_options = {
     formatLoadingMessage: function () {
         return '<div class="spinner-border text-secondary" role="status"><span class="visually-hidden">Loading...</span></div> 加载中...';
     },
-    onSearch: TableOnSearch,
+    trimOnSearch: TableOnSearch,
     formatShowingRows: function (pageFrom, pageTo, totalRows, totalNotFiltered) {
         return '<span class="pagination-info">总数据 ' + totalRows + ' </span>';
     },
@@ -366,7 +366,9 @@ function EditColumnDesc(row, type) {
  * @param {any} config
  */
 function SaveTableColumnDesc(e, config) {
-    var _thisForm = $(e.currentTarget).parents('form');
+    var _thisBtn = $(e.currentTarget);
+    var _thisForm = _thisBtn.parents('form');
+    _thisBtn.attr("disabled",true);
     var descContent = _thisForm.find(".chose_CurrentDesc").val();
     var parmater = {
         ...config,
@@ -399,6 +401,10 @@ function SaveTableColumnDesc(e, config) {
         error: function (x, s, e) {
             layer.msg("系统异常", { icon: 2, shade: 0.1 }, function () {
             });
+        },
+        complete: function (x,s) {
+            //console.log(s)
+            _thisBtn.attr("disabled", false);
         }
     })
 }
