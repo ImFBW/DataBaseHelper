@@ -1,4 +1,5 @@
 ﻿using DBH.BLLProvider.MainBLL;
+using DBH.Core;
 using DBH.DALProvider.MainDAL;
 using DBH.DALServiceProvider.MainDAL;
 using DBH.Models.Common;
@@ -76,7 +77,6 @@ namespace DBH.BLLService.MainBLL
             }
         }
 
-
         /// <summary>
         /// 查询表的全部列，返回List
         /// </summary>
@@ -96,7 +96,6 @@ namespace DBH.BLLService.MainBLL
             }
 
         }
-
 
         /// <summary>
         /// 更新表、字段的说明
@@ -133,7 +132,31 @@ namespace DBH.BLLService.MainBLL
 
         }
 
-
-
+        /// <summary>
+        /// 对某个表生成Class，Net版
+        /// </summary>
+        /// <param name="tableName">表名</param>
+        /// <returns></returns>
+        public async Task<List<string>> CreateNetClass(string tableName)
+        {
+            List<string> listResult = new List<string>();
+            List<ColumnTypeDescView> listColumn = new List<ColumnTypeDescView>();
+            IList<DB_TableColumnsView> listData = await GetTableColumnsListAsync(tableName);
+            foreach (var item in listData)
+            {
+                ColumnTypeDescView col = new ColumnTypeDescView()
+                {
+                    ColumnName = item.ColumnName,
+                    ColumnDataType = item.ColumnDataType,
+                    ColumnDesc = item.ColumnDesc,
+                };
+                listColumn.Add(col);
+            }
+            if (listColumn.Count>0)
+            {
+                listResult = DataHelper.CreateNetClass(listColumn).ToList();
+            }        
+            return listResult;
+        }
     }
 }

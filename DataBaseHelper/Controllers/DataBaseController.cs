@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 using System.Xml.Linq;
 using static Dapper.SqlMapper;
 using Newtonsoft.Json.Converters;
+using System.Security.Cryptography.Xml;
 
 namespace DataBaseHelper.Controllers
 {
@@ -164,6 +165,40 @@ namespace DataBaseHelper.Controllers
             }
         }
 
+        /// <summary>
+        /// 生成C# Class
+        /// </summary>
+        /// <param name="ID">数据库配置ID</param>
+        /// <param name="tableName">表名</param>
+        /// <returns></returns>
+        public async Task<IActionResult> CreateClass(int? ID,string tableName)
+        {
+            int databaseIDval = 0;
+            if (ID.HasValue) databaseIDval = ID.Value; else databaseIDval = 0;
+            FS_ServicesEntity fsServiceEntity = new FS_ServicesEntity();
+            if (databaseIDval > 0)
+            {
+                fsServiceEntity = await _DBHManagerBLLProvider.GetServicesEnvityAsync(databaseIDval);
+            }
+            if (fsServiceEntity == null || fsServiceEntity.ID <= 0 || string.IsNullOrEmpty(fsServiceEntity.ServerAddress) || string.IsNullOrEmpty(fsServiceEntity.DataBaseName))
+            {
+                return Content("");
+            }
+            List<string> listClass = new List<string>();
+            string connectionString = string.Empty;
+            if (fsServiceEntity.ServerType == 1)//SqlServer
+            {
+                connectionString = string.Format($"data source={fsServiceEntity.ServerAddress};persist security info=True;initial catalog={fsServiceEntity.DataBaseName};user id={fsServiceEntity.LoginName};password={fsServiceEntity.LoginPassword};");
+                _sqlServerManagerBLLProvider.SetConnectionString(connectionString);
+                listClass =await _sqlServerManagerBLLProvider.CreateNetClass(tableName);
+            }
+            else if (fsServiceEntity.ServerType == 1)//MySQL
+            {
+                //暂不支持
+            }
+            ViewData["listClass"] = listClass;
+            return View("~/Views/Component/_CreateClass.cshtml");
+        }
         #endregion
 
 

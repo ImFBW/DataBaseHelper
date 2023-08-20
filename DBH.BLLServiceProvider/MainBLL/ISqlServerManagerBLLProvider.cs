@@ -53,5 +53,14 @@ namespace DBH.BLLProvider.MainBLL
         /// <param name="tableColumnDescription">数据实体类</param>
         /// <returns></returns>
         Task<EntityResult> UpdateTableColumnDescriptionAsync(TableColumnDescription tableColumnDescription);
+
+        /// <summary>
+        /// 对某个表生成Class，Net版
+        /// </summary>
+        /// <param name="tableName">表名</param>
+        /// <returns></returns>
+        Task<List<string>> CreateNetClass(string tableName);
+
+
     }
 }

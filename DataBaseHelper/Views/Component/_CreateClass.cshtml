@@ -1,0 +1,102 @@
+﻿@{
+    List<string> listClass = (List<string>)ViewData["listClass"];
+    Layout = "_LayoutNull";
+}
+@section styles{
+    <!--Code Light-->
+    <link rel="stylesheet" href="~/lib/highlight/styles/vs.min.css">
+        @* <!--Code Dark-->
+        <link rel="stylesheet" href="~/lib/highlight/styles/nnfx-dark.min.css">*@
+    }
+<div class="">
+    <div class="classCodeContainer">
+        <pre>
+        <div class="position-fixed top-0 end-0 m-4">
+        <button type="button" class="btnCopy btn btn-outline-secondary" style="display:none;margin-right: 40px;" data-clipboard-action="copy" data-clipboard-target="#codeClass" title="复制">
+        <i class="bi bi-files"></i>
+        </button>
+        </div>
+        <code class="shadow border language-csharp" id="codeClass">
+                @{
+                    if (listClass != null && listClass.Count > 0)
+                    {
+                        @Html.Raw("<ol>")
+                        ;
+                        foreach (var item in listClass)
+                        {
+                            @Html.Raw("<li>"+item.Replace("<","&lt;").Replace(">","&gt;").ToString()+"</li>")
+                            ;
+                        }
+                        @Html.Raw("</ol>")
+                        ;
+                    }
+                }   
+                </code>
+        </pre>
+    </div>
+  @*  <div class="position-fixed top-0 end-0">
+        <button type="button" class="btnCopy  btn btn-secondary" data-clipboard-action="copy" data-clipboard-target="#codeClass" title="复制">
+            <i class="bi bi-files"></i>
+        </button>
+    </div>*@
+</div>
+
+@section scripts{
+     <script src="~/lib/highlight/highlight.js"></script>
+    <script src="~/lib/highlight/languages/csharp.min.js"></script>
+    <script src="~/lib/clipboard/clipboard.min.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            var codeEve = $(".classCodeContainer").find('code')[0];
+            if (hljs != undefined && hljs != null) {
+                hljs.highlightAll(codeEve);
+            }
+            var copyBtn = new ClipboardJS('.btnCopy');
+            copyBtn.on('success', function (e) {
+                copySuccess();
+                //console.info('Action:', e.action);
+                //console.info('Text:', e.text);
+                //console.info('Trigger:', e.trigger);
+            });
+
+            copyBtn.on('error', function (e) {
+                copyFail();
+                //console.info('Action:', e.action);
+                //console.info('Text:', e.text);
+                //console.info('Trigger:', e.trigger);
+            });
+            copyBtnInit();
+        })
+        /**
+         * 复制成功，给按钮更换成功的样式
+         */
+        function copySuccess(){
+            $(".btnCopy").html('<i class="bi bi-check-circle"></i>');
+            $(".btnCopy").attr("class", "btnCopy btn text-success btn-light");
+            $(".btnCopy").attr("title","复制成功");
+            setTimeout(function () {
+                copyBtnInit()
+            }, 2000);
+        }
+        /**
+         * 复制失败，给按钮更换失败的样式
+         */
+        function copyFail() {
+            $(".btnCopy").html('<i class="bi bi-x-circle"></i>');
+            $(".btnCopy").attr("class", "btnCopy btn text-danger  btn-light");
+            $(".btnCopy").attr("title", "复制失败");
+            setTimeout(function(){
+                copyBtnInit()
+            },2000);
+        }
+        /**
+         * 还原按钮样式
+         */
+        function copyBtnInit() {
+            $(".btnCopy").html('<i class="bi bi-files"></i>');
+            $(".btnCopy").attr("class", "btnCopy btn btn-outline-secondary");
+            $(".btnCopy").attr("title", "复制");
+            $(".btnCopy").show();
+        }
+    </script>
+}

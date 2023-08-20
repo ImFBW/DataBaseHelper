@@ -353,7 +353,7 @@ function EditColumnDesc(row, type) {
                 TypeID: TypeID,
                 TableName: tableName,
                 TableColumn: row.ColumnName,
-                Description: '',
+                Description: desc,
             }
             $(".save_submit").unbind('click').bind('click', function (e) { SaveTableColumnDesc(e, data) });
         }
@@ -368,45 +368,61 @@ function EditColumnDesc(row, type) {
 function SaveTableColumnDesc(e, config) {
     var _thisBtn = $(e.currentTarget);
     var _thisForm = _thisBtn.parents('form');
-    _thisBtn.attr("disabled",true);
-    var descContent = _thisForm.find(".chose_CurrentDesc").val();
+    var _thisDesc = _thisForm.find(".chose_CurrentDesc");
+    var oldDesc = config.Description;//修改前的说明内容
+    var descContent = _thisDesc.val();//本次要修改的说明内容
     var parmater = {
         ...config,
         Description: descContent,
     }
-    $.ajax({
-        url: '/database/UpdateTableColumnDesc/',
-        type: 'POST',
-        data: parmater,
-        dataType: 'JSON',
-        success: function (data) {
-            if (data.status) {
-                layer.closeAll();
-                layer.msg("更新成功！");
-                var _typeEve = $(".accordian_header.active");
-                var currentTabID = 0;
-                if (_typeEve.length > 0) {
-                    currentTabID = _typeEve.data("tabID");
+    var saveAsAjax = function () {
+        _thisBtn.attr("disabled", true);
+        $.ajax({
+            url: '/database/UpdateTableColumnDesc/',
+            type: 'POST',
+            data: parmater,
+            dataType: 'JSON',
+            success: function (data) {
+                if (data.status) {
+                    layer.closeAll();
+                    layer.msg("更新成功！");
+                    var _typeEve = $(".accordian_header.active");
+                    var currentTabID = 0;
+                    if (_typeEve.length > 0) {
+                        currentTabID = _typeEve.data("tabID");
+                    }
+                    //刷新表格
+                    var options = {
+                        TabID: currentTabID   //当前TabID 
+                    }
+                    var curContainer = new TabContainer(options);
+                    curContainer.TableRefresh();
+                } else {
+                    layer.msg('更新失败：' + data.message);
                 }
-                //刷新表格
-                var options = {
-                    TabID: currentTabID   //当前TabID 
-                }
-                var curContainer = new TabContainer(options);
-                curContainer.TableRefresh();
-            } else {
-                layer.msg('更新失败：' + data.message);
+            },
+            error: function (x, s, e) {
+                layer.msg("系统异常", { icon: 2, shade: 0.1 }, function () {
+                });
+            },
+            complete: function (x, s) {
+                //console.log(s)
+                _thisBtn.attr("disabled", false);
             }
-        },
-        error: function (x, s, e) {
-            layer.msg("系统异常", { icon: 2, shade: 0.1 }, function () {
-            });
-        },
-        complete: function (x,s) {
-            //console.log(s)
-            _thisBtn.attr("disabled", false);
-        }
-    })
+        })
+    }
+    if (oldDesc != '' && descContent == '') {
+        layer.confirm('确认修改说明内容为空吗？', { title: false, icon: 0, closeBtn: 0 }, function (yo) {
+            saveAsAjax();
+            layer.close(yo);
+        }, function (yo) {
+            layer.close(yo);
+        });
+    } else if (oldDesc == '' && descContent == '') {
+        layer.msg('请填写说明内容'); _thisDesc.focus();
+    } else {
+        saveAsAjax();
+    }
 }
 /**
  * table search自定义事件
@@ -616,6 +632,28 @@ function DynamicSetSplitSliderHight() {
     // 之后，可停止观察
     //observer.disconnect();
 }
+
+/**
+ * 弹出-生成Class
+ * @param {any} tableName
+ */
+function createClass(tableName) {
+    var ID = ServcieData.ID;
+    layer.open({
+        type: 2,
+        content: '/database/createclass/?ID=' + ID + '&tableName=' + tableName,
+        area: ['800px', '680px'],
+        title: "生成Class：" + tableName,
+        shade: 0.6,
+        shadeClose: false,
+        btnAlign: 'r',
+        maxmin: false,
+        btn: ["关闭"],
+        success: function () {
+           
+        }
+    });
+}
 /**
  * 每开启一个tab，则初始化一个对象，然后在对象内操作各种事件
  * TabContainer
@@ -643,7 +681,8 @@ function DynamicSetSplitSliderHight() {
         _this.InitAction = function () {
             var newWrapper = $(".tab_" + this.option.TabID);
             var tableEve = newWrapper.find('table')[0];
-            table_options.url = '/database/GetTableData/?ID=' + this.option.DBID + "&tableName=" + this.option.TypeName;
+            var typeName = this.option.TypeName;
+            table_options.url = '/database/GetTableData/?ID=' + this.option.DBID + "&tableName=" + typeName;
             _this.option.BootStrapTable = $(tableEve).bootstrapTable(table_options);//用bootstrap-table 插件初始化Table
             //注册几个事件
             newWrapper.find("button.btn_table_refresh").on('click', function () { _this.TableRefresh() });
@@ -651,7 +690,7 @@ function DynamicSetSplitSliderHight() {
                 layer.msg('功能待开发...');
             });
             newWrapper.find("button.btn_table_toClass").on('click', function () {
-                layer.msg('功能待开发...');
+                createClass(typeName);
             });
             tooltipTrigger();
         }
