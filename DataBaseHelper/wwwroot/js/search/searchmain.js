@@ -95,7 +95,8 @@ var table_options = {
     //},
     searchAlign: 'left',
     formatLoadingMessage: function () {
-        return '<div class="spinner-border text-secondary" role="status"><span class="visually-hidden">Loading...</span></div> 加载中...';
+        //<div class="spinner-border text-secondary" role="status"><span class="visually-hidden">Loading...</span></div> 
+        return '加载中...';
     },
     trimOnSearch: TableOnSearch,
     formatShowingRows: function (pageFrom, pageTo, totalRows, totalNotFiltered) {
