@@ -113,12 +113,12 @@
                 $("#requireTipPassword").hide();
                 var passwordEle = document.getElementById('databaseLoginPassword');
                 var tooltip = new bootstrap.Tooltip(passwordEle, {
-                    animation:true,
-                    delay:0,
-                    placement:'right',
-                    title:'更新时，为空则不更新密码',
-                    trigger:'hover focus',
-                    fallbackPlacements:['right','top','bottom']
+                    animation: true,
+                    delay: 0,
+                    placement: 'right',
+                    title: '更新时，为空则不更新密码',
+                    trigger: 'hover focus',
+                    fallbackPlacements: ['right', 'top', 'bottom']
                 })
             }
             // $("#saveDBserviceForm").ajaxSubmit(options);
@@ -225,7 +225,7 @@
             var layorIndex = layer.msg('<div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden"></span></div>连接测试中...', { shade: 0.1, time: 999999 });
             $.ajax(
                 {
-                    url: '/DataBase/TestConnection/',
+                    url: CommonSetting.Domain + 'DataBase/TestConnection/',
                     type: 'get',
                     data: $('#saveDBserviceForm').formSerialize(),
                     dataType: "text",
