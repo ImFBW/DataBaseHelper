@@ -9,7 +9,7 @@
 
 }
 <div class="mt-4 mb-4">
-    <form id="saveDBserviceForm" method="post" action="/database/DBServcieSave/" class="row g-3 layui-form needs-vaildation" novalidate>
+    <form id="saveDBserviceForm" method="post" action="~/database/DBServcieSave/" class="row g-3 layui-form needs-vaildation" novalidate>
         <div class="col-md-3 text-end"><label class="col-md-10 col-form-label">数据库地址<span class="text-danger">*</span>：</label></div>
         <div class="col-md-6">
             <input type="text" class="form-control" id="databaseAddress" placeholder="数据库地址" aria-describedby="valid_ServerAddress" name="DBAddress" value="@(Model.ServerAddress)" required />

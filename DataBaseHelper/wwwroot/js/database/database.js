@@ -4,7 +4,7 @@
     * 添加数据库弹窗
     */
 function PopwinAddDataBaseConfig(id) {
-    var url = '/DataBase/_ViewAddDataBase';
+    var url = CommonSetting.Domain + 'DataBase/_ViewAddDataBase';
     if (id != undefined || id != null) {
         url = url + "/?id=" + id;
     }
@@ -40,7 +40,7 @@ function deleteDatabase(id) {
     }, function () {
         $.ajax(
             {
-                url: '/DataBase/DeleteDatabase/',
+                url: CommonSetting.Domain + 'DataBase/DeleteDatabase/',
                 type: 'POST',
                 data: { ID: id },
                 dataType: "text",

@@ -56,7 +56,7 @@ var table_columns = [
     }
 ];
 var table_options = {
-    url: '/database/GetTableData/',                    //请求后台的URL（*）
+    url: CommonSetting.Domain + 'database/GetTableData/',                    //请求后台的URL（*）
     method: 'POST',              //请求方式（*）
     toolbar: '.table-toolbar:last',        //工具按钮用哪个容器
     toolbarAlign: 'right',           //工具栏对齐方式
@@ -268,7 +268,7 @@ function LoadData(typeID, typeName) {
     loading.Show();
     //debugger
     $.ajax({
-        url: '/database/PartialViewForSearchResult/',
+        url: CommonSetting.Domain + 'database/PartialViewForSearchResult/',
         type: 'GET',
         data: { id: id, typeID: typeID, typeName: typeName },
         dataType: 'html',
@@ -379,7 +379,7 @@ function SaveTableColumnDesc(e, config) {
     var saveAsAjax = function () {
         _thisBtn.attr("disabled", true);
         $.ajax({
-            url: '/database/UpdateTableColumnDesc/',
+            url: CommonSetting.Domain + 'database/UpdateTableColumnDesc/',
             type: 'POST',
             data: parmater,
             dataType: 'JSON',
@@ -651,7 +651,7 @@ function createClass(tableName) {
         maxmin: false,
         btn: ["关闭"],
         success: function () {
-           
+
         }
     });
 }
@@ -683,7 +683,7 @@ function createClass(tableName) {
             var newWrapper = $(".tab_" + this.option.TabID);
             var tableEve = newWrapper.find('table')[0];
             var typeName = this.option.TypeName;
-            table_options.url = '/database/GetTableData/?ID=' + this.option.DBID + "&tableName=" + typeName;
+            table_options.url = CommonSetting.Domain + 'database/GetTableData/?ID=' + this.option.DBID + "&tableName=" + typeName;
             _this.option.BootStrapTable = $(tableEve).bootstrapTable(table_options);//用bootstrap-table 插件初始化Table
             //注册几个事件
             newWrapper.find("button.btn_table_refresh").on('click', function () { _this.TableRefresh() });

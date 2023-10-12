@@ -44,7 +44,7 @@
                                 serverAddress += "(" + item.ServerAddress2 + ")";
                             }
                             <div class="card">
-                                <a href="/database/search/?id=@(Html.Raw(item.ID))" target="_self">
+                                <a href="~/database/search/?id=@(Html.Raw(item.ID))" target="_self">
                                     <div class="card-body">
                                         <h5 class="card-title">@(Html.Raw(item.DataBaseName))</h5>
                                         <p class="card-text">地址：@(Html.Raw(serverAddress))</p>
