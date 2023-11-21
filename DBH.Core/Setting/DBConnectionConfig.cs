@@ -11,6 +11,6 @@ namespace DBH.Core.Setting
     /// </summary>
     public static class DBConnectionConfig
     {
-        public static string MSSqlConnectionStringTemplate = "data source={Server};persist security info=True;initial catalog={DBName};user id={LoginName};password={Password};";
+        public static string MSSqlConnectionStringTemplate = "data source={Server};initial catalog={DBName};user id={LoginName};password={Password};";
     }
 }
