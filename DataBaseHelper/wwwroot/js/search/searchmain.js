@@ -642,7 +642,7 @@ function createClass(tableName) {
     var ID = ServcieData.ID;
     layer.open({
         type: 2,
-        content: '/database/createclass/?ID=' + ID + '&tableName=' + tableName,
+        content: CommonSetting.Domain + 'database/createclass/?ID=' + ID + '&tableName=' + tableName,
         area: ['800px', '680px'],
         title: "生成Class：" + tableName,
         shade: 0.6,
