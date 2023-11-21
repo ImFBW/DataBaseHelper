@@ -12,6 +12,7 @@ using System.Xml.Linq;
 using static Dapper.SqlMapper;
 using Newtonsoft.Json.Converters;
 using System.Security.Cryptography.Xml;
+using DBH.Core.Setting;
 
 namespace DataBaseHelper.Controllers
 {
@@ -119,7 +120,10 @@ namespace DataBaseHelper.Controllers
             string connectionString = string.Empty;
             if (fsServiceEntity.ServerType == 1)//SqlServer
             {
-                connectionString = string.Format($"data source={fsServiceEntity.ServerAddress};persist security info=True;initial catalog={fsServiceEntity.DataBaseName};user id={fsServiceEntity.LoginName};password={fsServiceEntity.LoginPassword};");
+                connectionString = DBConnectionConfig.MSSqlConnectionStringTemplate.Replace("{Server}", fsServiceEntity.ServerAddress)
+                    .Replace("{DBName}", fsServiceEntity.DataBaseName)
+                    .Replace("{LoginName}", fsServiceEntity.LoginName)
+                    .Replace("{Password}", fsServiceEntity.LoginPassword);
                 _sqlServerManagerBLLProvider.SetConnectionString(connectionString);
             }
             else if (fsServiceEntity.ServerType == 1)//MySQL
@@ -171,7 +175,7 @@ namespace DataBaseHelper.Controllers
         /// <param name="ID">数据库配置ID</param>
         /// <param name="tableName">表名</param>
         /// <returns></returns>
-        public async Task<IActionResult> CreateClass(int? ID,string tableName)
+        public async Task<IActionResult> CreateClass(int? ID, string tableName)
         {
             int databaseIDval = 0;
             if (ID.HasValue) databaseIDval = ID.Value; else databaseIDval = 0;
@@ -188,9 +192,12 @@ namespace DataBaseHelper.Controllers
             string connectionString = string.Empty;
             if (fsServiceEntity.ServerType == 1)//SqlServer
             {
-                connectionString = string.Format($"data source={fsServiceEntity.ServerAddress};persist security info=True;initial catalog={fsServiceEntity.DataBaseName};user id={fsServiceEntity.LoginName};password={fsServiceEntity.LoginPassword};");
+                connectionString = DBConnectionConfig.MSSqlConnectionStringTemplate.Replace("{Server}", fsServiceEntity.ServerAddress)
+                    .Replace("{DBName}", fsServiceEntity.DataBaseName)
+                    .Replace("{LoginName}", fsServiceEntity.LoginName)
+                    .Replace("{Password}", fsServiceEntity.LoginPassword);
                 _sqlServerManagerBLLProvider.SetConnectionString(connectionString);
-                listClass =await _sqlServerManagerBLLProvider.CreateNetClass(tableName);
+                listClass = await _sqlServerManagerBLLProvider.CreateNetClass(tableName);
             }
             else if (fsServiceEntity.ServerType == 1)//MySQL
             {
@@ -235,6 +242,7 @@ namespace DataBaseHelper.Controllers
         [HttpGet]
         public async Task<IActionResult> TestConnection()
         {
+            ResultModel result = new ResultModel();
             string dbAddress = Request.Query["DBAddress"].ToString();
             string dbPort = Request.Query["DBPort"].ToString();
             string dbName = Request.Query["DBName"].ToString();
@@ -242,9 +250,24 @@ namespace DataBaseHelper.Controllers
             string dbLoginPassword = Request.Query["DBLoginPassword"].ToString();
             if (!string.IsNullOrEmpty(dbPort) && int.Parse(dbPort) > 0)
                 dbAddress += ":" + dbPort;
-            string connectionString = string.Format($"data source={dbAddress};persist security info=True;initial catalog={dbName};user id={dbLoginName};password={dbLoginPassword};");
-            bool isConn = await _DBHManagerBLLProvider.TestConnectionAsync(connectionString);
-            return Content(isConn ? "true" : "false");
+            string connectionString = DBConnectionConfig.MSSqlConnectionStringTemplate.Replace("{Server}", dbAddress)
+                    .Replace("{DBName}", dbName)
+                    .Replace("{LoginName}", dbLoginName)
+                    .Replace("{Password}", dbLoginPassword); 
+            try
+            {
+                bool isConn = await _DBHManagerBLLProvider.TestConnectionAsync(connectionString);
+                result.Result = isConn ? "true" : "false";
+                result.Message = isConn ? "连接成功" : "连接失败";
+                result.Status = true;
+            }
+            catch (Exception ex)
+            {
+                result.Result = "false";
+                result.Status = false;
+                result.Message = "异常：" + ex.Message+"\r connectionString=["+ connectionString+"]";
+            }
+            return Json(result);
         }
 
         /// <summary>
@@ -316,18 +339,29 @@ namespace DataBaseHelper.Controllers
             }
             result.Message = SearchTxt;
             IList<SysDataBaseSearchView> listView = new List<SysDataBaseSearchView>();
-            if (fsServiceEntity.ServerType == 1)//SqlServer
+            try
             {
-                string connectionString = string.Format($"data source={fsServiceEntity.ServerAddress};persist security info=True;initial catalog={fsServiceEntity.DataBaseName};user id={fsServiceEntity.LoginName};password={fsServiceEntity.LoginPassword};");
-                _sqlServerManagerBLLProvider.SetConnectionString(connectionString);
-                listView = await _sqlServerManagerBLLProvider.SearchActionAsync(SearchTxt);
+                if (fsServiceEntity.ServerType == 1)//SqlServer
+                {
+                    string connectionString = DBConnectionConfig.MSSqlConnectionStringTemplate.Replace("{Server}", fsServiceEntity.ServerAddress)
+                    .Replace("{DBName}", fsServiceEntity.DataBaseName)
+                    .Replace("{LoginName}", fsServiceEntity.LoginName)
+                    .Replace("{Password}", fsServiceEntity.LoginPassword);
+                    _sqlServerManagerBLLProvider.SetConnectionString(connectionString);
+                    listView = await _sqlServerManagerBLLProvider.SearchActionAsync(SearchTxt);
+                }
+                else if (fsServiceEntity.ServerType == 1)//MySQL
+                {
+                    //暂不支持
+                }
+                result.Status = true;
+                result.Result = listView;
             }
-            else if (fsServiceEntity.ServerType == 1)//MySQL
+            catch (Exception ex)
             {
-                //暂不支持
+                result.Status = false;
+                result.Message = ex.Message;
             }
-            result.Status = true;
-            result.Result = listView;
             return Json(result);
         }
 
@@ -365,7 +399,10 @@ namespace DataBaseHelper.Controllers
             IList<DB_TableColumnsView> listColumn = new List<DB_TableColumnsView>();
             if (fsServiceEntity.ServerType == 1)//SqlServer
             {
-                string connectionString = string.Format($"data source={fsServiceEntity.ServerAddress};persist security info=True;initial catalog={fsServiceEntity.DataBaseName};user id={fsServiceEntity.LoginName};password={fsServiceEntity.LoginPassword};");
+                string connectionString = DBConnectionConfig.MSSqlConnectionStringTemplate.Replace("{Server}", fsServiceEntity.ServerAddress)
+                    .Replace("{DBName}", fsServiceEntity.DataBaseName)
+                    .Replace("{LoginName}", fsServiceEntity.LoginName)
+                    .Replace("{Password}", fsServiceEntity.LoginPassword);
                 _sqlServerManagerBLLProvider.SetConnectionString(connectionString);
                 listColumn = await _sqlServerManagerBLLProvider.GetTableColumnsListAsync(tableName);
             }
@@ -392,7 +429,7 @@ namespace DataBaseHelper.Controllers
         /// <param name="tableColumnDescription">数据实体</param>
         /// <returns></returns>
         [HttpPost]
-        public async Task<IActionResult> UpdateTableColumnDesc(int? ID , TableColumnDescription tableColumnDescription)
+        public async Task<IActionResult> UpdateTableColumnDesc(int? ID, TableColumnDescription tableColumnDescription)
         {
             ResultModel result = new ResultModel();
             result.Status = false;
@@ -408,7 +445,7 @@ namespace DataBaseHelper.Controllers
                 result.Message = "表名参数为空";
                 return Json(result);
             }
-            if (tableColumnDescription.TypeID==2  && string.IsNullOrEmpty(tableColumnDescription.TableColumn))
+            if (tableColumnDescription.TypeID == 2 && string.IsNullOrEmpty(tableColumnDescription.TableColumn))
             {
                 result.Message = "列名参数为空";
                 return Json(result);
@@ -423,7 +460,10 @@ namespace DataBaseHelper.Controllers
             EntityResult entityResult = new EntityResult();
             if (fsServiceEntity.ServerType == 1)//SqlServer
             {
-                string connectionString = string.Format($"data source={fsServiceEntity.ServerAddress};persist security info=True;initial catalog={fsServiceEntity.DataBaseName};user id={fsServiceEntity.LoginName};password={fsServiceEntity.LoginPassword};");
+                string connectionString = DBConnectionConfig.MSSqlConnectionStringTemplate.Replace("{Server}", fsServiceEntity.ServerAddress)
+                    .Replace("{DBName}", fsServiceEntity.DataBaseName)
+                    .Replace("{LoginName}", fsServiceEntity.LoginName)
+                    .Replace("{Password}", fsServiceEntity.LoginPassword);
                 _sqlServerManagerBLLProvider.SetConnectionString(connectionString);
                 entityResult = await _sqlServerManagerBLLProvider.UpdateTableColumnDescriptionAsync(tableColumnDescription);
             }
@@ -431,7 +471,7 @@ namespace DataBaseHelper.Controllers
             {
                 //暂不支持
             }
-            if (entityResult.EntityCode==EntityCode.Success)
+            if (entityResult.EntityCode == EntityCode.Success)
             {
                 result.Status = true;
                 result.Message = "success";

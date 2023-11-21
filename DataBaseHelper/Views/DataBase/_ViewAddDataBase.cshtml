@@ -230,14 +230,15 @@
                     data: $('#saveDBserviceForm').formSerialize(),
                     dataType: "text",
                     success: function (data) {
-                        if (data == "true") {
-                            layer.msg("连接成功");
-                        } else {
-                            layer.msg("连接失败");
+                        var dataObj=JSON.parse(data);
+                        if (dataObj.status == true) {
+                            layer.msg(dataObj.message, { icon: 1 });//success
+                        }else{
+                            layer.alert(dataObj.message, { icon: 0, title: '提示' });//fail
                         }
                     },
                     error: function (s, x) {
-                        layer.msg("请求异常");
+                        layer.msg("请求异常", { icon: 2 });
                         console.log(s);
                     },
                     complate: function (s, x) {

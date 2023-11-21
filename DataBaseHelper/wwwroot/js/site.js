@@ -3,5 +3,5 @@
 
 // Write your JavaScript code.
 let CommonSetting = {
-    Domain:'/dbhelper/',//发布11服务器时，要多个路径，改为：'/dbhelper/'
+    Domain:'/',//发布11服务器时，要多个路径，改为：'/dbhelper/'
 }

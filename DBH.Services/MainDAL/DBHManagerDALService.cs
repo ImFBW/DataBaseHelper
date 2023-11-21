@@ -128,6 +128,7 @@ namespace DBH.DALServices.MainDAL
             catch (Exception ex)
             {
                 isConn = false;
+                throw ex;
             }
             return isConn;
         }
