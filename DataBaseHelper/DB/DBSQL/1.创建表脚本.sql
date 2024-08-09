@@ -4,14 +4,14 @@ GO
 CREATE TABLE FS_Services
 (
     ID             INT          IDENTITY(1, 1) PRIMARY KEY, --主键ID
-    ServerAddress  VARCHAR(32),                             --服务器地址，如16.132.112.123
-    ServerAddress2 VARCHAR(32),                             --指向同一个服务器的第二个备用地址
+    ServerAddress  VARCHAR(256),                             --服务器地址，如16.132.112.123
+    ServerAddress2 VARCHAR(256),                             --指向同一个服务器的第二个备用地址
     ServerPortNo   INT          NOT NULL DEFAULT 0,         --端口号
-	LoginName	NVARCHAR(32),								--登陆名
+	LoginName	NVARCHAR(128),								--登陆名
 	LoginPassword	NVARCHAR(128),							--登陆密码
 	ServerType	INT  NOT NULL DEFAULT 0,					--数据库类型，1SqlServer（默认），2MySql							
-    DataBaseName     NVARCHAR(32),                          --数据库名称
-    DataBaseIntro    NVARCHAR(128),                         --数据库简介
+    DataBaseName     NVARCHAR(128),                          --数据库名称
+    DataBaseIntro    NVARCHAR(512),                         --数据库简介
     SourceID     INT          NOT NULL DEFAULT 0,         --来源,FS_ServiceSource.ID,电信通,阿里云,腾讯云,华为云...
     IsInUse        INT          NOT NULL DEFAULT 0,			--是否使用中，1是
     Createtime     DATETIME,                                --创建时间
@@ -29,9 +29,9 @@ CREATE TABLE FS_ServiceSource
 CREATE TABLE Users
 (
 	ID		INT	  IDENTITY(1, 1) PRIMARY KEY, --主键ID
-	UserName	NVARCHAR(128) ,		--用户姓名
-	LoginName	NVARCHAR(128),		--登录名
-	LoginPwd	NVARCHAR(128),		--登陆密码
+	UserName	NVARCHAR(256) ,		--用户姓名
+	LoginName	NVARCHAR(256),		--登录名
+	LoginPwd	NVARCHAR(256),		--登陆密码
 	IsAdmin	bit ,					--是否管理员，1是
 	LastLoginTime	DATETIME,		--上次登陆时间
 	IsValid	BIT,					--是否有效，1是
