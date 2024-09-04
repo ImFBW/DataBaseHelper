@@ -2,12 +2,6 @@ using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using DBH.BLLService;
 using DBH.DALServices;
-using Google.Protobuf;
-using System.Configuration;
-using System.Diagnostics;
-using System.Reflection;
-using static System.Net.Mime.MediaTypeNames;
-using System.Security.Principal;
 
 namespace DataBaseHelper
 {
@@ -17,7 +11,7 @@ namespace DataBaseHelper
         {
             var builder = WebApplication.CreateBuilder(args);
             // Add services to the container.
-            
+
             builder.Services.AddControllersWithViews();
             builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
 

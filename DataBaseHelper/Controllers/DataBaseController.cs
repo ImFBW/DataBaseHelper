@@ -1,18 +1,11 @@
 ﻿using DBH.BLLProvider.MainBLL;
 using DBH.BLLServiceProvider.MainBLL;
+using DBH.Core.Setting;
 using DBH.Models.Common;
 using DBH.Models.Entitys;
 using DBH.Models.EntityViews;
 using Microsoft.AspNetCore.Mvc;
-using MySqlX.XDevAPI.Common;
-using System.Collections.Generic;
-using System.Text.Json;
 using Newtonsoft.Json;
-using System.Xml.Linq;
-using static Dapper.SqlMapper;
-using Newtonsoft.Json.Converters;
-using System.Security.Cryptography.Xml;
-using DBH.Core.Setting;
 
 namespace DataBaseHelper.Controllers
 {
@@ -253,7 +246,7 @@ namespace DataBaseHelper.Controllers
             string connectionString = DBConnectionConfig.MSSqlConnectionStringTemplate.Replace("{Server}", dbAddress)
                     .Replace("{DBName}", dbName)
                     .Replace("{LoginName}", dbLoginName)
-                    .Replace("{Password}", dbLoginPassword); 
+                    .Replace("{Password}", dbLoginPassword);
             try
             {
                 bool isConn = await _DBHManagerBLLProvider.TestConnectionAsync(connectionString);
@@ -265,7 +258,7 @@ namespace DataBaseHelper.Controllers
             {
                 result.Result = "false";
                 result.Status = false;
-                result.Message = "异常：" + ex.Message+"\r connectionString=["+ connectionString+"]";
+                result.Message = "异常：" + ex.Message + "\r connectionString=[" + connectionString + "]";
             }
             return Json(result);
         }
