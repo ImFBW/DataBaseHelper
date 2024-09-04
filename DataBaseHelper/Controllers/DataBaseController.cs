@@ -350,7 +350,7 @@ namespace DataBaseHelper.Controllers
                     _sqlServerManagerBLLProvider.SetConnectionString(connectionString);
                     listView = await _sqlServerManagerBLLProvider.SearchActionAsync(SearchTxt);
                 }
-                else if (fsServiceEntity.ServerType == 1)//MySQL
+                else if (fsServiceEntity.ServerType == 2)//MySQL
                 {
                     //暂不支持
                 }
