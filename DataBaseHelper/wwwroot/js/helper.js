@@ -68,7 +68,7 @@ SearchLoading = function (option) {
         var target = $(document.body);
         if (_this.option.TargetID != '') { target = $(_this.option.TargetID); }
         var _loadShade = '<div id="' + _this.option.Loading + '" class="myself_Loading" style="width: 100%;height:100%;"><div class="layui-layer-shade m-2" style="z-index: 202301;background-color: rgb(0, 0, 0);opacity: 0.1;position:absolute;"></div>';
-        var _loading = '<div class="search_Loading  text-primary fs-6 p-1" style="min-width: 100px;filter: alpha(opacity=60);color: #fff;border: none;z-index: 202302;position: absolute;top:120px;left: 38%;"><div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden"></span></div> ' + _this.option.Title + '</div></div>';
+        var _loading = '<div class="search_Loading  text-primary fs-6 p-1" style="min-width: 100px;filter: alpha(opacity=60);color: #fff;border: none;z-index: 202302;position: absolute;top:320px;left: 48%;"><div class="spinner-border spinner-border-sm" role="status"><span class="visually-hidden"></span></div> ' + _this.option.Title + '</div></div>';
         var _loadHtml = _loadShade + _loading;
         target.append(_loadHtml);
         //target.css({ "position": "relative" });

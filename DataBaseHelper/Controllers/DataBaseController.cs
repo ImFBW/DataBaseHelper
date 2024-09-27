@@ -2,10 +2,14 @@
 using DBH.BLLServiceProvider.MainBLL;
 using DBH.Core.Setting;
 using DBH.Models.Common;
+using DBH.Models.Config;
 using DBH.Models.Entitys;
 using DBH.Models.EntityViews;
+using DBH.Utils.Helper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
+using System.IO;
 
 namespace DataBaseHelper.Controllers
 {
@@ -17,11 +21,13 @@ namespace DataBaseHelper.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly IDBHManagerBLLProvider _DBHManagerBLLProvider;
         private readonly ISqlServerManagerBLLProvider _sqlServerManagerBLLProvider;
-        public DataBaseController(ILogger<HomeController> logger, IDBHManagerBLLProvider dBHManagerBLLProvider, ISqlServerManagerBLLProvider sqlServerManagerBLLProvider)
+        private readonly IOptions<DBHSetting> _dbhSetting;
+        public DataBaseController(ILogger<HomeController> logger, IDBHManagerBLLProvider dBHManagerBLLProvider, ISqlServerManagerBLLProvider sqlServerManagerBLLProvider, IOptions<DBHSetting> dbhSetting)
         {
             _logger = logger;
             _DBHManagerBLLProvider = dBHManagerBLLProvider;
             _sqlServerManagerBLLProvider = sqlServerManagerBLLProvider;
+            _dbhSetting = dbhSetting;
         }
         #region DataBase 页面
         /// <summary>
@@ -381,28 +387,7 @@ namespace DataBaseHelper.Controllers
                 result.Message = "表名参数为空";
                 return Json(result);
             }
-
-            FS_ServicesEntity fsServiceEntity = new FS_ServicesEntity();
-            fsServiceEntity = await _DBHManagerBLLProvider.GetServicesEnvityAsync(IDval);
-            if (fsServiceEntity == null || fsServiceEntity.ID <= 0 || string.IsNullOrEmpty(fsServiceEntity.ServerAddress) || string.IsNullOrEmpty(fsServiceEntity.DataBaseName))
-            {
-                result.Message = "数据库配置错误";
-                return Json(result);
-            }
-            IList<DB_TableColumnsView> listColumn = new List<DB_TableColumnsView>();
-            if (fsServiceEntity.ServerType == 1)//SqlServer
-            {
-                string connectionString = DBConnectionConfig.MSSqlConnectionStringTemplate.Replace("{Server}", fsServiceEntity.ServerAddress)
-                    .Replace("{DBName}", fsServiceEntity.DataBaseName)
-                    .Replace("{LoginName}", fsServiceEntity.LoginName)
-                    .Replace("{Password}", fsServiceEntity.LoginPassword);
-                _sqlServerManagerBLLProvider.SetConnectionString(connectionString);
-                listColumn = await _sqlServerManagerBLLProvider.GetTableColumnsListAsync(tableName);
-            }
-            else if (fsServiceEntity.ServerType == 1)//MySQL
-            {
-                //暂不支持
-            }
+            IList<DB_TableColumnsView> listColumn = await _DBHManagerBLLProvider.GetServiceTableColumns(IDval, tableName);
             result.Result = listColumn;
             result.Status = true;
             result.Message = "success";
@@ -475,6 +460,56 @@ namespace DataBaseHelper.Controllers
                 result.Message = entityResult.Message;
             }
             return Json(result);
+        }
+
+        /// <summary>
+        /// 导出EXCEL
+        /// </summary>
+        /// <param name="ID"></param>
+        /// <param name="tableName"></param>
+        /// <returns></returns>
+        [HttpPost]
+        public async Task<IActionResult> ExportToExcel(int? ID, string tableName)
+        {
+            ResultModel result = new ResultModel();
+            result.Status = false;
+            int IDval = 0;
+            if (ID.HasValue) { IDval = ID.Value; }
+            else
+            {
+                result.Message = "未选择数据库";
+                return Json(result);
+            }
+            if (string.IsNullOrEmpty(tableName))
+            {
+                result.Message = "表名参数为空";
+                return Json(result);
+            }
+            IList<DB_TableColumnsView> listColumn = await _DBHManagerBLLProvider.GetServiceTableColumns(IDval, tableName);
+            string exportFilePath = _dbhSetting.Value.ExportFilePath;
+            string fileName = listColumn[0].TableName + DateTime.Now.ToString("yyMMddHHmmss") + ".xlsx";
+            if (listColumn != null && listColumn.Count > 0)
+            {
+                try
+                {
+                    NPOIHelper.ExportToExcel(listColumn.ToList(), exportFilePath, fileName);
+                    result.Message = "success";
+                    string fileUrl = _dbhSetting.Value.ExportFileHttpURL + fileName;
+                    //string fileUrl=Request.
+                    result.Result = fileUrl;
+                    result.Status = true;
+                }
+                catch (IOException)
+                {
+                    result.Message = "文件被占用，请关闭或稍后再试";
+                }
+                catch (Exception ex)
+                {
+                    result.Message = ex.Message;
+                }
+            }
+            return Json(result);
+            //return File(fileStream, "application/vnd.ms-excel", fileName);
         }
         #endregion
     }

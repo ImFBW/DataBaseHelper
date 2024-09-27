@@ -2,6 +2,7 @@ using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using DBH.BLLService;
 using DBH.DALServices;
+using DBH.Models.Config;
 
 namespace DataBaseHelper
 {
@@ -24,6 +25,7 @@ namespace DataBaseHelper
                 autofac_builder.RegisterModule<AutofacBLLServcieModule>();
             });
             #endregion
+            builder.Services.Configure<DBHSetting>(builder.Configuration.GetSection("DBHSetting"));
 
             var app = builder.Build();
 
@@ -38,10 +40,13 @@ namespace DataBaseHelper
 
             app.UseAuthorization();
 
-            app.MapControllerRoute(
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+                endpoints.MapControllerRoute(
                 name: "default",
                 pattern: "{controller=database}/{action=Index}/{id?}");
-
+            });
             app.Run();
         }
     }

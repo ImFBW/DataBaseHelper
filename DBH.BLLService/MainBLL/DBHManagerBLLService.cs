@@ -1,5 +1,7 @@
-﻿using DBH.BLLServiceProvider.MainBLL;
+﻿using DBH.BLLProvider.MainBLL;
+using DBH.BLLServiceProvider.MainBLL;
 using DBH.Core;
+using DBH.Core.Setting;
 using DBH.DALServiceProvider.MainDAL;
 using DBH.Models.Common;
 using DBH.Models.Entitys;
@@ -7,6 +9,7 @@ using DBH.Models.EntityViews;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -16,10 +19,12 @@ namespace DBH.BLLService.MainBLL
     public class DBHManagerBLLService : BaseBLLService, IDBHManagerBLLProvider
     {
         private readonly IDBHManagerDALProvider _dBHManagerDALProvider;
+        private readonly ISqlServerManagerBLLProvider _sqlServerManagerBLLProvider;
 
-        public DBHManagerBLLService(IDBHManagerDALProvider dBHManagerDALProvider)
+        public DBHManagerBLLService(IDBHManagerDALProvider dBHManagerDALProvider, ISqlServerManagerBLLProvider sqlServerManagerBLLProvider)
         {
             _dBHManagerDALProvider = dBHManagerDALProvider;
+            _sqlServerManagerBLLProvider = sqlServerManagerBLLProvider;
         }
 
         #region Select
@@ -56,6 +61,46 @@ namespace DBH.BLLService.MainBLL
                 FS_ServicesEntity entity = await _dBHManagerDALProvider.GetServicesEnvityAsync(ID);
                 if (entity == null) return new FS_ServicesEntity();
                 return entity;
+            }
+            catch (Exception ex)
+            {
+                Logger.LogError("DBHManagerBLLService_GetServicesEnvityAsync：" + ex.Message);
+                throw ex;
+            }
+        }
+        /// <summary>
+        /// 查询全部的列
+        /// </summary>
+        /// <param name="ID"></param>
+        /// <param name="tableName"></param>
+        /// <returns></returns>
+        public async Task<IList<DB_TableColumnsView>> GetServiceTableColumns(int ID, string tableName)
+        {
+            try
+            {
+                if (ID <= 0) return null;
+                FS_ServicesEntity fsServiceEntity = new FS_ServicesEntity();
+                fsServiceEntity = await GetServicesEnvityAsync(ID);
+
+                if (fsServiceEntity == null || fsServiceEntity.ID <= 0 || string.IsNullOrEmpty(fsServiceEntity.ServerAddress) || string.IsNullOrEmpty(fsServiceEntity.DataBaseName))
+                {
+                    throw new ArgumentException("数据库配置错误");
+                }
+                IList<DB_TableColumnsView> listColumn = new List<DB_TableColumnsView>();
+                if (fsServiceEntity.ServerType == 1)//SqlServer
+                {
+                    string connectionString = DBConnectionConfig.MSSqlConnectionStringTemplate.Replace("{Server}", fsServiceEntity.ServerAddress)
+                        .Replace("{DBName}", fsServiceEntity.DataBaseName)
+                        .Replace("{LoginName}", fsServiceEntity.LoginName)
+                        .Replace("{Password}", fsServiceEntity.LoginPassword);
+                    _sqlServerManagerBLLProvider.SetConnectionString(connectionString);
+                    listColumn = await _sqlServerManagerBLLProvider.GetTableColumnsListAsync(tableName);
+                }
+                else if (fsServiceEntity.ServerType == 1)//MySQL
+                {
+                    //暂不支持
+                }
+                return listColumn;
             }
             catch (Exception ex)
             {

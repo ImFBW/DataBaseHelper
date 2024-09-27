@@ -682,16 +682,16 @@ function createClass(tableName) {
         _this.InitAction = function () {
             var newWrapper = $(".tab_" + this.option.TabID);
             var tableEve = newWrapper.find('table')[0];
-            var typeName = this.option.TypeName;
-            table_options.url = CommonSetting.Domain + 'database/GetTableData/?ID=' + this.option.DBID + "&tableName=" + typeName;
+            table_options.url = CommonSetting.Domain + 'database/GetTableData/?ID=' + this.option.DBID + "&tableName=" + this.option.TypeName;
             _this.option.BootStrapTable = $(tableEve).bootstrapTable(table_options);//用bootstrap-table 插件初始化Table
             //注册几个事件
             newWrapper.find("button.btn_table_refresh").on('click', function () { _this.TableRefresh() });
             newWrapper.find("button.btn_table_export").on('click', function () {
-                layer.msg('功能待开发...');
+                //layer.msg('功能待开发...');
+                _this.TableExport();
             });
             newWrapper.find("button.btn_table_toClass").on('click', function () {
-                createClass(typeName);
+                createClass(this.option.TypeName);
             });
             tooltipTrigger();
         }
@@ -701,6 +701,45 @@ function createClass(tableName) {
         _this.TableRefresh = function () {
             if (_this.option.BootStrapTable == null) return;
             $(_this.option.BootStrapTable).data('bootstrap.table').refresh();
+        }
+        /**
+         * 导出Excel
+         */
+        _this.TableExport = function () {
+            var parmater = {
+                ID: this.option.DBID,
+                tableName: this.option.TypeName
+            };
+            layer.load(2);
+            $.ajax({
+                url: CommonSetting.Domain + 'database/ExportToExcel/',
+                type: 'Post',
+                data: parmater,
+                timeout: 600000,
+                async: true,
+                dataType: 'JSON',
+                success: function (data) {
+                    if (data.status) {
+                        layer.msg(data.message);//成功
+
+                        var link = document.createElement("a");
+                        link.href = data.result;
+                        link.target = "_blank";   
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                    } else {
+                        layer.msg(data.message);
+                    }
+                },
+                error: function (x, s, e) {
+                    layer.msg("系统异常", { icon: 2, shade: 0.1 }, function () {
+                    });
+                },
+                complete: function (x, s) {
+                    layer.closeAll();
+                }
+            })
         }
         return _this;
         //TabContainer.InitAction();

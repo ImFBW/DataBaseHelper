@@ -35,6 +35,8 @@ namespace DBH.BLLServiceProvider.MainBLL
         /// <returns></returns>
         Task<FS_ServicesEntity> GetServicesEnvityAsync(int ID);
 
+        Task<IList<DB_TableColumnsView>> GetServiceTableColumns(int ID, string tableName);
+
         /// <summary>
         /// 获取全部的服务器来源配置
         /// </summary>

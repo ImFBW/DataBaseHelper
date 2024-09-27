@@ -7,10 +7,18 @@ using System.Threading.Tasks;
 namespace DBH.Models.Config
 {
     /// <summary>
-    /// 自定义的配置对象,暂无用
+    /// 自定义的配置对象
     /// </summary>
     public class DBHSetting
     {
-        public string Name { get; set; }
+        /// <summary>
+        /// 导出文件的路径
+        /// </summary>
+        public string ExportFilePath { get; set; }
+
+        /// <summary>
+        /// 访问的地址
+        /// </summary>
+        public string ExportFileHttpURL { get; set; }
     }
 }
