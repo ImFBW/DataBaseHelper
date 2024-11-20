@@ -680,7 +680,7 @@ function createClass(tableName) {
         TabContainerList.push(_this);
 
         _this.InitAction = function () {
-            var newWrapper = $(".tab_" + this.option.TabID);
+            var newWrapper = $(".tab_" + _this.option.TabID);
             var tableEve = newWrapper.find('table')[0];
             table_options.url = CommonSetting.Domain + 'database/GetTableData/?ID=' + this.option.DBID + "&tableName=" + this.option.TypeName;
             _this.option.BootStrapTable = $(tableEve).bootstrapTable(table_options);//用bootstrap-table 插件初始化Table
@@ -691,7 +691,7 @@ function createClass(tableName) {
                 _this.TableExport();
             });
             newWrapper.find("button.btn_table_toClass").on('click', function () {
-                createClass(this.option.TypeName);
+                createClass(_this.option.TypeName);
             });
             tooltipTrigger();
         }
