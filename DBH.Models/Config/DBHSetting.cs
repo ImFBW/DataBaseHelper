@@ -12,7 +12,7 @@ namespace DBH.Models.Config
     public class DBHSetting
     {
         /// <summary>
-        /// 导出文件的路径
+        /// 导出文件的相对路径
         /// </summary>
         public string ExportFilePath { get; set; }
 

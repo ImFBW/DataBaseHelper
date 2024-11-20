@@ -6,6 +6,7 @@ using DBH.Models.Config;
 using DBH.Models.Entitys;
 using DBH.Models.EntityViews;
 using DBH.Utils.Helper;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
@@ -22,12 +23,14 @@ namespace DataBaseHelper.Controllers
         private readonly IDBHManagerBLLProvider _DBHManagerBLLProvider;
         private readonly ISqlServerManagerBLLProvider _sqlServerManagerBLLProvider;
         private readonly IOptions<DBHSetting> _dbhSetting;
-        public DataBaseController(ILogger<HomeController> logger, IDBHManagerBLLProvider dBHManagerBLLProvider, ISqlServerManagerBLLProvider sqlServerManagerBLLProvider, IOptions<DBHSetting> dbhSetting)
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        public DataBaseController(ILogger<HomeController> logger, IDBHManagerBLLProvider dBHManagerBLLProvider, ISqlServerManagerBLLProvider sqlServerManagerBLLProvider, IOptions<DBHSetting> dbhSetting, IWebHostEnvironment webHostEnvironment)
         {
             _logger = logger;
             _DBHManagerBLLProvider = dBHManagerBLLProvider;
             _sqlServerManagerBLLProvider = sqlServerManagerBLLProvider;
             _dbhSetting = dbhSetting;
+            _webHostEnvironment = webHostEnvironment;
         }
         #region DataBase 页面
         /// <summary>
@@ -486,7 +489,8 @@ namespace DataBaseHelper.Controllers
                 return Json(result);
             }
             IList<DB_TableColumnsView> listColumn = await _DBHManagerBLLProvider.GetServiceTableColumns(IDval, tableName);
-            string exportFilePath = _dbhSetting.Value.ExportFilePath;
+            string filePath = _dbhSetting.Value.ExportFilePath;
+            string exportFilePath = Path.Combine(_webHostEnvironment.WebRootPath, filePath);
             string fileName = listColumn[0].TableName + DateTime.Now.ToString("yyMMddHHmmss") + ".xlsx";
             if (listColumn != null && listColumn.Count > 0)
             {
