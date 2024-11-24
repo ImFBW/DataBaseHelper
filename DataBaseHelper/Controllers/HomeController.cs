@@ -1,5 +1,7 @@
-﻿using DataBaseHelper.Models;
+﻿using DataBaseHelper.Common;
+using DataBaseHelper.Models;
 using DBH.BLLServiceProvider.MainBLL;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
@@ -9,12 +11,16 @@ namespace DataBaseHelper.Controllers
     {
         private readonly ILogger<HomeController> _logger;
         private readonly IDBHManagerBLLProvider _DBHManagerBLLProvider;
-        public HomeController(ILogger<HomeController> logger, IDBHManagerBLLProvider dBHManagerBLLProvider)//
+        private readonly JWTHelper _jwtHelper;
+
+        public HomeController(ILogger<HomeController> logger, IDBHManagerBLLProvider dBHManagerBLLProvider, JWTHelper jWTHelper)//
         {
             _logger = logger;
             _DBHManagerBLLProvider = dBHManagerBLLProvider;
+            _jwtHelper = jWTHelper;
         }
 
+        //[Authorize]
         public async Task<IActionResult> Index()
         {
             return View();
@@ -25,6 +31,15 @@ namespace DataBaseHelper.Controllers
             return View();
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        public IActionResult GetToken()
+        {
+            return Json(new { token = _jwtHelper.CreateToken() });
+        }
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {

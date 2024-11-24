@@ -1,4 +1,5 @@
-﻿using DBH.BLLProvider.MainBLL;
+﻿using DataBaseHelper.Common;
+using DBH.BLLProvider.MainBLL;
 using DBH.BLLServiceProvider.MainBLL;
 using DBH.Core.Setting;
 using DBH.Models.Common;
@@ -24,7 +25,8 @@ namespace DataBaseHelper.Controllers
         private readonly ISqlServerManagerBLLProvider _sqlServerManagerBLLProvider;
         private readonly IOptions<DBHSetting> _dbhSetting;
         private readonly IWebHostEnvironment _webHostEnvironment;
-        public DataBaseController(ILogger<HomeController> logger, IDBHManagerBLLProvider dBHManagerBLLProvider, ISqlServerManagerBLLProvider sqlServerManagerBLLProvider, IOptions<DBHSetting> dbhSetting, IWebHostEnvironment webHostEnvironment)
+
+        public DataBaseController(ILogger<HomeController> logger, IDBHManagerBLLProvider dBHManagerBLLProvider, ISqlServerManagerBLLProvider sqlServerManagerBLLProvider, IOptions<DBHSetting> dbhSetting, IWebHostEnvironment webHostEnvironment, JWTHelper jWTHelper)
         {
             _logger = logger;
             _DBHManagerBLLProvider = dBHManagerBLLProvider;
