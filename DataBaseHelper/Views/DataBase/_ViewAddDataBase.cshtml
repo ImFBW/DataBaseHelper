@@ -14,10 +14,9 @@
         <div class="col-md-3 text-end"><label class="col-md-10 col-form-label">数据库类型<span class="text-danger">*</span>：</label></div>
         <div class="col-md-6">
             @{
-                int idx = 0;
                 foreach (var item in dictDBconfig)
                 {
-                    if (idx == 0)
+                    if (Model.ServerType == item.Key)
                     {
                         <input type="radio" value="@(item.Key)" name="DBCategory" title="@(item.Value)" checked>
                     }
@@ -25,7 +24,6 @@
                     {
                         <input type="radio" value="@(item.Key)" name="DBCategory" title="@(item.Value)">
                     }
-                    idx++;
                 }
             }
         </div>
