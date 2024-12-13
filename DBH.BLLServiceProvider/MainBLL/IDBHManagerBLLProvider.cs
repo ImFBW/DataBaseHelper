@@ -1,4 +1,5 @@
-﻿using DBH.Models.Common;
+﻿using DBH.Core;
+using DBH.Models.Common;
 using DBH.Models.Entitys;
 using DBH.Models.EntityViews;
 using System;
@@ -43,12 +44,13 @@ namespace DBH.BLLServiceProvider.MainBLL
         /// <returns></returns>
         Task<IList<FS_ServiceSourceEntity>> GetFSServiceSrouceListAsync();
 
-        /// <summary>
-        /// 测试一个连接字符串是否可以打开连接成功
-        /// </summary>
-        /// <param name="connectionString">连接字符串</param>
-        /// <returns></returns>
-        Task<bool> TestConnectionAsync(string connectionString);
+        ///// <summary>
+        ///// 测试一个连接字符串是否可以打开连接成功
+        ///// </summary>
+        ///// <param name="connectionString">连接字符串</param>
+        ///// <param name="dbCategory">数据库类型</param>
+        ///// <returns></returns>
+        //Task<bool> TestConnectionAsync(string connectionString, DBCategory dbCategory);
 
         #endregion
 

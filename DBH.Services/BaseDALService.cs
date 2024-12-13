@@ -1,4 +1,5 @@
-﻿using DBH.DALProvider;
+﻿using DBH.Core;
+using DBH.DALProvider;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace DBH.DALServices
 {
     public abstract class BaseDALService
     {
-        public IDBConnectionProvider ConnectionProvider { get; internal set; }
+        //public IDBConnectionProvider ConnectionProvider { get; internal set; }
 
     }
 }

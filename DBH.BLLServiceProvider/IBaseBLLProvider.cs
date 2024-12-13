@@ -8,5 +8,6 @@ namespace DBH.BLLServiceProvider
 {
     public interface IBaseBLLProvider
     {
+        
     }
 }

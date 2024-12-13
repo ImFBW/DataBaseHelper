@@ -3,9 +3,11 @@ using Autofac.Extensions.DependencyInjection;
 using DataBaseHelper.Common;
 using DBH.BLLService;
 using DBH.Core.Setting;
+using DBH.DALProvider;
 using DBH.DALServices;
 using DBH.Models.Config;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -22,6 +24,7 @@ namespace DataBaseHelper
             builder.Host.UseServiceProviderFactory(new AutofacServiceProviderFactory());
 
             #region 配置AutoFac
+            //
             builder.Host.ConfigureContainer<ContainerBuilder>(autofac_builder =>
             {
                 //注册数据访问层模块
@@ -30,10 +33,15 @@ namespace DataBaseHelper
                 autofac_builder.RegisterModule<AutofacBLLServcieModule>();
             });
             #endregion
-
             #region 自定义配置模块
             builder.Services.Configure<DBHSetting>(builder.Configuration.GetSection("DBHSetting"));
             builder.Services.Configure<JWTOptions>(builder.Configuration.GetSection("JWT"));
+            builder.Services.Configure<DBConnectionConfig>(builder.Configuration.GetSection("DBConnectionConfig"));//方式1
+            
+            //方式2
+            //ConfigurationBuilder configBuilder = new ConfigurationBuilder();
+            //IConfigurationRoot configRoot = configBuilder.Build();
+            //builder.Services.AddOptions().Configure<DBConnectionConfig>(e => { configRoot.GetSection("DBConnectionConfig").Bind(e); });
             #endregion
 
             var jwtSettings = builder.Configuration.GetSection("JWT").Get<JWTOptions>();

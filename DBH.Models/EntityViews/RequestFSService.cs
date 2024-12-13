@@ -18,6 +18,12 @@ namespace DBH.Models.EntityViews
         /// 数据主键，通常情况：>0表示修改，=0表示新增
         /// </summary>
         public int ID { get; set; }
+
+        /// <summary>
+        /// 数据库类型，1=SqlServer，2=MySql
+        /// </summary>
+        public int DBCategory {  get; set; }
+        
         /// <summary>
         /// 数据库地址
         /// </summary>
@@ -63,6 +69,7 @@ namespace DBH.Models.EntityViews
                 FS_ServicesEntity fs = new FS_ServicesEntity()
                 {
                     ID = this.ID,
+                    ServerType = this.DBCategory,
                     ServerAddress = this.DBAddress,
                     ServerPortNo = this.DBPort,
                     LoginName = this.DBLoginName,

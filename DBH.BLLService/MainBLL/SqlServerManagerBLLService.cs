@@ -26,6 +26,16 @@ namespace DBH.BLLService.MainBLL
         }
 
         /// <summary>
+        /// 测试一个连接字符串是否可以打开连接成功
+        /// </summary>
+        /// <param name="connectionString">连接字符串</param>
+        /// <returns></returns>
+        public bool TestConnection(string connectionString)
+        {
+            return _sqlServerManagerDALProvider.TestConnection(connectionString);
+        }
+
+        /// <summary>
         /// 设置连接字符串
         /// </summary>
         /// <param name="connectionstring"></param>

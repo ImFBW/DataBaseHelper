@@ -4,12 +4,34 @@
     Layout = "_LayoutNull";
     ViewData["Title"] = "添加数据库";
     List<FS_ServiceSourceEntity> listSourceEntity = (List<FS_ServiceSourceEntity>)ViewData["listEntity"];
+    Dictionary<int, string> dictDBconfig = (Dictionary<int, string>)ViewData["DBCategory"];
 }
-@section Styles{
+@section Styles {
 
 }
 <div class="mt-4 mb-4">
     <form id="saveDBserviceForm" method="post" action="~/database/DBServcieSave/" class="row g-3 layui-form needs-vaildation" novalidate>
+        <div class="col-md-3 text-end"><label class="col-md-10 col-form-label">数据库类型<span class="text-danger">*</span>：</label></div>
+        <div class="col-md-6">
+            @{
+                int idx = 0;
+                foreach (var item in dictDBconfig)
+                {
+                    if (idx == 0)
+                    {
+                        <input type="radio" value="@(item.Key)" name="DBCategory" title="@(item.Value)" checked>
+                    }
+                    else
+                    {
+                        <input type="radio" value="@(item.Key)" name="DBCategory" title="@(item.Value)">
+                    }
+                    idx++;
+                }
+            }
+        </div>
+        <div class="col-md-3">
+            <div id="valid_dbCategory" class="vaild-feedback"></div>
+        </div>
         <div class="col-md-3 text-end"><label class="col-md-10 col-form-label">数据库地址<span class="text-danger">*</span>：</label></div>
         <div class="col-md-6">
             <input type="text" class="form-control" id="databaseAddress" placeholder="数据库地址" aria-describedby="valid_ServerAddress" name="DBAddress" value="@(Model.ServerAddress)" required />
@@ -88,7 +110,7 @@
         </div>
     </form>
 </div>
-@section scripts{
+@section scripts {
     <script type="text/javascript">
         //
         $(function () {

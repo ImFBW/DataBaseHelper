@@ -12,12 +12,14 @@ namespace DBH.DALServices.MainDAL
 {
     public class LogDALService:BaseDALService, ILogDALProvider
     {
-        public LogDALService(IConfiguration configuretion, IDBConnectionProvider dBConnectionProvider)
-        {
-            ConnectionProvider = dBConnectionProvider;
-            ConnectionProvider.ConnectionString = configuretion.GetConnectionString("DBMSToolConnection").ToString();//配置连接字符串
-            ConnectionProvider.DBCategory = DBCategory.SqlServer;
-        }
+
+        //public IDBConnectionProvider ConnectionProvider { get; internal set; }
+        //public LogDALService(IConfiguration configuretion, IDBConnectionProvider dBConnectionProvider)
+        //{
+        //    ConnectionProvider = dBConnectionProvider;
+        //    ConnectionProvider.ConnectionString = configuretion.GetConnectionString("DBMSToolConnection").ToString();//配置连接字符串
+        //    ConnectionProvider.DBCategory = DBCategory.SqlServer;
+        //}
 
 
     }

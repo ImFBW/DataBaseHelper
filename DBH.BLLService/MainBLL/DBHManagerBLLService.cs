@@ -7,6 +7,7 @@ using DBH.Models.Common;
 using DBH.Models.Entitys;
 using DBH.Models.EntityViews;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -20,11 +21,15 @@ namespace DBH.BLLService.MainBLL
     {
         private readonly IDBHManagerDALProvider _dBHManagerDALProvider;
         private readonly ISqlServerManagerBLLProvider _sqlServerManagerBLLProvider;
+        private readonly IMySqlManagerBLLProvider _mySqlManagerBLLProvider;
+        private readonly IOptions<DBConnectionConfig> _dbConnectionConfig;
 
-        public DBHManagerBLLService(IDBHManagerDALProvider dBHManagerDALProvider, ISqlServerManagerBLLProvider sqlServerManagerBLLProvider)
+        public DBHManagerBLLService(IDBHManagerDALProvider dBHManagerDALProvider, ISqlServerManagerBLLProvider sqlServerManagerBLLProvider, IOptions<DBConnectionConfig> dbConnectionConfig, IMySqlManagerBLLProvider mySqlManagerBLLProvider)
         {
             _dBHManagerDALProvider = dBHManagerDALProvider;
             _sqlServerManagerBLLProvider = sqlServerManagerBLLProvider;
+            _dbConnectionConfig = dbConnectionConfig;
+            _mySqlManagerBLLProvider = mySqlManagerBLLProvider;
         }
 
         #region Select
@@ -87,18 +92,27 @@ namespace DBH.BLLService.MainBLL
                     throw new ArgumentException("数据库配置错误");
                 }
                 IList<DB_TableColumnsView> listColumn = new List<DB_TableColumnsView>();
+                string connectionString = string.Empty;
+
+                //配置数据库类型
                 if (fsServiceEntity.ServerType == 1)//SqlServer
                 {
-                    string connectionString = DBConnectionConfig.MSSqlConnectionStringTemplate.Replace("{Server}", fsServiceEntity.ServerAddress)
-                        .Replace("{DBName}", fsServiceEntity.DataBaseName)
-                        .Replace("{LoginName}", fsServiceEntity.LoginName)
-                        .Replace("{Password}", fsServiceEntity.LoginPassword);
+                    connectionString = _dbConnectionConfig.Value.GetMsSqlConnectionString(fsServiceEntity.ServerAddress, fsServiceEntity.ServerPortNo, fsServiceEntity.DataBaseName, fsServiceEntity.LoginName, fsServiceEntity.LoginPassword);
                     _sqlServerManagerBLLProvider.SetConnectionString(connectionString);
+                }
+                else if (fsServiceEntity.ServerType == 2)//MySQL
+                {
+                    connectionString = _dbConnectionConfig.Value.GetMySqlConnectionString(fsServiceEntity.ServerAddress, fsServiceEntity.ServerPortNo, fsServiceEntity.DataBaseName, fsServiceEntity.LoginName, fsServiceEntity.LoginPassword);
+                    _mySqlManagerBLLProvider.SetConnectionString(connectionString);
+                }
+                
+                if (fsServiceEntity.ServerType == 1)//SqlServer
+                {
                     listColumn = await _sqlServerManagerBLLProvider.GetTableColumnsListAsync(tableName);
                 }
-                else if (fsServiceEntity.ServerType == 1)//MySQL
+                else if (fsServiceEntity.ServerType == 2)//MySQL
                 {
-                    //暂不支持
+                    listColumn = await _mySqlManagerBLLProvider.GetTableColumnsListAsync(tableName);
                 }
                 return listColumn;
             }
@@ -128,26 +142,6 @@ namespace DBH.BLLService.MainBLL
                 throw ex;
             }
         }
-
-        /// <summary>
-        /// 测试一个连接字符串是否可以打开连接成功
-        /// </summary>
-        /// <param name="connectionString">连接字符串</param>
-        /// <returns></returns>
-        public async Task<bool> TestConnectionAsync(string connectionString)
-        {
-            try
-            {
-                if (string.IsNullOrEmpty(connectionString)) return false;
-                return await _dBHManagerDALProvider.TestConnectionAsync(connectionString);
-            }
-            catch (Exception ex)
-            {
-                Logger.LogError("DBHManagerBLLService_TestConnectionAsync：" + ex.Message);
-                throw ex;
-            }
-        }
-
 
         #endregion
 

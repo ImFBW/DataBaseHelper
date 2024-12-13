@@ -12,7 +12,7 @@ namespace DBH.Core
     /// </summary>
     public enum DBCategory
     {
-        SqlServer,
-        MySql
+        SqlServer = 1,
+        MySql = 2
     }
 }

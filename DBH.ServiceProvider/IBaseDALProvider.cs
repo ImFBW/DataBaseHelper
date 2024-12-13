@@ -8,6 +8,5 @@ namespace DBH.DALServiceProvider
 {
     public interface IBaseDALProvider
     {
-        
     }
 }

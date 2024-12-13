@@ -14,18 +14,35 @@ using DBH.DALProvider;
 using DBH.Models.EntityViews;
 using DBH.Models.Common;
 using DBH.Core.Dapper;
+using DBH.Core.Setting;
+using Microsoft.Extensions.Options;
+using System.Data.SqlClient;
 
 namespace DBH.DALServices.MainDAL
 {
     public class DBHManagerDALService : BaseDALService, IDBHManagerDALProvider
     {
-
-        public DBHManagerDALService(IConfiguration configuretion, IDBConnectionProvider dBConnectionProvider)
+        private string ConnectionString;
+        public DBHManagerDALService(IConfiguration configuretion)
         {
-            ConnectionProvider = dBConnectionProvider;
-            ConnectionProvider.ConnectionString = configuretion.GetConnectionString("DBMSToolConnection").ToString();//配置连接字符串
-            ConnectionProvider.DBCategory = DBCategory.SqlServer;
+            ConnectionString = configuretion.GetConnectionString("DBMSToolConnection").ToString();//配置连接字符串
         }
+
+        /// <summary>
+        /// 获取数据库连接对象
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public IDbConnection GetConnection()
+        {
+            if (string.IsNullOrEmpty(ConnectionString))
+            {
+                throw new ArgumentNullException(nameof(this.ConnectionString));
+            }
+            IDbConnection connection = new SqlConnection(ConnectionString);
+            return connection;
+        }
+
         #region Insert
 
         /// <summary>
@@ -35,8 +52,8 @@ namespace DBH.DALServices.MainDAL
         /// <returns></returns>
         public async Task<EntityResult> InsertFsServiceEntityAsync(FS_ServicesEntity fS_ServicesEntity)
         {
-            EntityResult entiyResult = new EntityResult();
-            using (var conn = ConnectionProvider.GetConnection())
+            EntityResult entiyResult = new EntityResult();          
+            using (var conn = GetConnection())
             {
                 //string sql = $"SELECT s.*,ss.SourceName From FS_Services  s WITH(NOLOCK) LEFT JOIN FS_ServiceSource ss WITH(NOLOCK) ON s.SourceID=ss.ID WHERE s.IsInUse=1 AND s.IsDel=0  ORDER BY s.id ASC";
                 //var resultData = await conn.q
@@ -66,7 +83,7 @@ namespace DBH.DALServices.MainDAL
         {
             //IList<FS_ServicesEntity> listEntity = new List<FS_ServicesEntity>();
             IList<FS_ServicesView> listViewEntity = new List<FS_ServicesView>();
-            using (var conn = ConnectionProvider.GetConnection())
+            using (var conn = GetConnection())
             {
                 string sql = $"SELECT s.*,ss.SourceName From FS_Services  s WITH(NOLOCK) LEFT JOIN FS_ServiceSource ss WITH(NOLOCK) ON s.SourceID=ss.ID WHERE s.IsInUse=1 AND s.IsDel=0  ORDER BY s.id ASC";
                 var resultData = await conn.QueryAsync<FS_ServicesView>(sql, commandType: CommandType.Text);
@@ -84,7 +101,7 @@ namespace DBH.DALServices.MainDAL
         public async Task<FS_ServicesEntity> GetServicesEnvityAsync(int ID)
         {
             FS_ServicesEntity entity = new FS_ServicesEntity();
-            using (var conn = ConnectionProvider.GetConnection())
+            using (var conn = GetConnection())
             {
                 string sql = $"SELECT Top 1 * From FS_Services WITH(NOLOCK) WHERE ID ={ID}";
                 entity = await conn.QueryFirstOrDefaultAsync<FS_ServicesEntity>(sql, commandType: CommandType.Text);
@@ -99,7 +116,7 @@ namespace DBH.DALServices.MainDAL
         public async Task<IList<FS_ServiceSourceEntity>> GetFSServiceSrouceListAsync()
         {
             IList<FS_ServiceSourceEntity> listViewEntity = new List<FS_ServiceSourceEntity>();
-            using (var conn = ConnectionProvider.GetConnection())
+            using (var conn = GetConnection())
             {
                 string sql = $"SELECT * From FS_ServiceSource WITH(NOLOCK)";
                 var resultData = await conn.QueryAsync<FS_ServiceSourceEntity>(sql, commandType: CommandType.Text);
@@ -118,7 +135,7 @@ namespace DBH.DALServices.MainDAL
             bool isConn = false;
             try
             {
-                using (var conn = ConnectionProvider.GetConnection(connectionString))
+                using (var conn = GetConnection())
                 {
                     conn.Open();
                     isConn = true;
@@ -144,7 +161,7 @@ namespace DBH.DALServices.MainDAL
         public async Task<EntityResult> UpdateFsServiceEntityAsync(FS_ServicesEntity entity)
         {
             EntityResult result = new EntityResult();
-            using (var conn = ConnectionProvider.GetConnection())
+            using (var conn = GetConnection())
             {
                 string[] ignoreFields = { "" };
                 if (string.IsNullOrEmpty(entity.LoginPassword))//如果密码为空，则默认为不更新，可忽略此字段的更新
@@ -168,7 +185,7 @@ namespace DBH.DALServices.MainDAL
         public async Task<bool> DeleteFsServiceEntityAsync(int ID)
         {
             bool isDelete = false;
-            using (var conn = ConnectionProvider.GetConnection())
+            using (var conn = GetConnection())
             {
                 FS_ServicesEntity fsentity = new FS_ServicesEntity() { ID = ID, IsDel = 1 };
                 int code = await conn.UpdateAppointAsync<FS_ServicesEntity>(fsentity, new string[] { "IsDel" });

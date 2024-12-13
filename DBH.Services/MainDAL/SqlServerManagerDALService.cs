@@ -15,6 +15,11 @@ using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Configuration;
 using System.Reflection;
 using System.Data;
+using DBH.Core.Setting;
+using Microsoft.Extensions.Options;
+using System.Configuration;
+using MySql.Data.MySqlClient;
+using System.Data.SqlClient;
 
 namespace DBH.DALServices.MainDAL
 {
@@ -23,17 +28,7 @@ namespace DBH.DALServices.MainDAL
     /// </summary>
     public class SqlServerManagerDALService : BaseDALService, ISqlServerManagerDALProvider
     {
-        /// <summary>
-        /// 单独使用一个连接字符串
-        /// </summary>
         private string ConnectionString;
-        public SqlServerManagerDALService(IDBConnectionProvider dBConnectionProvider)
-        {
-            // if (string.IsNullOrEmpty(connectionstring)) throw new ArgumentException("缺少连接字符串参数");
-            ConnectionProvider = dBConnectionProvider;
-            //ConnectionProvider.ConnectionString = connectionstring;//配置连接字符串
-            ConnectionProvider.DBCategory = DBCategory.SqlServer;
-        }
 
         /// <summary>
         /// 设置连接字符串
@@ -43,9 +38,48 @@ namespace DBH.DALServices.MainDAL
         /// <exception cref="NotImplementedException"></exception>
         public void SetConnectionString(string connectionstring)
         {
-            this.ConnectionString = connectionstring;
+            ConnectionString = connectionstring;
         }
 
+        /// <summary>
+        /// 获取数据库连接对象
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public IDbConnection GetConnection()
+        {
+            if (string.IsNullOrEmpty(ConnectionString))
+            {
+                throw new ArgumentNullException(nameof(this.ConnectionString));
+            }
+            IDbConnection connection = new SqlConnection(ConnectionString);
+            return connection;
+        }
+
+        /// <summary>
+        /// 测试一个连接字符串是否可以打开连接成功
+        /// </summary>
+        /// <param name="connectionString">连接字符串</param>
+        /// <returns></returns>
+        public bool TestConnection(string connectionString)
+        {
+            bool isConn = false;
+            try
+            {
+                using (var conn = GetConnection())
+                {
+                    conn.Open();
+                    isConn = true;
+                    conn.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+                isConn = false;
+                throw ex;
+            }
+            return isConn;
+        }
 
         /// <summary>
         /// 进行搜索-SQLServer数据库模式
@@ -57,7 +91,7 @@ namespace DBH.DALServices.MainDAL
         public async Task<IList<SysDataBaseSearchView>> SearchActionAsync(string searchText, int top = 100)
         {
             List<SysDataBaseSearchView> listView = new List<SysDataBaseSearchView>();
-            using (var conn = ConnectionProvider.GetConnection(this.ConnectionString))
+            using (var conn = GetConnection())
             {
                 conn.Open();
                 string sqlQuery = string.Empty;
@@ -98,7 +132,7 @@ namespace DBH.DALServices.MainDAL
         public async Task<IList<Definition>> GetDefinitionsAsync(string dbTypeName)
         {
             IList<Definition> listDefinition = new List<Definition>();
-            using (var conn = ConnectionProvider.GetConnection(this.ConnectionString))
+            using (var conn = GetConnection())
             {
                 DataSet ds = await conn.ExecuteTableAsync("sp_helptext", new { objname = dbTypeName }, CommandType.StoredProcedure);
                 if (ds != null && ds.Tables.Count > 0 && ds.Tables[0].Rows.Count > 0)
@@ -117,7 +151,7 @@ namespace DBH.DALServices.MainDAL
         public async Task<IList<DB_TableColumnsView>> GetTableColumnsListAsync(string tableName)
         {
             IList<DB_TableColumnsView> listView = new List<DB_TableColumnsView>();
-            using (var conn = ConnectionProvider.GetConnection(this.ConnectionString))
+            using (var conn = GetConnection())
             {
                 string querySql = string.Format(@"SELECT  
         col.colorder AS RowNumber ,obj.name AS TableName,ISNULL(eptable.value,'') AS TableDesc,
@@ -173,7 +207,7 @@ ORDER BY col.colorder ; ");
         public async Task<EntityResult> UpdateTableColumnDescriptionAsync(TableColumnDescription tableColumnDescription)
         {
             EntityResult result = new EntityResult();
-            using (var conn = ConnectionProvider.GetConnection(this.ConnectionString))
+            using (var conn = GetConnection())
             {
                 string sql = string.Empty;
                 if (tableColumnDescription.TypeID == 1)

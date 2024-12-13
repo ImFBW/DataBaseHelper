@@ -14,6 +14,8 @@ namespace DBH.DALProvider.MainDAL
     /// </summary>
     public interface ISqlServerManagerDALProvider : IBaseDALProvider
     {
+        bool TestConnection(string connectionString);
+
         /// <summary>
         /// 设置连接字符串
         /// </summary>

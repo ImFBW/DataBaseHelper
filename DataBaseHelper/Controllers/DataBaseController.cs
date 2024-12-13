@@ -1,7 +1,10 @@
 ﻿using DataBaseHelper.Common;
 using DBH.BLLProvider.MainBLL;
+using DBH.BLLService.MainBLL;
 using DBH.BLLServiceProvider.MainBLL;
+using DBH.Core;
 using DBH.Core.Setting;
+using DBH.DALProvider.MainDAL;
 using DBH.Models.Common;
 using DBH.Models.Config;
 using DBH.Models.Entitys;
@@ -23,16 +26,20 @@ namespace DataBaseHelper.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly IDBHManagerBLLProvider _DBHManagerBLLProvider;
         private readonly ISqlServerManagerBLLProvider _sqlServerManagerBLLProvider;
-        private readonly IOptions<DBHSetting> _dbhSetting;
+        private readonly IMySqlManagerBLLProvider _mySqlManagerBLLProvider;
+        private readonly IOptionsSnapshot<DBHSetting> _dbhSetting;//建议使用IOptionsSnapshot
         private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IOptionsSnapshot<DBConnectionConfig> _dbConnectionConfig;
 
-        public DataBaseController(ILogger<HomeController> logger, IDBHManagerBLLProvider dBHManagerBLLProvider, ISqlServerManagerBLLProvider sqlServerManagerBLLProvider, IOptions<DBHSetting> dbhSetting, IWebHostEnvironment webHostEnvironment, JWTHelper jWTHelper)
+        public DataBaseController(ILogger<HomeController> logger, IDBHManagerBLLProvider dBHManagerBLLProvider, ISqlServerManagerBLLProvider sqlServerManagerBLLProvider, IOptionsSnapshot<DBHSetting> dbhSetting, IWebHostEnvironment webHostEnvironment, JWTHelper jWTHelper, IOptionsSnapshot<DBConnectionConfig> dbConnectionConfig, IMySqlManagerBLLProvider mySqlManagerBLLProvider)
         {
             _logger = logger;
             _DBHManagerBLLProvider = dBHManagerBLLProvider;
             _sqlServerManagerBLLProvider = sqlServerManagerBLLProvider;
             _dbhSetting = dbhSetting;
             _webHostEnvironment = webHostEnvironment;
+            _dbConnectionConfig = dbConnectionConfig;
+            _mySqlManagerBLLProvider = mySqlManagerBLLProvider;
         }
         #region DataBase 页面
         /// <summary>
@@ -94,6 +101,14 @@ namespace DataBaseHelper.Controllers
             listSourceEntity = await _DBHManagerBLLProvider.GetFSServiceSrouceListAsync();
             ViewData["listEntity"] = listSourceEntity;
 
+            Dictionary<int, string> dictDBconfig = new Dictionary<int, string>();
+            Array dbArr = Enum.GetValues(typeof(DBCategory));
+            foreach (DBCategory dbCategory in dbArr)
+            {
+                dictDBconfig.Add((int)dbCategory, dbCategory.ToString());
+            }
+            ViewData["DBCategory"] = dictDBconfig;
+
             return View(fsServiceEntity);
         }
 
@@ -122,17 +137,19 @@ namespace DataBaseHelper.Controllers
                 return Content("");
             }
             string connectionString = string.Empty;
+            //获取连接字符串
+            if (fsServiceEntity.ServerType == 1)//SqlServer
+                connectionString = _dbConnectionConfig.Value.GetMsSqlConnectionString(fsServiceEntity.ServerAddress, fsServiceEntity.ServerPortNo, fsServiceEntity.DataBaseName, fsServiceEntity.LoginName, fsServiceEntity.LoginPassword);
+            else if (fsServiceEntity.ServerType == 2)//MySQL
+                connectionString = _dbConnectionConfig.Value.GetMySqlConnectionString(fsServiceEntity.ServerAddress, fsServiceEntity.ServerPortNo, fsServiceEntity.DataBaseName, fsServiceEntity.LoginName, fsServiceEntity.LoginPassword);
+
             if (fsServiceEntity.ServerType == 1)//SqlServer
             {
-                connectionString = DBConnectionConfig.MSSqlConnectionStringTemplate.Replace("{Server}", fsServiceEntity.ServerAddress)
-                    .Replace("{DBName}", fsServiceEntity.DataBaseName)
-                    .Replace("{LoginName}", fsServiceEntity.LoginName)
-                    .Replace("{Password}", fsServiceEntity.LoginPassword);
                 _sqlServerManagerBLLProvider.SetConnectionString(connectionString);
             }
-            else if (fsServiceEntity.ServerType == 1)//MySQL
+            else if (fsServiceEntity.ServerType == 2)//MySQL
             {
-                //暂不支持
+                _mySqlManagerBLLProvider.SetConnectionString(connectionString);
             }
 
             ViewBag.TypeID = typeID;
@@ -169,7 +186,7 @@ namespace DataBaseHelper.Controllers
             }
             else
             {
-                return Content("");
+                return NotFound("类型错误");
             }
         }
 
@@ -190,22 +207,23 @@ namespace DataBaseHelper.Controllers
             }
             if (fsServiceEntity == null || fsServiceEntity.ID <= 0 || string.IsNullOrEmpty(fsServiceEntity.ServerAddress) || string.IsNullOrEmpty(fsServiceEntity.DataBaseName))
             {
-                return Content("");
+                return NotFound("service missing");
             }
             List<string> listClass = new List<string>();
             string connectionString = string.Empty;
+            //配置连接字符串
+            if (fsServiceEntity.ServerType == 1)//SqlServer
+                connectionString = _dbConnectionConfig.Value.GetMsSqlConnectionString(fsServiceEntity.ServerAddress, fsServiceEntity.ServerPortNo, fsServiceEntity.DataBaseName, fsServiceEntity.LoginName, fsServiceEntity.LoginPassword);
+            else if (fsServiceEntity.ServerType == 2)//MySQL
+                connectionString = _dbConnectionConfig.Value.GetMySqlConnectionString(fsServiceEntity.ServerAddress, fsServiceEntity.ServerPortNo, fsServiceEntity.DataBaseName, fsServiceEntity.LoginName, fsServiceEntity.LoginPassword);
+            _sqlServerManagerBLLProvider.SetConnectionString(connectionString);
             if (fsServiceEntity.ServerType == 1)//SqlServer
             {
-                connectionString = DBConnectionConfig.MSSqlConnectionStringTemplate.Replace("{Server}", fsServiceEntity.ServerAddress)
-                    .Replace("{DBName}", fsServiceEntity.DataBaseName)
-                    .Replace("{LoginName}", fsServiceEntity.LoginName)
-                    .Replace("{Password}", fsServiceEntity.LoginPassword);
-                _sqlServerManagerBLLProvider.SetConnectionString(connectionString);
                 listClass = await _sqlServerManagerBLLProvider.CreateNetClass(tableName);
             }
-            else if (fsServiceEntity.ServerType == 1)//MySQL
+            else if (fsServiceEntity.ServerType == 2)//MySQL
             {
-                //暂不支持
+                listClass = await _mySqlManagerBLLProvider.CreateNetClass(tableName);
             }
             ViewData["listClass"] = listClass;
             return View("~/Views/Component/_CreateClass.cshtml");
@@ -223,8 +241,8 @@ namespace DataBaseHelper.Controllers
         {
             var fsEntity = fSService.ToFSServiceEntity;
             fsEntity.IsInUse = 1;
-            fsEntity.ServerType = (int)ServiceType.MSSql;//当前固定1：SqlServer，后期还要增加MySql的支持
             EntityResult entityResult = new EntityResult();
+
             if (fsEntity.ID > 0)//更新
             {
                 entityResult = await _DBHManagerBLLProvider.UpdateFsServiceEntityAsync(fsEntity);
@@ -252,15 +270,37 @@ namespace DataBaseHelper.Controllers
             string dbName = Request.Query["DBName"].ToString();
             string dbLoginName = Request.Query["DBLoginName"].ToString();
             string dbLoginPassword = Request.Query["DBLoginPassword"].ToString();
-            if (!string.IsNullOrEmpty(dbPort) && int.Parse(dbPort) > 0)
-                dbAddress += ":" + dbPort;
-            string connectionString = DBConnectionConfig.MSSqlConnectionStringTemplate.Replace("{Server}", dbAddress)
-                    .Replace("{DBName}", dbName)
-                    .Replace("{LoginName}", dbLoginName)
-                    .Replace("{Password}", dbLoginPassword);
+            string dbCategory = Request.Query["DBCategory"].ToString();
+
+            DBCategory _dbCategory;
+            int portNum = 0;
+            string connectionString = string.Empty;
+
+            if (!Enum.TryParse(dbCategory, out _dbCategory))
+            {
+                _dbCategory = DBCategory.SqlServer;//默认
+            }
+            int.TryParse(dbPort, out portNum);
+
+            //配置连接字符串
+            if (_dbCategory == DBCategory.SqlServer)
+            {
+                connectionString = _dbConnectionConfig.Value.GetMsSqlConnectionString(dbAddress, portNum, dbName, dbLoginName, dbLoginPassword);
+                _sqlServerManagerBLLProvider.SetConnectionString(connectionString);
+            }
+            else if (_dbCategory == DBCategory.MySql)
+            {
+                connectionString = _dbConnectionConfig.Value.GetMySqlConnectionString(dbAddress, portNum, dbName, dbLoginName, dbLoginPassword);
+                _mySqlManagerBLLProvider.SetConnectionString(connectionString);
+            }
+
             try
             {
-                bool isConn = await _DBHManagerBLLProvider.TestConnectionAsync(connectionString);
+                bool isConn = false;
+                if (_dbCategory == DBCategory.SqlServer)
+                    isConn = _sqlServerManagerBLLProvider.TestConnection(connectionString);
+                if (_dbCategory == DBCategory.MySql)
+                    isConn = _mySqlManagerBLLProvider.TestConnection(connectionString);
                 result.Result = isConn ? "true" : "false";
                 result.Message = isConn ? "连接成功" : "连接失败";
                 result.Status = true;
@@ -345,18 +385,27 @@ namespace DataBaseHelper.Controllers
             IList<SysDataBaseSearchView> listView = new List<SysDataBaseSearchView>();
             try
             {
+                string connectionString =string.Empty;
+                //配置数据库类型
                 if (fsServiceEntity.ServerType == 1)//SqlServer
                 {
-                    string connectionString = DBConnectionConfig.MSSqlConnectionStringTemplate.Replace("{Server}", fsServiceEntity.ServerAddress)
-                    .Replace("{DBName}", fsServiceEntity.DataBaseName)
-                    .Replace("{LoginName}", fsServiceEntity.LoginName)
-                    .Replace("{Password}", fsServiceEntity.LoginPassword);
+                    connectionString = _dbConnectionConfig.Value.GetMsSqlConnectionString(fsServiceEntity.ServerAddress, fsServiceEntity.ServerPortNo, fsServiceEntity.DataBaseName, fsServiceEntity.LoginName, fsServiceEntity.LoginPassword);
                     _sqlServerManagerBLLProvider.SetConnectionString(connectionString);
+                }
+                else if (fsServiceEntity.ServerType == 2)//MySQL
+                {
+                    connectionString = _dbConnectionConfig.Value.GetMySqlConnectionString(fsServiceEntity.ServerAddress, fsServiceEntity.ServerPortNo, fsServiceEntity.DataBaseName, fsServiceEntity.LoginName, fsServiceEntity.LoginPassword);
+                    _mySqlManagerBLLProvider.SetConnectionString(connectionString);
+                }
+
+
+                if (fsServiceEntity.ServerType == 1)//SqlServer
+                {
                     listView = await _sqlServerManagerBLLProvider.SearchActionAsync(SearchTxt);
                 }
                 else if (fsServiceEntity.ServerType == 2)//MySQL
                 {
-                    //暂不支持
+                    listView = await _mySqlManagerBLLProvider.SearchActionAsync(SearchTxt);
                 }
                 result.Status = true;
                 result.Result = listView;
@@ -441,18 +490,26 @@ namespace DataBaseHelper.Controllers
                 return Json(result);
             }
             EntityResult entityResult = new EntityResult();
+            string connectionString = string.Empty;
+            //配置数据库类型
             if (fsServiceEntity.ServerType == 1)//SqlServer
             {
-                string connectionString = DBConnectionConfig.MSSqlConnectionStringTemplate.Replace("{Server}", fsServiceEntity.ServerAddress)
-                    .Replace("{DBName}", fsServiceEntity.DataBaseName)
-                    .Replace("{LoginName}", fsServiceEntity.LoginName)
-                    .Replace("{Password}", fsServiceEntity.LoginPassword);
+                connectionString = _dbConnectionConfig.Value.GetMsSqlConnectionString(fsServiceEntity.ServerAddress, fsServiceEntity.ServerPortNo, fsServiceEntity.DataBaseName, fsServiceEntity.LoginName, fsServiceEntity.LoginPassword);
                 _sqlServerManagerBLLProvider.SetConnectionString(connectionString);
+            }
+            else if (fsServiceEntity.ServerType == 2)//MySQL
+            {
+                connectionString = _dbConnectionConfig.Value.GetMySqlConnectionString(fsServiceEntity.ServerAddress, fsServiceEntity.ServerPortNo, fsServiceEntity.DataBaseName, fsServiceEntity.LoginName, fsServiceEntity.LoginPassword);
+                _mySqlManagerBLLProvider.SetConnectionString(connectionString);
+            }
+
+            if (fsServiceEntity.ServerType == 1)//SqlServer
+            {
                 entityResult = await _sqlServerManagerBLLProvider.UpdateTableColumnDescriptionAsync(tableColumnDescription);
             }
-            else if (fsServiceEntity.ServerType == 1)//MySQL
+            else if (fsServiceEntity.ServerType == 2)//MySQL
             {
-                //暂不支持
+                entityResult = await _mySqlManagerBLLProvider.UpdateTableColumnDescriptionAsync(tableColumnDescription);
             }
             if (entityResult.EntityCode == EntityCode.Success)
             {

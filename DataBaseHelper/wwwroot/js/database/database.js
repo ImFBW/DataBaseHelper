@@ -11,7 +11,7 @@ function PopwinAddDataBaseConfig(id) {
     layer.open({
         type: 2,
         content: [url, 'yes'],
-        area: ['780px', '550px'],
+        area: ['780px', '620px'],
         title: "添加数据库",
         shade: 0.6,
         shadeClose: false,

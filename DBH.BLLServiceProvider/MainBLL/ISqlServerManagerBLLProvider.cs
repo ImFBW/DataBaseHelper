@@ -15,6 +15,8 @@ namespace DBH.BLLProvider.MainBLL
     /// </summary>
     public interface ISqlServerManagerBLLProvider : IBaseBLLProvider
     {
+        bool TestConnection(string connectionString);
+
         /// <summary>
         /// 设置连接字符串
         /// </summary>
@@ -61,6 +63,6 @@ namespace DBH.BLLProvider.MainBLL
         /// <returns></returns>
         Task<List<string>> CreateNetClass(string tableName);
 
-
+        
     }
 }

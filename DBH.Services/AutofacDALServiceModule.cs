@@ -21,8 +21,8 @@ namespace DBH.DALServices
         protected override void Load(ContainerBuilder builder)
         {
             //注册数据库连接服务
-            builder.RegisterType<DBConnectionService>().As<IDBConnectionProvider>()
-                .InstancePerLifetimeScope().PropertiesAutowired();
+            //builder.RegisterType<DBConnectionService>().As<IDBConnectionProvider>()
+            //    .InstancePerLifetimeScope().PropertiesAutowired();
 
             //获取当前程序集下的所有类=>非abstract类并且类名以“DALService”结尾的类
             var needRegTypes = typeof(BaseDALService).Assembly.GetTypes().Where(p => !p.IsAbstract && p.Name.EndsWith("DALService"));
@@ -36,8 +36,7 @@ namespace DBH.DALServices
                 .OnActivated(x =>
                  {
                      Console.WriteLine("Debug[A001]:"+x.Instance.ToString());
-                     if (x.Instance is BaseDALService baseService)
-                         baseService.ConnectionProvider = x.Context.Resolve<IDBConnectionProvider>();//给连接属性赋值以避免使用属性注入
+                     
                  });
         }
     }
