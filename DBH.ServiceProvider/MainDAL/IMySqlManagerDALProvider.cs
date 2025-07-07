@@ -46,5 +46,11 @@ namespace DBH.DALProvider.MainDAL
         /// <returns></returns>
         Task<EntityResult> UpdateTableColumnDescriptionAsync(TableColumnDescription tableColumnDescription);
 
+        /// <summary>
+        /// 查询数据库版本
+        /// </summary>
+        /// <returns></returns>
+        Task<string> GetMySqlVersion();
+
     }
 }

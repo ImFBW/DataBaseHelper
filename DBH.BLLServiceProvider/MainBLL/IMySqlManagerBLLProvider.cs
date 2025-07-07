@@ -49,5 +49,12 @@ namespace DBH.BLLProvider.MainBLL
         /// <param name="tableName">表名</param>
         /// <returns></returns>
         Task<List<string>> CreateNetClass(string tableName);
+
+        /// <summary>
+        /// 查询数据库版本
+        /// </summary>
+        /// <returns></returns>
+        Task<string> GetMySqlVersion();
+
     }
 }

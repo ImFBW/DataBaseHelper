@@ -8,6 +8,7 @@ using DBH.DALServices;
 using DBH.Models.Config;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
@@ -73,7 +74,12 @@ namespace DataBaseHelper
                 app.UseExceptionHandler("/Home/Error");
             }
             app.UseStaticFiles();
-
+            // 只注册一个wwwroot路径
+            var correctPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot");
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider(correctPath)
+            });
             app.UseRouting();
 
             app.UseAuthentication();//认证（登录）

@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace DBH.BLLService.MainBLL
@@ -70,7 +71,8 @@ namespace DBH.BLLService.MainBLL
         {
             try
             {
-                if (string.IsNullOrEmpty(tableName)) return null;
+                if (string.IsNullOrEmpty(tableName))
+                    return null;
                 return await _mySqlManagerDALProvider.GetTableColumnsListAsync(tableName);
             }
             catch (Exception ex)
@@ -103,7 +105,8 @@ namespace DBH.BLLService.MainBLL
                         result.Message = "列名为空";
                     }
                 }
-                if (!string.IsNullOrEmpty(result.Message)) return result;
+                if (!string.IsNullOrEmpty(result.Message))
+                    return result;
                 return await _mySqlManagerDALProvider.UpdateTableColumnDescriptionAsync(tableColumnDescription);
             }
             catch (Exception ex)
@@ -140,6 +143,20 @@ namespace DBH.BLLService.MainBLL
             return listResult;
         }
 
-
+        /// <summary>
+        /// 查询数据库版本
+        /// </summary>
+        /// <returns></returns>
+        public async Task<string> GetMySqlVersion()
+        {
+            string version = await _mySqlManagerDALProvider.GetMySqlVersion();
+            Regex reg = new Regex(@"(\d+)\.(\d+)\.(\d+)");//找出版本中的【数字.数字.数字】部分
+            if(reg.IsMatch(version))
+            {
+                Match res = reg.Match(version);
+                version = res.Value;
+            }
+            return version;
+        }
     }
 }

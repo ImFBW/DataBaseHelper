@@ -1,20 +1,21 @@
-﻿using DBH.Core;
+﻿using Dapper;
+using DBH.Core;
 using DBH.Core.Setting;
 using DBH.DALProvider;
 using DBH.DALProvider.MainDAL;
+using DBH.Models.Common;
+using DBH.Models.EntityViews;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
+using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Data;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using MySql.Data.MySqlClient;
-using Dapper;
-using DBH.Models.Common;
-using DBH.Models.EntityViews;
 
 namespace DBH.DALServices.MainDAL
 {
@@ -127,20 +128,46 @@ namespace DBH.DALServices.MainDAL
         public async Task<IList<DB_TableColumnsView>> GetTableColumnsListAsync(string tableName)
         {
             IList<DB_TableColumnsView> listView = new List<DB_TableColumnsView>();
+            string version = await GetMySqlVersion();
+            StringBuilder sbQuery = new StringBuilder();
+            StringBuilder sbTable = new StringBuilder();
+            StringBuilder sbFields = new StringBuilder();
+            sbTable.Append(@"(
+                select table_name AS TableName,table_comment AS TableDesc from INFORMATION_SCHEMA.TABLES where table_name=@tableName
+                ) AS T1
+                inner join 
+                (
+                select table_name AS TableName,column_name AS ColumnName,column_comment AS ColumnDesc,column_type AS ColumnDataType,IFNULL(CHARACTER_MAXIMUM_LENGTH,0) AS ColumnDataLength,case is_NULLABLE when 'Yes' then 1 else 0 END AS IsNullable,case COLUMN_key when 'PRI' then 1 else 0 END AS IsKey,case EXTRA when 'auto_increment' then 1 else 0 END IsIdentity,IFNULL(column_default,'') AS DefaultValue from INFORMATION_SCHEMA.COLUMNS where table_name=@tableName
+                ) AS T2 on T1.TableName=T2.TableName");
+            bool isRowNumber = false;
+            if (int.Parse(version.Split('.')[0]) >= 8)
+            {
+                isRowNumber = true;
+                //MySql版本>=8.0时，可以用row_number()
+                sbFields.Append("row_number() over(order by columnName) RowNumber, T1.*,T2.ColumnName,T2.ColumnDesc,T2.ColumnDataType,T2.ColumnDataLength,T2.IsNullable,T2.IsKey,T2.IsIdentity,T2.DefaultValue");
+                sbQuery.Append($"select {sbFields} from {sbTable}");
+            }
+            else
+            {
+                //MySql版本<8.0时，row_number()不可用。
+                sbFields.Append("0 as RowNumber, T1.*,T2.ColumnName,T2.ColumnDesc,T2.ColumnDataType,T2.ColumnDataLength,T2.IsNullable,T2.IsKey,T2.IsIdentity,T2.DefaultValue");
+                sbQuery.Append($"select {sbFields} from {sbTable}");
+            }
             using (var conn = GetConnection())
             {
-                string querySql = string.Format(@"select row_number() over(order by columnName) RowNumber, T1.*,T2.ColumnName,T2.ColumnDesc,T2.ColumnDataType,T2.ColumnDataLength,T2.IsNullable,T2.IsKey,T2.IsIdentity,T2.DefaultValue
- from (
-select table_name AS TableName,table_comment AS TableDesc from INFORMATION_SCHEMA.TABLES where table_name=@tableName
-) AS T1
-inner join 
-(
-select table_name AS TableName,column_name AS ColumnName,column_comment AS ColumnDesc,column_type AS ColumnDataType,IFNULL(CHARACTER_MAXIMUM_LENGTH,0) AS ColumnDataLength,case is_NULLABLE when 'Yes' then 1 else 0 END AS IsNullable,case COLUMN_key when 'PRI' then 1 else 0 END AS IsKey,case EXTRA when 'auto_increment' then 1 else 0 END IsIdentity,IFNULL(column_default,'') AS DefaultValue from INFORMATION_SCHEMA.COLUMNS where table_name=@tableName
-) AS T2 on T1.TableName=T2.TableName");
-                var resData = await conn.QueryAsync<DB_TableColumnsView>(querySql, new { tableName = tableName });
+                var resData = await conn.QueryAsync<DB_TableColumnsView>(sbQuery.ToString(), new { tableName = tableName });
                 if (resData != null && resData.Count() > 0)
                 {
                     listView = resData.ToList();
+                    if (!isRowNumber)
+                    {
+                        int rowNumber = 1;
+                        foreach (var item in listView)
+                        {
+                            item.RowNumber = rowNumber;
+                            rowNumber++;
+                        }
+                    }
                 }
             }
             return listView;
@@ -186,5 +213,18 @@ select table_name AS TableName,column_name AS ColumnName,column_comment AS Colum
             return result;
         }
 
+        /// <summary>
+        /// 查询数据库版本
+        /// </summary>
+        /// <returns></returns>
+        public async Task<string> GetMySqlVersion()
+        {
+            using (var conn = GetConnection())
+            {
+                string sql = "select version()";
+                string version = await conn.QueryFirstOrDefaultAsync<string>(sql);
+                return version;
+            }
+        }
     }
 }
