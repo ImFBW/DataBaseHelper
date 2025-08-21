@@ -23,16 +23,19 @@
                 <div class="navbar-collapse fs-6 collapse d-sm-inline-flex justify-content-between">
                     <div class="col-4">
                         <ul class="navbar-nav flex-grow  justify-content-start">
-                            <li class="nav-item d-flex">
-                                @*LOGO按钮*@
-                                <a class="navbar-brand nav-link" asp-area="" asp-controller="DataBase" asp-action="Index">
-                                    <div class="header_logo_jpg d-flex">
-                                        <img src="~/lib/images/UNIS_Logo-02.png" alt="LOGO" width="auto" height="40" class="img-fluid" />
-                                        <span class="p-2 text-light">数据库工具</span>
-                                    </div>
-                                </a>
-                                @*选择数据库按钮*@
-                                <a class="nav-link nav-myLink text-light mt-2" asp-area="" asp-controller="DataBase" asp-action="Index">选择数据库</a>
+                            <li class="nav-item row">
+                                <div class="col">
+                                    @*LOGO按钮*@
+                                    <a class="navbar-brand d-inline-block nav-link" asp-area="" asp-controller="DataBase" asp-action="Index">
+                                        <div class="header_logo_jpg ">
+                                            <img src="~/lib/images/logo.png" alt="LOGO" width="auto" height="40" class="img-fluid" />
+                                        </div>
+                                    </a>
+                                </div>
+                                <div class="col">
+                                    @*选择数据库按钮*@
+                                    <a class="nav-link nav-myLink text-light mt-2" asp-area="" asp-controller="DataBase" asp-action="Index">选择数据库</a>
+                                </div>
                             </li>
                         </ul>
                     </div>
